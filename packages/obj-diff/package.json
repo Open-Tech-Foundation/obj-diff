@@ -1,0 +1,53 @@
+{
+  "name": "@opentf/obj-diff",
+  "description": "The Fast,Accurate,JavaScript Object Diffing Library.",
+  "version": "0.0.0",
+  "author": {
+    "name": "Thanga Ganapathy",
+    "email": "ganapathy888@gmail.com",
+    "url": "https://thanga-ganapathy.github.io"
+  },
+  "license": "MIT",
+  "homepage": "https://obj-diff.pages.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Open-Tech-Foundation/obj-diff.git"
+  },
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "sideEffects": false,
+  "engines": {
+    "node": ">=16.20.2"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "jest",
+    "lint": "eslint src/** --fix",
+    "check-types": "tsc --noEmit",
+    "ci": "pnpm run build && pnpm run test && pnpm run lint && pnpm run check-types"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "dependencies": {
+    "@opentf/std": "^0.10.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5"
+  }
+}

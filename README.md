@@ -1,2 +1,2 @@
 # obj-diff
-The Fast, Accurate, JavaScript Object Diffing Library.
+The Fast,Accurate,JavaScript Object Diffing Library.

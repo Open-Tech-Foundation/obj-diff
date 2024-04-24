@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "deep-diff": "^1.0.2",
+    "deep-object-diff": "^1.1.9",
+    "just-diff": "^6.0.2",
+    "microdiff": "^1.4.0",
+    "tinybench": "^2.8.0"
+  }
+}
