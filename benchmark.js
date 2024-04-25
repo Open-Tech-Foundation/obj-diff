@@ -1,7 +1,7 @@
 import { Bench, hrtimeNow } from "tinybench";
 import mdiff from "microdiff";
-import { diff } from "./packages/obj-diff/src";
-import { diff as deepObjDiff } from "deep-object-diff";
+import { diff } from "./packages/obj-diff/dist/index";
+import { detailedDiff } from "deep-object-diff";
 import { diff as justDiff } from "just-diff";
 import deepDiff from "deep-diff";
 
@@ -66,7 +66,7 @@ bench
     mdiff(obj1, obj2);
   })
   .add("deep-object-diff", () => {
-    deepObjDiff(obj1, obj2);
+    detailedDiff(obj1, obj2);
   })
   .add("just-diff", () => {
     justDiff(obj1, obj2);

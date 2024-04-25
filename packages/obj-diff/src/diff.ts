@@ -14,7 +14,7 @@ function objDiff(
   objRefSet2: WeakSet<WeakKey>
 ): DiffResult[] {
   // For circular refs
-  if (objRefSet1.has(a as WeakKey) && objRefSet2.has(b as WeakKey)) {
+  if (objRefSet1.has(a) && objRefSet2.has(b)) {
     return [];
   }
 
@@ -30,9 +30,15 @@ function objDiff(
 
     if (Array.isArray(a)) {
       for (let i = 0; i < a.length; i++) {
-        if (i in b) {
+        if (Object.hasOwn(b, i)) {
           result.push(
-            ...objDiff(a[i], b[i], [...path, i], objRefSet1, objRefSet2)
+            ...objDiff(
+              a[i],
+              (b as Array<unknown>)[i] as object,
+              [...path, i],
+              objRefSet1,
+              objRefSet2
+            )
           );
         } else {
           result.push({ t: DELETED, p: [...path, i] });
@@ -40,19 +46,29 @@ function objDiff(
       }
 
       for (let i = 0; i < (b as []).length; i++) {
-        if (!(i in a)) {
-          result.push({ t: ADDED, p: [...path, i], v: b[i] });
+        if (!Object.hasOwn(a, i)) {
+          result.push({
+            t: ADDED,
+            p: [...path, i],
+            v: (b as Array<unknown>)[i],
+          });
         }
       }
 
       return result;
     }
 
-    if (Object.prototype.toString.call(a) === '[object Object]') {
+    if (Object.prototype.toString.call(a) === "[object Object]") {
       for (const k of Object.keys(a)) {
-        if (k in b) {
+        if (Object.hasOwn(b, k)) {
           result.push(
-            ...objDiff(a[k], b[k], [...path, k], objRefSet1, objRefSet2)
+            ...objDiff(
+              (a as Record<string, unknown>)[k] as object,
+              (b as Record<string, unknown>)[k] as object,
+              [...path, k],
+              objRefSet1,
+              objRefSet2
+            )
           );
         } else {
           result.push({ t: DELETED, p: [...path, k] });
@@ -60,8 +76,12 @@ function objDiff(
       }
 
       for (const k of Object.keys(b)) {
-        if (!(k in a)) {
-          result.push({ t: ADDED, p: [...path, k], v: b[k] });
+        if (!Object.hasOwn(a, k)) {
+          result.push({
+            t: ADDED,
+            p: [...path, k],
+            v: (b as Record<string, unknown>)[k],
+          });
         }
       }
 
@@ -69,14 +89,14 @@ function objDiff(
     }
 
     if (a instanceof Date) {
-      if (a.getTime() !== b.getTime()) {
+      if (!Object.is(a.getTime(), (b as Date).getTime())) {
         return [{ t: CHANGED, p: path, v: b }];
       }
     }
 
     if (a instanceof Map) {
       for (const k of a.keys()) {
-        if (a.get(k) !== b.get(k)) {
+        if (a.get(k) !== (b as Map<unknown, unknown>).get(k)) {
           return [{ t: CHANGED, p: path, v: b }];
         }
       }
@@ -84,7 +104,7 @@ function objDiff(
 
     if (a instanceof Set) {
       for (const v of a) {
-        if (!b.has(v)) {
+        if (!(b as Set<unknown>).has(v)) {
           return [{ t: CHANGED, p: path, v: b }];
         }
       }

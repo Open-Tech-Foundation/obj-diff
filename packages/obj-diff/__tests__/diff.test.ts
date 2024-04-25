@@ -125,6 +125,8 @@ describe("diff", () => {
   });
 
   test("objects", () => {
+    expect(diff({ a: undefined }, { a: undefined })).toEqual([]);
+    expect(diff({ a: undefined }, {})).toEqual([{ t: 0, p: ["a"] }]);
     expect(diff({ a: 1 }, { a: 1 })).toEqual([]);
     expect(diff({ a: 1 }, { a: 2 })).toEqual([{ t: 2, p: ["a"], v: 2 }]);
     expect(diff({ a: 1 }, { a: 1, b: 2 })).toEqual([{ t: 1, p: ["b"], v: 2 }]);

@@ -1,9 +1,13 @@
 {
   "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "pnpm --filter=@opentf/obj-diff run build",
+    "test": "pnpm --filter=@opentf/obj-diff run test",
+    "ci": "pnpm --filter=@opentf/obj-diff run ci",
+    "publish-packages": "pnpm run build && pnpm run test && changeset version && changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.1",
     "deep-diff": "^1.0.2",
     "deep-object-diff": "^1.1.9",
     "just-diff": "^6.0.2",
