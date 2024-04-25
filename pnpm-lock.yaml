@@ -25,10 +25,6 @@ importers:
         version: 2.8.0
 
   packages/obj-diff:
-    dependencies:
-      '@opentf/std':
-        specifier: ^0.10.0
-        version: 0.10.0
     devDependencies:
       '@types/jest':
         specifier: ^29.5.12
@@ -237,10 +233,6 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
-
-  '@opentf/std@0.10.0':
-    resolution: {integrity: sha512-+uDSjkc0glk0JP8RFd9qYjb7wKzwde8wUPNWP4oqR0YsQBbUfZO3ljxTXCBUddInjH/yE59px8NnCRhwoTF4SA==}
-    engines: {node: '>=16.20.2'}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -1031,8 +1023,6 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.17.1
-
-  '@opentf/std@0.10.0': {}
 
   '@pkgjs/parseargs@0.11.0':
     optional: true

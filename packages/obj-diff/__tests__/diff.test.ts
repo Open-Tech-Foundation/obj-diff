@@ -37,6 +37,21 @@ describe("diff", () => {
     expect(diff(Object.create(null), Object.create(null))).toEqual([]);
   });
 
+  test("dates", () => {
+    expect(
+      diff({ date: new Date("2024-01-01") }, { date: new Date("2024-01-01") })
+    ).toEqual([]);
+    expect(
+      diff({ date: new Date("2024-01-01") }, { date: new Date("2024-01-02") })
+    ).toEqual([
+      {
+        p: ["date"],
+        t: 2,
+        v: new Date("2024-01-02"),
+      },
+    ]);
+  });
+
   test("array", () => {
     expect(diff([], [1])).toEqual([{ t: 1, p: [0], v: 1 }]);
     expect(diff([1], [2])).toEqual([{ t: 2, p: [0], v: 2 }]);
@@ -182,5 +197,156 @@ describe("diff", () => {
         v: "fizz",
       },
     ]);
+
+    const obj1 = {
+      id: 8,
+      title: "Microsoft Surface Laptop 4",
+      description: "Style and speed. Stand out on ...",
+      price: 1499,
+      discountPercentage: 10.23,
+      rating: 4.43,
+      stock: { inStock: true, count: 68 },
+      brand: "Microsoft Surface",
+      category: "laptops",
+      resources: {
+        images: {
+          thumbnail: "https://cdn.dummyjson.com/product-images/8/thumbnail.jpg",
+          items: [
+            "https://cdn.dummyjson.com/product-images/8/1.jpg",
+            "https://cdn.dummyjson.com/product-images/8/2.jpg",
+            "https://cdn.dummyjson.com/product-images/8/3.jpg",
+            "https://cdn.dummyjson.com/product-images/8/4.jpg",
+            "https://cdn.dummyjson.com/product-images/8/thumbnail.jpg",
+          ],
+        },
+      },
+      createdAt: new Date("2024-01-01"),
+      updatedAt: new Date("2024-01-02"),
+    };
+
+    const obj2 = {
+      id: 8,
+      title: "Microsoft Surface Laptop 4",
+      description: "Style and speed. Stand out on.",
+      price: 1599,
+      discountPercentage: 10.23,
+      rating: 4.43,
+      stock: { inStock: true, count: 18 },
+      brand: "Microsoft Surface",
+      category: "laptops",
+      resources: {
+        images: {
+          thumbnail: "https://cdn.dummyjson.com/product-images/8/thumbnail.jpg",
+          items: [
+            "https://cdn.dummyjson.com/product-images/8/1.jpg",
+            "https://cdn.dummyjson.com/product-images/8/2.jpg",
+            "https://cdn.dummyjson.com/product-images/8/3.jpg",
+            "https://cdn.dummyjson.com/product-images/8/4.jpg",
+          ],
+        },
+      },
+      createdAt: new Date("2024-01-01"),
+      updatedAt: new Date("2024-01-03"),
+    };
+
+    expect(diff(obj1, obj2)).toEqual([
+      {
+        p: ["description"],
+        t: 2,
+        v: "Style and speed. Stand out on.",
+      },
+      {
+        p: ["price"],
+        t: 2,
+        v: 1599,
+      },
+      {
+        p: ["stock", "count"],
+        t: 2,
+        v: 18,
+      },
+      {
+        p: ["resources", "images", "items", 4],
+        t: 0,
+      },
+      {
+        p: ["updatedAt"],
+        t: 2,
+        v: new Date("2024-01-03"),
+      },
+    ]);
+  });
+
+  test("circular refs", () => {
+    let obj1 = {};
+    obj1.a = obj1;
+    expect(diff(obj1, obj1)).toEqual([]);
+
+    obj1 = { a: { b: 2, c: [1, 2, 3] } };
+    obj1.b = obj1;
+    const obj2 = { a: { b: 2, c: [1, 5, 3] } };
+    obj2.b = obj2;
+    expect(diff(obj1, obj2)).toEqual([
+      {
+        p: ["a", "c", 1],
+        t: 2,
+        v: 5,
+      },
+    ]);
+  });
+
+  test("Map", () => {
+    expect(
+      diff(
+        {
+          m: new Map([
+            ["x", 1],
+            ["y", 2],
+          ]),
+        },
+        {
+          m: new Map([
+            ["x", 1],
+            ["y", 2],
+          ]),
+        }
+      )
+    ).toEqual([]);
+
+    expect(
+      diff(
+        {
+          m: new Map([
+            ["x", 1],
+            ["y", 2],
+          ]),
+        },
+        {
+          m: new Map([
+            ["x", 5],
+            ["y", 2],
+          ]),
+        }
+      )
+    ).toEqual([
+      {
+        t: 2,
+        p: ["m"],
+        v: new Map([
+          ["x", 5],
+          ["y", 2],
+        ]),
+      },
+    ]);
+  });
+
+  test("Set", () => {
+    let a = { s: new Set([1, 2, 3]) };
+    let b = { s: new Set([1, 2, 3]) };
+    expect(diff(a, b)).toEqual([]);
+
+    a = { s: new Set([1, 3, 5, 2, 4]) };
+    b = { s: new Set([1, 2, 3]) };
+    expect(diff(a, b)).toEqual([{ t: 2, p: ["s"], v: new Set([1, 2, 3]) }]);
   });
 });

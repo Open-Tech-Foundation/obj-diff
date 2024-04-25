@@ -5,49 +5,74 @@ import { diff as deepObjDiff } from "deep-object-diff";
 import { diff as justDiff } from "just-diff";
 import deepDiff from "deep-diff";
 
-const lhs = {
-  foo: {
-    bar: {
-      a: ["a", "b"],
-      b: 2,
-      c: ["x", "y"],
-      e: 100, // deleted
+const obj1 = {
+  id: 8,
+  title: "Microsoft Surface Laptop 4",
+  description: "Style and speed. Stand out on ...",
+  price: 1499,
+  discountPercentage: 10.23,
+  rating: 4.43,
+  stock: { inStock: true, count: 68 },
+  brand: "Microsoft Surface",
+  category: "laptops",
+  resources: {
+    images: {
+      thumbnail: "https://cdn.dummyjson.com/product-images/8/thumbnail.jpg",
+      items: [
+        "https://cdn.dummyjson.com/product-images/8/1.jpg",
+        "https://cdn.dummyjson.com/product-images/8/2.jpg",
+        "https://cdn.dummyjson.com/product-images/8/3.jpg",
+        "https://cdn.dummyjson.com/product-images/8/4.jpg",
+        "https://cdn.dummyjson.com/product-images/8/thumbnail.jpg",
+      ],
     },
   },
-  buzz: "world",
-  date: new Date("2024-01-01"),
+  createdAt: new Date("2024-01-01"),
+  updatedAt: new Date("2024-01-02"),
 };
 
-const rhs = {
-  foo: {
-    bar: {
-      a: ["a"], // index 1 ('b')  deleted
-      b: 2, // unchanged
-      c: ["x", "y", "z"], // 'z' added
-      d: "Hello, world!", // added
+const obj2 = {
+  id: 8,
+  title: "Microsoft Surface Laptop 4",
+  description: "Style and speed. Stand out on.",
+  price: 1599,
+  discountPercentage: 10.23,
+  rating: 4.43,
+  stock: { inStock: true, count: 18 },
+  brand: "Microsoft Surface",
+  category: "laptops",
+  resources: {
+    images: {
+      thumbnail: "https://cdn.dummyjson.com/product-images/8/thumbnail.jpg",
+      items: [
+        "https://cdn.dummyjson.com/product-images/8/1.jpg",
+        "https://cdn.dummyjson.com/product-images/8/2.jpg",
+        "https://cdn.dummyjson.com/product-images/8/3.jpg",
+        "https://cdn.dummyjson.com/product-images/8/4.jpg",
+      ],
     },
   },
-  buzz: "fizz", // updated
-  date: new Date("2024-01-02"),
+  createdAt: new Date("2024-01-01"),
+  updatedAt: new Date("2024-01-03"),
 };
 
 const bench = new Bench({ time: 100, now: hrtimeNow });
 
 bench
   .add("diff", () => {
-    diff(lhs, rhs);
+    diff(obj1, obj2);
   })
   .add("microdiff", () => {
-    mdiff(lhs, rhs);
+    mdiff(obj1, obj2);
   })
   .add("deep-object-diff", () => {
-    deepObjDiff(lhs, rhs);
+    deepObjDiff(obj1, obj2);
   })
   .add("just-diff", () => {
-    justDiff(lhs, rhs);
+    justDiff(obj1, obj2);
   })
   .add("deep-diff", () => {
-    deepDiff(lhs, rhs);
+    deepDiff(obj1, obj2);
   });
 
 await bench.warmup();
