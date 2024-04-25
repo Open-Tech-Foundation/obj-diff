@@ -1,5 +1,11 @@
 # @opentf/obj-diff
 
+## 0.1.1
+
+### Patch Changes
+
+- 6ac2639: docs: added missing readme.
+
 ## 0.1.0
 
 ### Minor Changes
