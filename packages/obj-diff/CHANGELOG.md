@@ -1,5 +1,11 @@
 # @opentf/obj-diff
 
+## 0.1.2
+
+### Patch Changes
+
+- d359800: Updated pkg keywords.
+
 ## 0.1.1
 
 ### Patch Changes

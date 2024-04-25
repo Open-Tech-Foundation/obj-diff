@@ -1,8 +1,17 @@
 {
   "name": "@opentf/obj-diff",
   "description": "The Fast,Accurate,JavaScript Objects Diffing Library.",
-  "keywords": ["diff", "object", "fast", "accurate", "compare", "patch", "json", "track"],
-  "version": "0.1.1",
+  "keywords": [
+    "diff",
+    "object",
+    "fast",
+    "accurate",
+    "compare",
+    "patch",
+    "json",
+    "track"
+  ],
+  "version": "0.1.2",
   "author": {
     "name": "Thanga Ganapathy",
     "email": "ganapathy888@gmail.com",
