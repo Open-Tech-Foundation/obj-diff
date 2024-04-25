@@ -6,6 +6,9 @@
 
 # obj-diff
 
+
+[![Build](https://github.com/Open-Tech-Foundation/obj-diff/actions/workflows/build.yml/badge.svg)](https://github.com/Open-Tech-Foundation/obj-diff/actions/workflows/build.yml) &nbsp; [![JSR Score](https://jsr.io/badges/@opentf/obj-diff/score)](https://jsr.io/@opentf/obj-diff)
+
 </div>
 
 > The Fast, Accurate, JavaScript Objects Diffing Library.
