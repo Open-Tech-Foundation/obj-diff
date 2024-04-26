@@ -11,7 +11,7 @@ import prettier from "prettier/standalone";
 import * as babelPlugin from "prettier/parser-babel";
 import * as estreeParser from "prettier/plugins/estree";
 
-async function format(code) {
+async function format(code: string) {
   const formatted = await prettier.format(`const a = ${code}`, {
     parser: "babel",
     plugins: [babelPlugin, estreeParser],
@@ -29,7 +29,7 @@ function App() {
   const [obj2Val, setObj2Val] = useState(`{
     a: 2, c: 5
   }`);
-  const [raw, setRaw] = useState([]);
+  const [raw, setRaw] = useState<Array<DiffResult>([]);
 
   useEffect(() => {
     async function runFormat() {
