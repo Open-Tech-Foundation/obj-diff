@@ -2,7 +2,7 @@ import { Alert, Box, Link, Sheet, TabPanel, Typography } from "@mui/joy";
 import CodeMirror from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { useCallback, useEffect, useState } from "react";
-import { diff } from "@opentf/obj-diff";
+import { diff, type DiffResult } from "@opentf/obj-diff";
 import Tabs from "@mui/joy/Tabs";
 import TabList from "@mui/joy/TabList";
 import Tab from "@mui/joy/Tab";
@@ -29,7 +29,7 @@ function App() {
   const [obj2Val, setObj2Val] = useState(`{
     a: 2, c: 5
   }`);
-  const [raw, setRaw] = useState<Array<DiffResult>([]);
+  const [raw, setRaw] = useState<Array<DiffResult>>([]);
 
   useEffect(() => {
     async function runFormat() {
