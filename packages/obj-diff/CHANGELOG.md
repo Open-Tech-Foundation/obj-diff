@@ -1,5 +1,11 @@
 # @opentf/obj-diff
 
+## 0.3.0
+
+### Minor Changes
+
+- 1a041b6: Added import types in index file.
+
 ## 0.2.0
 
 ### Minor Changes
