@@ -1,10 +1,5 @@
 import { ADDED, CHANGED, DELETED } from "./constants";
-
-export type DiffResult = {
-  t: 0 | 1 | 2;
-  p: Array<string | number>;
-  v?: unknown;
-};
+import { DiffResult } from "./types";
 
 function objDiff(
   a: object,
