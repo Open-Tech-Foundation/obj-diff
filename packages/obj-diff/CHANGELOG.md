@@ -1,5 +1,11 @@
 # @opentf/obj-diff
 
+## 0.2.0
+
+### Minor Changes
+
+- f85f616: Exported the missing DiffResult type.
+
 ## 0.1.2
 
 ### Patch Changes
