@@ -10,6 +10,7 @@ import Launch from "@mui/icons-material/Launch";
 import prettier from "prettier/standalone";
 import * as babelPlugin from "prettier/parser-babel";
 import * as estreeParser from "prettier/plugins/estree";
+import Visualizer from "./Visualizer";
 
 async function format(code: string) {
   const formatted = await prettier.format(`const a = ${code}`, {
@@ -24,11 +25,33 @@ async function format(code: string) {
 
 function App() {
   const [obj1Val, setObj1Val] = useState(`{
-    a: 1, b: 2
+    a: 1, b: null, g: 8
   }`);
   const [obj2Val, setObj2Val] = useState(`{
-    a: 2, c: 5
+    a: 2, g: 8, c: 'Hello World',
   }`);
+  // const [obj1Val, setObj1Val] = useState(`{
+  //   foo: {
+  //     bar: {
+  //       a: ['a', 'b'],
+  //       b: 2,
+  //       c: ['x', 'y'],
+  //       e: 100
+  //     }
+  //   },
+  //   buzz: 'world'
+  // }`);
+  // const [obj2Val, setObj2Val] = useState(`{
+  //   foo: {
+  //     bar: {
+  //       a: ['a'],
+  //       b: 2,
+  //       c: ['x', 'y', 'z'],
+  //       d: 'Hello, world!'
+  //     }
+  //   },
+  //   buzz: 'fizz'
+  // }`);
   const [raw, setRaw] = useState<Array<DiffResult>>([]);
 
   useEffect(() => {
@@ -62,17 +85,18 @@ function App() {
     <Box sx={{}}>
       <Box
         sx={{
-          borderBottom: "1px solid grey",
+          borderBottom: "1px solid lightgrey",
           p: 1,
           px: 3,
           display: "flex",
           justifyContent: "space-between",
+          height: "50px",
         }}
       >
         <Box sx={{ display: "flex" }}>
           <img src="/Logo.svg" alt="Logo" height="35" />
           <Typography level="h4" sx={{ ml: 2, letterSpacing: "2px" }}>
-            obj-diff
+            Obj-Diff
           </Typography>
         </Box>
         <Link
@@ -82,104 +106,108 @@ function App() {
           rel="noopener"
           fontSize="sm"
         >
-          Github
+          GitHub
         </Link>
       </Box>
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-        <Alert variant="soft" color="success">
-          <Typography level="body-md">
-            🚀 The Fast, Accurate, JavaScript Objects Diffing Library.
-          </Typography>
-        </Alert>
-      </Box>
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: "1fr 10px 1fr 10px 1fr",
-          p: "50px",
-          height: "600px",
-          boxSizing: "border-box",
-        }}
-      >
-        <Box sx={{ height: "100%", overflow: "hidden" }}>
-          <Sheet
-            variant="outlined"
-            sx={{
-              height: "100%",
-              overflow: "hidden",
-              display: "flex",
-              flexDirection: "column",
-              boxSizing: "border-box",
-            }}
-          >
-            <Typography level="body-sm" sx={{ textAlign: "center" }}>
-              Object 1
+      <Box sx={{ height: "calc(100vh - 100px)" }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+          <Alert variant="soft" color="success">
+            <Typography level="body-md">
+              🚀 The Fast, Accurate, JavaScript Objects Diffing Library.
             </Typography>
-            <Box sx={{ height: "calc(100% - 25px)", overflow: "auto" }}>
-              <CodeMirror
-                value={obj1Val}
-                extensions={[javascript()]}
-                onChange={onChange1}
-                height="100%"
-              />
-            </Box>
-          </Sheet>
+          </Alert>
         </Box>
-        <Box />
-        <Box sx={{ height: "100%", overflow: "hidden" }}>
-          <Sheet
-            variant="outlined"
-            sx={{
-              height: "100%",
-              overflow: "hidden",
-              display: "flex",
-              flexDirection: "column",
-              boxSizing: "border-box",
-            }}
-          >
-            <Typography level="body-sm" sx={{ textAlign: "center" }}>
-              Object 2
-            </Typography>
-            <Box sx={{ height: "calc(100% - 25px)", overflow: "auto" }}>
-              <CodeMirror
-                value={obj2Val}
-                extensions={[javascript()]}
-                onChange={onChange2}
-              />
-            </Box>
-          </Sheet>
-        </Box>
-        <Box />
-        <Box sx={{ height: "100%", overflow: "hidden" }}>
-          <Sheet
-            variant="outlined"
-            sx={{ height: "100%", boxSizing: "border-box" }}
-          >
-            <Tabs
-              aria-label="Basic tabs"
-              defaultValue={0}
-              sx={{ height: "100%" }}
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "1fr 10px 1fr 10px 1fr",
+            p: "50px",
+            height: "75vh",
+            boxSizing: "border-box",
+          }}
+        >
+          <Box sx={{ height: "100%", overflow: "hidden" }}>
+            <Sheet
+              variant="outlined"
+              sx={{
+                height: "100%",
+                overflow: "hidden",
+                display: "flex",
+                flexDirection: "column",
+                boxSizing: "border-box",
+              }}
             >
-              <TabList sx={{ display: "flex", justifyContent: "center" }}>
-                <Tab>Visualize</Tab>
-                <Tab>Raw</Tab>
-              </TabList>
-              <TabPanel
-                value={0}
-                sx={{ height: "calc(100% - 35px)", overflow: "auto" }}
-              ></TabPanel>
-              <TabPanel
-                value={1}
-                sx={{ height: "calc(100% - 35px)", overflow: "auto" }}
+              <Typography level="body-sm" sx={{ textAlign: "center" }}>
+                Object 1
+              </Typography>
+              <Box sx={{ height: "calc(100% - 25px)", overflow: "auto" }}>
+                <CodeMirror
+                  value={obj1Val}
+                  extensions={[javascript()]}
+                  onChange={onChange1}
+                  height="100%"
+                />
+              </Box>
+            </Sheet>
+          </Box>
+          <Box />
+          <Box sx={{ height: "100%", overflow: "hidden" }}>
+            <Sheet
+              variant="outlined"
+              sx={{
+                height: "100%",
+                overflow: "hidden",
+                display: "flex",
+                flexDirection: "column",
+                boxSizing: "border-box",
+              }}
+            >
+              <Typography level="body-sm" sx={{ textAlign: "center" }}>
+                Object 2
+              </Typography>
+              <Box sx={{ height: "calc(100% - 25px)", overflow: "auto" }}>
+                <CodeMirror
+                  value={obj2Val}
+                  extensions={[javascript()]}
+                  onChange={onChange2}
+                />
+              </Box>
+            </Sheet>
+          </Box>
+          <Box />
+          <Box sx={{ height: "100%", overflow: "hidden" }}>
+            <Sheet
+              variant="outlined"
+              sx={{ height: "100%", boxSizing: "border-box" }}
+            >
+              <Tabs
+                aria-label="Basic tabs"
+                defaultValue={0}
+                sx={{ height: "100%" }}
               >
-                <Box component="pre">{JSON.stringify(raw, null, 4)}</Box>
-              </TabPanel>
-            </Tabs>
-          </Sheet>
+                <TabList sx={{ display: "flex", justifyContent: "center" }}>
+                  <Tab>Visualize</Tab>
+                  <Tab>Raw</Tab>
+                </TabList>
+                <TabPanel
+                  value={0}
+                  sx={{ height: "calc(100% - 35px)", overflow: "auto", p: 0 }}
+                >
+                  <Visualizer obj={obj1Val} diff={raw} />
+                </TabPanel>
+                <TabPanel
+                  value={1}
+                  sx={{ height: "calc(100% - 35px)", overflow: "auto" }}
+                >
+                  <Box component="pre">{JSON.stringify(raw, null, 4)}</Box>
+                </TabPanel>
+              </Tabs>
+            </Sheet>
+          </Box>
         </Box>
       </Box>
 
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
         <Box sx={{ mr: 1 }} component="span">
           {" "}
           © 2024

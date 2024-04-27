@@ -1,4 +1,3 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
 import { CssVarsProvider } from "@mui/joy/styles";
 import CssBaseline from "@mui/joy/CssBaseline";
@@ -7,7 +6,7 @@ import "@fontsource/inter";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
+  <>
     <CssVarsProvider defaultMode="light">
       {/* must be used under CssVarsProvider */}
       <CssBaseline />
@@ -15,5 +14,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       {/* The rest of your application */}
       <App />
     </CssVarsProvider>
-  </React.StrictMode>
+  </>
 );
