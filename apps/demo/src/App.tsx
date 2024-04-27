@@ -102,7 +102,7 @@ function App() {
       setDiffResult(diff(a, b));
     } catch (error) {
       console.log("error");
-      setDiffResult([])
+      setDiffResult([]);
     }
   }, [obj1Val, obj2Val]);
 
@@ -212,8 +212,8 @@ function App() {
                 sx={{ height: "100%" }}
               >
                 <TabList sx={{ display: "flex", justifyContent: "center" }}>
-                  <Tab>Visualize</Tab>
-                  <Tab>Diff</Tab>
+                  <Tab indicatorPlacement="top">Visualize</Tab>
+                  <Tab indicatorPlacement="top">Diff</Tab>
                 </TabList>
                 <TabPanel
                   value={0}

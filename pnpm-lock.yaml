@@ -65,6 +65,9 @@ importers:
       react-dom:
         specifier: ^18.3.0
         version: 18.3.0(react@18.3.0)
+      react-error-boundary:
+        specifier: ^4.0.13
+        version: 4.0.13(react@18.3.0)
     devDependencies:
       '@types/react':
         specifier: ^18.3.0
@@ -2883,6 +2886,11 @@ packages:
     resolution: {integrity: sha512-zaKdLBftQJnvb7FtDIpZtsAIb2MZU087RM8bRDZU8LVCCFYjPTsDZJNFUWPcVz3HFSN1n/caxi0ca4B/aaVQGQ==}
     peerDependencies:
       react: ^18.3.0
+
+  react-error-boundary@4.0.13:
+    resolution: {integrity: sha512-b6PwbdSv8XeOSYvjt8LpgpKrZ0yGdtZokYwkwV2wlcZbxgopHX/hgPl5VgpnoVOWd868n1hktM8Qm4b+02MiLQ==}
+    peerDependencies:
+      react: '>=16.13.1'
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -6760,6 +6768,11 @@ snapshots:
       loose-envify: 1.4.0
       react: 18.3.0
       scheduler: 0.23.1
+
+  react-error-boundary@4.0.13(react@18.3.0):
+    dependencies:
+      '@babel/runtime': 7.24.4
+      react: 18.3.0
 
   react-is@16.13.1: {}
 

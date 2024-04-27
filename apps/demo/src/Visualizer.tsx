@@ -215,12 +215,13 @@ function getRows(k, o: unknown, path = [], diff) {
 
 export default function Visualizer({ obj, diff }: Props) {
   let o;
+  let finalObj;
   try {
     o = eval(`const a = ${obj}; a`);
-  } catch (error) {}
-
-  const finalObj = combine(o, diff);
-
+    finalObj = combine(o, diff);
+  } catch (error) {
+  }
+  
   const rows: Array<ReactElement> = getRows("", finalObj, [], diff);
 
   return (
