@@ -1,5 +1,11 @@
 # @opentf/obj-diff
 
+## 0.3.1
+
+### Patch Changes
+
+- 9975840: Updated readme with demo image & url.
+
 ## 0.3.0
 
 ### Minor Changes
