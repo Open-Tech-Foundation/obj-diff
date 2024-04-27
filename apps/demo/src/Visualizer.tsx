@@ -157,7 +157,7 @@ function getRows(k, o: unknown, path = [], diff) {
     rows.push(
       <Row path={path} diff={diff}>
         <Box sx={{ display: "inline" }}>{k}:</Box>
-        <Box sx={{ display: "inline", ml: 2 }}>{`"${o}"`}</Box>
+        <Box sx={{ display: "inline", ml: 2 }}>{`"${o}"`}</Box>,
       </Row>
     );
   }
@@ -166,7 +166,16 @@ function getRows(k, o: unknown, path = [], diff) {
     rows.push(
       <Row path={path} diff={diff}>
         <Box sx={{ display: "inline" }}>{k}:</Box>
-        <Box sx={{ display: "inline", ml: 2 }}>{o}</Box>
+        <Box sx={{ display: "inline", ml: 2 }}>{o}</Box>,
+      </Row>
+    );
+  }
+
+  if (typeof o === "bigint") {
+    rows.push(
+      <Row path={path} diff={diff}>
+        <Box sx={{ display: "inline" }}>{k}:</Box>
+        <Box sx={{ display: "inline", ml: 2 }}>{o.toString()}n</Box>,
       </Row>
     );
   }
@@ -175,7 +184,28 @@ function getRows(k, o: unknown, path = [], diff) {
     rows.push(
       <Row path={path} diff={diff}>
         <Box sx={{ display: "inline" }}>{k}:</Box>
-        <Box sx={{ display: "inline", ml: 2 }}>null</Box>
+        <Box sx={{ display: "inline", ml: 2 }}>null</Box>,
+      </Row>
+    );
+  }
+
+  if (o === undefined) {
+    rows.push(
+      <Row path={path} diff={diff}>
+        <Box sx={{ display: "inline" }}>{k}:</Box>
+        <Box sx={{ display: "inline", ml: 2 }}>undefined</Box>,
+      </Row>
+    );
+  }
+
+  if (typeof o === "boolean") {
+    rows.push(
+      <Row path={path} diff={diff}>
+        <Box sx={{ display: "inline" }}>{k}:</Box>
+        <Box sx={{ display: "inline", ml: 2 }}>
+          {o === true ? "true" : "false"}
+        </Box>
+        ,
       </Row>
     );
   }

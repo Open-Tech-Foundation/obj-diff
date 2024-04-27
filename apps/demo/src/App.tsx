@@ -11,6 +11,30 @@ import prettier from "prettier/standalone";
 import * as babelPlugin from "prettier/parser-babel";
 import * as estreeParser from "prettier/plugins/estree";
 import Visualizer from "./Visualizer";
+import { strReplace } from "@opentf/std";
+
+function replacer(key, value) {
+  if (typeof value === "bigint") {
+    return `__INTERNAL__BIGINT__${value}n`;
+  }
+
+  if (value === undefined) {
+    return `__INTERNAL__UNDEFINED`;
+  }
+
+  return value;
+}
+
+function getDiffResults(diffResult) {
+  let out = JSON.stringify(diffResult, replacer, 4);
+  out = strReplace(out, `"__INTERNAL__UNDEFINED"`, "undefined", { all: true });
+  const test = /"__INTERNAL__BIGINT__(\d+)n"/;
+  function convert(str, p1) {
+    return `${p1}n`;
+  }
+  out = strReplace(out, test, convert, { all: true });
+  return out;
+}
 
 async function format(code: string) {
   const formatted = await prettier.format(`const a = ${code}`, {
@@ -52,7 +76,7 @@ function App() {
   //   },
   //   buzz: 'fizz'
   // }`);
-  const [raw, setRaw] = useState<Array<DiffResult>>([]);
+  const [diffResult, setDiffResult] = useState<Array<DiffResult>>([]);
 
   useEffect(() => {
     async function runFormat() {
@@ -75,14 +99,15 @@ function App() {
     try {
       const a = eval(`const a = ${obj1Val}; a`);
       const b = eval(`const a = ${obj2Val}; a`);
-      setRaw(diff(a, b));
+      setDiffResult(diff(a, b));
     } catch (error) {
       console.log("error");
+      setDiffResult([])
     }
   }, [obj1Val, obj2Val]);
 
   return (
-    <Box sx={{}}>
+    <Box bgcolor="background.level1">
       <Box
         sx={{
           borderBottom: "1px solid lightgrey",
@@ -91,6 +116,7 @@ function App() {
           display: "flex",
           justifyContent: "space-between",
           height: "50px",
+          background: "white",
         }}
       >
         <Box sx={{ display: "flex" }}>
@@ -187,19 +213,19 @@ function App() {
               >
                 <TabList sx={{ display: "flex", justifyContent: "center" }}>
                   <Tab>Visualize</Tab>
-                  <Tab>Raw</Tab>
+                  <Tab>Diff</Tab>
                 </TabList>
                 <TabPanel
                   value={0}
                   sx={{ height: "calc(100% - 35px)", overflow: "auto", p: 0 }}
                 >
-                  <Visualizer obj={obj1Val} diff={raw} />
+                  <Visualizer obj={obj1Val} diff={diffResult} />
                 </TabPanel>
                 <TabPanel
                   value={1}
                   sx={{ height: "calc(100% - 35px)", overflow: "auto" }}
                 >
-                  <Box component="pre">{JSON.stringify(raw, null, 4)}</Box>
+                  <Box component="pre">{getDiffResults(diffResult)}</Box>
                 </TabPanel>
               </Tabs>
             </Sheet>
