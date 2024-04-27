@@ -1,6 +1,6 @@
 {
   "name": "@opentf/obj-diff",
-  "description": "The Fast,Accurate,JavaScript Objects Diffing Library.",
+  "description": "The Fast, Accurate, JavaScript Objects Diffing Library.",
   "keywords": [
     "diff",
     "object",
