@@ -190,7 +190,7 @@ export default function Visualizer({ obj, diff, err }: Props) {
   }
 
   try {
-    o = safeEval(`const a = ${obj}; a`);
+    o = safeEval(obj);
     finalObj = combine(o, diff);
   } catch (error) {}
 

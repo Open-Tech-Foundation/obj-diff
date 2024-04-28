@@ -90,18 +90,18 @@ function App() {
     runFormat();
   }, []);
 
-  const onChange1 = useCallback((val: string) => {
+  const onChange1 = (val: string) => {
     setObj1Val(val);
-  }, []);
+  };
 
-  const onChange2 = useCallback((val: string) => {
+  const onChange2 = (val: string) => {
     setObj2Val(val);
-  }, []);
+  };
 
   useEffect(() => {
     try {
-      const a = safeEval(`const a = ${obj1Val}; a`);
-      const b = safeEval(`const a = ${obj2Val}; a`);
+      const a = safeEval(obj1Val);
+      const b = safeEval(obj2Val);
       setDiffResult(diff(a, b));
       setErr(null);
     } catch (error) {
