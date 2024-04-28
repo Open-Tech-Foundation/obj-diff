@@ -1,5 +1,11 @@
 # @opentf/obj-diff
 
+## 0.4.0
+
+### Minor Changes
+
+- e36912a: Fixed null comparisons.
+
 ## 0.3.1
 
 ### Patch Changes
