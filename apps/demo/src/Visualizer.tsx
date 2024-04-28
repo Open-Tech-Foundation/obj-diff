@@ -179,10 +179,14 @@ function getRows(k, o: unknown, path = [], diff) {
   return rows;
 }
 
-export default function Visualizer({ obj, diff }: Props) {
+export default function Visualizer({ obj, diff, err }: Props) {
   let o;
   let rows = [];
   let finalObj;
+
+  if (err) {
+    return null;
+  }
 
   try {
     o = eval(`const a = ${obj}; a`);

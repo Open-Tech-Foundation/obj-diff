@@ -242,7 +242,7 @@ function App() {
                   value={0}
                   sx={{ height: "calc(100% - 35px)", overflow: "auto", p: 0 }}
                 >
-                  <Visualizer obj={obj1Val} diff={diffResult} />
+                  <Visualizer obj={obj1Val} diff={diffResult} err={err} />
                 </TabPanel>
                 <TabPanel
                   value={1}
