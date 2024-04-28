@@ -1,4 +1,5 @@
-import { Box } from "@mui/joy";
+import ReportIcon from "@mui/icons-material/Report";
+import { Alert, Box, Typography } from "@mui/joy";
 import { DiffResult } from "@opentf/obj-diff";
 import { isArr, isEql, isObj, set } from "@opentf/std";
 import ShortUniqueId from "short-unique-id";
@@ -186,7 +187,24 @@ export default function Visualizer({ obj, diff, err }: Props) {
   let finalObj;
 
   if (err) {
-    return null;
+    return (
+      <Box sx={{ backgroundColor: BLACK, p: 2, minHeight: "100%" }}>
+        <Alert
+          sx={{ alignItems: "flex-start" }}
+          startDecorator={<ReportIcon />}
+          variant="soft"
+          color="danger"
+          size="sm"
+        >
+          <div>
+            <div>{err.name}</div>
+            <Typography level="body-sm" color="danger">
+              {err.message}
+            </Typography>
+          </div>
+        </Alert>
+      </Box>
+    );
   }
 
   try {

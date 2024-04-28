@@ -1,7 +1,7 @@
-import { Alert, Box, Card, Link, Sheet, TabPanel, Typography } from "@mui/joy";
+import { Box, Card, Link, Sheet, TabPanel, Typography } from "@mui/joy";
 import CodeMirror from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { diff, type DiffResult } from "@opentf/obj-diff";
 import Tabs from "@mui/joy/Tabs";
 import TabList from "@mui/joy/TabList";
@@ -12,7 +12,6 @@ import * as babelPlugin from "prettier/parser-babel";
 import * as estreeParser from "prettier/plugins/estree";
 import Visualizer from "./Visualizer";
 import { strReplace } from "@opentf/std";
-import ReportIcon from "@mui/icons-material/Report";
 import safeEval from "./safeEval";
 
 function replacer(key, value) {
@@ -146,25 +145,6 @@ function App() {
               🚀 The Fast, Accurate, JavaScript Objects Diffing Library.
             </Typography>
           </Card>
-        </Box>
-
-        <Box sx={{ mt: 2, mx: 5 }}>
-          {err && (
-            <Alert
-              sx={{ alignItems: "flex-start" }}
-              startDecorator={<ReportIcon />}
-              variant="soft"
-              color="danger"
-              size="sm"
-            >
-              <div>
-                <div>{err.name}</div>
-                <Typography level="body-sm" color="danger">
-                  {err.message}
-                </Typography>
-              </div>
-            </Alert>
-          )}
         </Box>
 
         <Box
