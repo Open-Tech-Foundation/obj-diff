@@ -2,6 +2,9 @@ import { Box } from "@mui/joy";
 import { DiffResult } from "@opentf/obj-diff";
 import { isArr, isEql, isObj, set } from "@opentf/std";
 import { ReactElement, useState } from "react";
+import ShortUniqueId from "short-unique-id";
+
+const { randomUUID } = new ShortUniqueId({ length: 10 });
 
 const YELLOW = "#FFDC00";
 const BG_YELLOW = "#4d4200";
@@ -79,7 +82,7 @@ function getRows(k, o: unknown, path = [], diff) {
 
   if (isObj(o)) {
     rows.push(
-      <Row path={path} diff={diff}>
+      <Row key={randomUUID()} path={path} diff={diff}>
         {k && <Box sx={{ display: "inline" }}>{k}:</Box>}
         <Box sx={{ display: "inline", ml: k ? 2 : 0 }}>{"{"}</Box>
       </Row>
@@ -88,7 +91,7 @@ function getRows(k, o: unknown, path = [], diff) {
       rows.push(...getRows(key, val, [...path, key], diff));
     }
     rows.push(
-      <Row path={path} diff={diff}>
+      <Row key={randomUUID()} path={path} diff={diff}>
         {"}"}
       </Row>
     );
@@ -96,7 +99,7 @@ function getRows(k, o: unknown, path = [], diff) {
 
   if (isArr(o)) {
     rows.push(
-      <Row path={path} diff={diff}>
+      <Row key={randomUUID()} path={path} diff={diff}>
         {k && <Box sx={{ display: "inline" }}>{k}:</Box>}
         <Box sx={{ display: "inline", ml: k ? 2 : 0 }}>{"["}</Box>
       </Row>
@@ -107,7 +110,7 @@ function getRows(k, o: unknown, path = [], diff) {
     });
 
     rows.push(
-      <Row path={path} diff={diff}>
+      <Row key={randomUUID()} path={path} diff={diff}>
         {"]"}
       </Row>
     );
@@ -115,7 +118,7 @@ function getRows(k, o: unknown, path = [], diff) {
 
   if (typeof o === "string") {
     rows.push(
-      <Row path={path} diff={diff}>
+      <Row key={randomUUID()} path={path} diff={diff}>
         <Box sx={{ display: "inline" }}>{k}:</Box>
         <Box sx={{ display: "inline", ml: 2 }}>{`"${o}"`}</Box>,
       </Row>
@@ -124,7 +127,7 @@ function getRows(k, o: unknown, path = [], diff) {
 
   if (typeof o === "number") {
     rows.push(
-      <Row path={path} diff={diff}>
+      <Row key={randomUUID()} path={path} diff={diff}>
         <Box sx={{ display: "inline" }}>{k}:</Box>
         <Box sx={{ display: "inline", ml: 2 }}>{o}</Box>,
       </Row>
@@ -133,7 +136,7 @@ function getRows(k, o: unknown, path = [], diff) {
 
   if (typeof o === "bigint") {
     rows.push(
-      <Row path={path} diff={diff}>
+      <Row key={randomUUID()} path={path} diff={diff}>
         <Box sx={{ display: "inline" }}>{k}:</Box>
         <Box sx={{ display: "inline", ml: 2 }}>{o.toString()}n</Box>,
       </Row>
@@ -142,7 +145,7 @@ function getRows(k, o: unknown, path = [], diff) {
 
   if (o === null) {
     rows.push(
-      <Row path={path} diff={diff}>
+      <Row key={randomUUID()} path={path} diff={diff}>
         <Box sx={{ display: "inline" }}>{k}:</Box>
         <Box sx={{ display: "inline", ml: 2 }}>null</Box>,
       </Row>
@@ -151,7 +154,7 @@ function getRows(k, o: unknown, path = [], diff) {
 
   if (o === undefined) {
     rows.push(
-      <Row path={path} diff={diff}>
+      <Row key={randomUUID()} path={path} diff={diff}>
         <Box sx={{ display: "inline" }}>{k}:</Box>
         <Box sx={{ display: "inline", ml: 2 }}>undefined</Box>,
       </Row>
@@ -160,7 +163,7 @@ function getRows(k, o: unknown, path = [], diff) {
 
   if (typeof o === "boolean") {
     rows.push(
-      <Row path={path} diff={diff}>
+      <Row key={randomUUID()} path={path} diff={diff}>
         <Box sx={{ display: "inline" }}>{k}:</Box>
         <Box sx={{ display: "inline", ml: 2 }}>
           {o === true ? "true" : "false"}
