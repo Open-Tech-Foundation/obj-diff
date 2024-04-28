@@ -13,6 +13,7 @@ import * as estreeParser from "prettier/plugins/estree";
 import Visualizer from "./Visualizer";
 import { strReplace } from "@opentf/std";
 import ReportIcon from "@mui/icons-material/Report";
+import safeEval from "./safeEval";
 
 function replacer(key, value) {
   if (typeof value === "bigint") {
@@ -99,8 +100,8 @@ function App() {
 
   useEffect(() => {
     try {
-      const a = eval(`const a = ${obj1Val}; a`);
-      const b = eval(`const a = ${obj2Val}; a`);
+      const a = safeEval(`const a = ${obj1Val}; a`);
+      const b = safeEval(`const a = ${obj2Val}; a`);
       setDiffResult(diff(a, b));
       setErr(null);
     } catch (error) {

@@ -2,6 +2,7 @@ import { Box } from "@mui/joy";
 import { DiffResult } from "@opentf/obj-diff";
 import { isArr, isEql, isObj, set } from "@opentf/std";
 import ShortUniqueId from "short-unique-id";
+import safeEval from "./safeEval";
 
 const { randomUUID } = new ShortUniqueId({ length: 10 });
 
@@ -189,7 +190,7 @@ export default function Visualizer({ obj, diff, err }: Props) {
   }
 
   try {
-    o = eval(`const a = ${obj}; a`);
+    o = safeEval(`const a = ${obj}; a`);
     finalObj = combine(o, diff);
   } catch (error) {}
 
