@@ -1,7 +1,6 @@
 import { Box } from "@mui/joy";
 import { DiffResult } from "@opentf/obj-diff";
 import { isArr, isEql, isObj, set } from "@opentf/std";
-import { ReactElement, useState } from "react";
 import ShortUniqueId from "short-unique-id";
 
 const { randomUUID } = new ShortUniqueId({ length: 10 });
@@ -18,15 +17,19 @@ type Props = {
 };
 
 function combine(o: unknown, diff: Array<DiffResult>) {
-  if (isObj(o) || isArr(o)) {
-    for (const patch of diff) {
-      if (patch.t === 1 || patch.t === 2) {
-        o = set(o, patch.p, patch.v);
+  try {
+    if (isObj(o) || isArr(o)) {
+      for (const patch of diff) {
+        if (patch.t === 1 || patch.t === 2) {
+          o = set(o, patch.p, patch.v);
+        }
       }
     }
-  }
 
-  return o;
+    return o;
+  } catch (error) {
+    return;
+  }
 }
 
 function Row({
@@ -179,13 +182,14 @@ function getRows(k, o: unknown, path = [], diff) {
 export default function Visualizer({ obj, diff }: Props) {
   let o;
   let rows = [];
+  let finalObj;
 
   try {
     o = eval(`const a = ${obj}; a`);
+    finalObj = combine(o, diff);
   } catch (error) {}
 
-  if (o) {
-    const finalObj = combine(o, diff);
+  if (finalObj) {
     rows = getRows("", finalObj, [], diff);
   }
 
