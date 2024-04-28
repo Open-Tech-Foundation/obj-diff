@@ -31,6 +31,11 @@ describe("diff", () => {
     expect(diff(1, true)).toEqual([{ t: 2, p: [], v: true }]);
   });
 
+  test("compare object with null", () => {
+    expect(diff({}, null)).toEqual([{ t: 2, p: [], v: null }]);
+    expect(diff(null, { a: 1 })).toEqual([{ t: 2, p: [], v: {a: 1} }]);
+  });
+
   test("empty objects", () => {
     expect(diff([], [])).toEqual([]);
     expect(diff({}, {})).toEqual([]);

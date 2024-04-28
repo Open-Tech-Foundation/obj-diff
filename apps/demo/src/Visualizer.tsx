@@ -34,6 +34,16 @@ function combine(o: unknown, diff: Array<DiffResult>) {
   }
 }
 
+function contains(arr, subArr) {
+  for (let i = 0; i < subArr.length; i++) {
+    if (!Object.is(subArr[i], arr[i])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 function Row({
   children,
   path,
@@ -43,6 +53,10 @@ function Row({
   diff: Array<DiffResult>;
 }) {
   let diffRes = diff.find((d) => isEql(d.p, path));
+
+  if (!diffRes) {
+    diffRes = diff.find((d) => contains(path, d.p));
+  }
 
   let color = "white";
   let bgColor = "inherit";

@@ -8,18 +8,18 @@ function objDiff(
   objRefSet1: WeakSet<WeakKey>,
   objRefSet2: WeakSet<WeakKey>
 ): DiffResult[] {
-  // For circular refs
-  if (objRefSet1.has(a) && objRefSet2.has(b)) {
-    return [];
-  }
-
   if (typeof a !== typeof b) {
     return [{ t: CHANGED, p: path, v: b }];
   }
 
   const result: DiffResult[] = [];
 
-  if (typeof a === "object" && a !== null) {
+  if (typeof a === "object" && a !== null && b !== null) {
+    // For circular refs
+    if (objRefSet1.has(a) && objRefSet2.has(b)) {
+      return [];
+    }
+
     objRefSet1.add(a as WeakKey);
     objRefSet2.add(b as WeakKey);
 
