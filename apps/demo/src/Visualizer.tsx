@@ -1,65 +1,13 @@
 import { Box } from "@mui/joy";
 import { DiffResult } from "@opentf/obj-diff";
-import { isArr, isEql, isObj, isStr, set } from "@opentf/std";
-import { ReactElement } from "react";
+import { isArr, isEql, isObj, set } from "@opentf/std";
+import { ReactElement, useState } from "react";
 
 const YELLOW = "#FFDC00";
+const BG_YELLOW = "#4d4200";
 const RED = "#FF4136";
 const GREEN = "#2ECC40";
 const BLACK = "#111111";
-
-function PlainObject({ k, o, diff, path }) {
-  return (
-    <>
-      <Box sx={{ color: "white", display: "inline" }}>{"{"}</Box>
-      {Object.keys(o).map((objK, i) => {
-        return (
-          <Row path={[...path, objK]} diff={diff} key={i}>
-            {objK}:{" "}
-            <Obj path={[...path, objK]} k={objK} o={o[objK]} diff={diff} />
-          </Row>
-        );
-      })}
-      <Box sx={{ color: "white" }}>{"}"}</Box>
-    </>
-  );
-}
-
-function Array({ o, diff, path }) {
-  return (
-    <Box>
-      <Box sx={{ color: "white" }}>{"["}</Box>
-      {o.map((e, i) => (
-        <Row key={i} diff={diff} path={[...path, i]}>
-          <Obj k={i} o={e} path={[...path, i]} diff={diff} />
-        </Row>
-      ))}
-      <Box sx={{ color: "white" }}>{"]"}</Box>
-    </Box>
-  );
-}
-
-function Obj({ k, o, path = [], diff }) {
-  if (isArr(o)) {
-    return <Array o={o} diff={diff} path={path} />;
-  }
-
-  if (isObj(o)) {
-    return (
-      <>
-        {/* <Box sx={{ color: "white" }}>{k ? `${k}:  {` : "{"}</Box> */}
-        <PlainObject k={k} o={o} diff={diff} path={path} />
-        {/* <Box sx={{ color: "white" }}>{"}"}</Box> */}
-      </>
-    );
-  }
-
-  if (isStr(o)) {
-    return <Box sx={{ display: "inline-block" }}>{`"${o}"`}</Box>;
-  }
-
-  return <Box sx={{ display: "inline-block" }}>{o === null ? "null" : o}</Box>;
-}
 
 type Props = {
   obj: string;
@@ -78,29 +26,41 @@ function combine(o: unknown, diff: Array<DiffResult>) {
   return o;
 }
 
-function Row({ children, path, diff }) {
-  const diffRes = diff.find((d) => isEql(d.p, path));
+function Row({
+  children,
+  path,
+  diff,
+}: {
+  path: Array<number | string>;
+  diff: Array<DiffResult>;
+}) {
+  let diffRes = diff.find((d) => isEql(d.p, path));
+
   let color = "white";
+  let bgColor = "inherit";
   let sym = "";
 
   if (diffRes) {
     switch (diffRes.t) {
       case 0:
         color = RED;
+        bgColor = "#5d0500";
         sym = "-";
         break;
       case 1:
         color = GREEN;
+        bgColor = "#0e3d13";
         sym = "+";
         break;
       case 2:
         color = YELLOW;
+        bgColor = BG_YELLOW;
         break;
     }
   }
 
   return (
-    <Box sx={{ color }}>
+    <Box sx={{ color, backgroundColor: bgColor }}>
       <Box sx={{ display: "inline" }}>{sym}</Box>
       <Box
         sx={{
@@ -214,14 +174,22 @@ function getRows(k, o: unknown, path = [], diff) {
 }
 
 export default function Visualizer({ obj, diff }: Props) {
+  const [err, setErr] = useState(null);
   let o;
   let finalObj;
   try {
     o = eval(`const a = ${obj}; a`);
     finalObj = combine(o, diff);
   } catch (error) {
+    setErr(error);
   }
-  
+
+  if (err) {
+    <Box sx={{ backgroundColor: BLACK, p: 2, minHeight: "100%" }}>
+      <Box>{err}</Box>
+    </Box>;
+  }
+
   const rows: Array<ReactElement> = getRows("", finalObj, [], diff);
 
   return (

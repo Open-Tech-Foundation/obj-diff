@@ -1,4 +1,4 @@
-import { Alert, Box, Link, Sheet, TabPanel, Typography } from "@mui/joy";
+import { Box, Card, Link, Sheet, TabPanel, Typography } from "@mui/joy";
 import CodeMirror from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { useCallback, useEffect, useState } from "react";
@@ -101,7 +101,7 @@ function App() {
       const b = eval(`const a = ${obj2Val}; a`);
       setDiffResult(diff(a, b));
     } catch (error) {
-      console.log("error");
+      console.log(error);
       setDiffResult([]);
     }
   }, [obj1Val, obj2Val]);
@@ -137,11 +137,11 @@ function App() {
       </Box>
       <Box sx={{ height: "calc(100vh - 100px)" }}>
         <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-          <Alert variant="soft" color="success">
-            <Typography level="body-md">
+          <Card size="sm">
+            <Typography level="body-lg">
               🚀 The Fast, Accurate, JavaScript Objects Diffing Library.
             </Typography>
-          </Alert>
+          </Card>
         </Box>
         <Box
           sx={{
