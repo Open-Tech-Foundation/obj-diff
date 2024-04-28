@@ -1,4 +1,4 @@
-import { Box, Card, Link, Sheet, TabPanel, Typography } from "@mui/joy";
+import { Alert, Box, Card, Link, Sheet, TabPanel, Typography } from "@mui/joy";
 import CodeMirror from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { useCallback, useEffect, useState } from "react";
@@ -12,6 +12,7 @@ import * as babelPlugin from "prettier/parser-babel";
 import * as estreeParser from "prettier/plugins/estree";
 import Visualizer from "./Visualizer";
 import { strReplace } from "@opentf/std";
+import ReportIcon from "@mui/icons-material/Report";
 
 function replacer(key, value) {
   if (typeof value === "bigint") {
@@ -48,6 +49,7 @@ async function format(code: string) {
 }
 
 function App() {
+  const [err, setErr] = useState(null);
   const [obj1Val, setObj1Val] = useState(`{
     a: 1, b: null, g: 8
   }`);
@@ -100,8 +102,9 @@ function App() {
       const a = eval(`const a = ${obj1Val}; a`);
       const b = eval(`const a = ${obj2Val}; a`);
       setDiffResult(diff(a, b));
+      setErr(null);
     } catch (error) {
-      console.log(error);
+      setErr(error);
       setDiffResult([]);
     }
   }, [obj1Val, obj2Val]);
@@ -143,6 +146,26 @@ function App() {
             </Typography>
           </Card>
         </Box>
+
+        <Box sx={{ mt: 2, mx: 5 }}>
+          {err && (
+            <Alert
+              sx={{ alignItems: "flex-start" }}
+              startDecorator={<ReportIcon />}
+              variant="soft"
+              color="danger"
+              size="sm"
+            >
+              <div>
+                <div>{err.name}</div>
+                <Typography level="body-sm" color="danger">
+                  {err.message}
+                </Typography>
+              </div>
+            </Alert>
+          )}
+        </Box>
+
         <Box
           sx={{
             display: "grid",

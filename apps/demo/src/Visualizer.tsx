@@ -177,23 +177,17 @@ function getRows(k, o: unknown, path = [], diff) {
 }
 
 export default function Visualizer({ obj, diff }: Props) {
-  const [err, setErr] = useState(null);
   let o;
-  let finalObj;
+  let rows = [];
+
   try {
     o = eval(`const a = ${obj}; a`);
-    finalObj = combine(o, diff);
-  } catch (error) {
-    setErr(error);
-  }
+  } catch (error) {}
 
-  if (err) {
-    <Box sx={{ backgroundColor: BLACK, p: 2, minHeight: "100%" }}>
-      <Box>{err}</Box>
-    </Box>;
+  if (o) {
+    const finalObj = combine(o, diff);
+    rows = getRows("", finalObj, [], diff);
   }
-
-  const rows: Array<ReactElement> = getRows("", finalObj, [], diff);
 
   return (
     <Box sx={{ backgroundColor: BLACK, p: 2, minHeight: "100%" }}>{rows}</Box>
