@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths-ignore:
-      - "apps/docs/**"
+      - "apps/demo/**"
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 

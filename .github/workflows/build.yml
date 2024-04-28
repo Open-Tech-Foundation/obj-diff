@@ -7,7 +7,7 @@ on:
   push:
     branches: [ main ]
     paths-ignore: 
-      - 'apps/website/**'
+      - 'apps/demo/**'
   pull_request:
     branches: [ main ]
 
