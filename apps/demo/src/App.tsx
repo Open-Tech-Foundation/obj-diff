@@ -23,6 +23,16 @@ function replacer(key, value) {
     return `__INTERNAL__UNDEFINED`;
   }
 
+  if (value instanceof Map) {
+    const arr = Array.from(value);
+    return `Map(${value.size}) ${JSON.stringify(arr)}`;
+  }
+
+  if (value instanceof Set) {
+    const arr = Array.from(value);
+    return `Set(${value.size}) ${JSON.stringify(arr)}`;
+  }
+
   return value;
 }
 
@@ -142,7 +152,8 @@ function App() {
         <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
           <Card size="sm">
             <Typography level="body-lg">
-              🚀 The Fast, Accurate, JavaScript Objects Diffing & Patching Library.
+              🚀 The Fast, Accurate, JavaScript Objects Diffing & Patching
+              Library.
             </Typography>
           </Card>
         </Box>

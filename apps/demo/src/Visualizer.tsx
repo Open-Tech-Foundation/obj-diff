@@ -192,6 +192,37 @@ function getRows(k, o: unknown, path = [], diff) {
     );
   }
 
+  if (o instanceof Date) {
+    rows.push(
+      <Row key={randomUUID()} path={path} diff={diff}>
+        <Box sx={{ display: "inline" }}>{k}:</Box>
+        <Box sx={{ display: "inline", ml: 2 }}>{o.toString()}</Box>,
+      </Row>
+    );
+  }
+
+  if (o instanceof Map) {
+    const arr = Array.from(o);
+    const str = `Map(${o.size}) ${JSON.stringify(arr, null, 2)}`;
+    rows.push(
+      <Row key={randomUUID()} path={path} diff={diff}>
+        <Box sx={{ display: "inline" }}>{k}:</Box>
+        <Box sx={{ display: "inline", ml: 2 }}>{str}</Box>,
+      </Row>
+    );
+  }
+
+  if (o instanceof Set) {
+    const arr = Array.from(o);
+    const str = `Set(${o.size}) ${JSON.stringify(arr, null, 2)}`;
+    rows.push(
+      <Row key={randomUUID()} path={path} diff={diff}>
+        <Box sx={{ display: "inline" }}>{k}:</Box>
+        <Box sx={{ display: "inline", ml: 2 }}>{str}</Box>,
+      </Row>
+    );
+  }
+
   return rows;
 }
 

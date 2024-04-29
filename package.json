@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "dev": "pnpm --filter=demo run dev",
     "build": "pnpm --filter=@opentf/obj-diff run build",
     "test": "pnpm --filter=@opentf/obj-diff run test",
     "ci": "pnpm --filter=@opentf/obj-diff run ci",

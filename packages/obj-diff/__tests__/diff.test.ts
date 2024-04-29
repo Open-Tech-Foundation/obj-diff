@@ -33,7 +33,7 @@ describe("diff", () => {
 
   test("compare object with null", () => {
     expect(diff({}, null)).toEqual([{ t: 2, p: [], v: null }]);
-    expect(diff(null, { a: 1 })).toEqual([{ t: 2, p: [], v: {a: 1} }]);
+    expect(diff(null, { a: 1 })).toEqual([{ t: 2, p: [], v: { a: 1 } }]);
   });
 
   test("empty objects", () => {
@@ -330,6 +330,34 @@ describe("diff", () => {
         },
         {
           m: new Map([
+            ["x", 1],
+            ["y", 2],
+            ["z", 3],
+          ]),
+        }
+      )
+    ).toEqual([
+      {
+        p: ["m"],
+        t: 2,
+        v: new Map([
+          ["x", 1],
+          ["y", 2],
+          ["z", 3],
+        ]),
+      },
+    ]);
+
+    expect(
+      diff(
+        {
+          m: new Map([
+            ["x", 1],
+            ["y", 2],
+          ]),
+        },
+        {
+          m: new Map([
             ["x", 5],
             ["y", 2],
           ]),
@@ -351,6 +379,10 @@ describe("diff", () => {
     let a = { s: new Set([1, 2, 3]) };
     let b = { s: new Set([1, 2, 3]) };
     expect(diff(a, b)).toEqual([]);
+
+    a = { s: new Set([1, 2, 3]) };
+    b = { s: new Set([1, 2, 3, 4]) };
+    expect(diff(a, b)).toEqual([{ t: 2, p: ["s"], v: new Set([1, 2, 3, 4]) }]);
 
     a = { s: new Set([1, 3, 5, 2, 4]) };
     b = { s: new Set([1, 2, 3]) };

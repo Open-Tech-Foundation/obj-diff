@@ -90,14 +90,22 @@ function objDiff(
     }
 
     if (a instanceof Map) {
+      if (a.size !== (b as Map<unknown, unknown>).size) {
+        return [{ t: CHANGED, p: path, v: b }];
+      }
+
       for (const k of a.keys()) {
-        if (a.get(k) !== (b as Map<unknown, unknown>).get(k)) {
+        if (!Object.is(a.get(k), (b as Map<unknown, unknown>).get(k))) {
           return [{ t: CHANGED, p: path, v: b }];
         }
       }
     }
 
     if (a instanceof Set) {
+      if (a.size !== (b as Set<unknown>).size) {
+        return [{ t: CHANGED, p: path, v: b }];
+      }
+
       for (const v of a) {
         if (!(b as Set<unknown>).has(v)) {
           return [{ t: CHANGED, p: path, v: b }];
