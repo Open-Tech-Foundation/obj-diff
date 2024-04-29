@@ -8,10 +8,6 @@ function objDiff(
   objRefSet1: WeakSet<WeakKey>,
   objRefSet2: WeakSet<WeakKey>
 ): DiffResult[] {
-  if (typeof a !== typeof b) {
-    return [{ t: CHANGED, p: path, v: b }];
-  }
-
   const result: DiffResult[] = [];
 
   if (typeof a === "object" && a !== null && b !== null) {
@@ -23,7 +19,7 @@ function objDiff(
     objRefSet1.add(a as WeakKey);
     objRefSet2.add(b as WeakKey);
 
-    if (Array.isArray(a)) {
+    if (Array.isArray(a) && Array.isArray(b)) {
       for (let i = 0; i < a.length; i++) {
         if (Object.hasOwn(b, i)) {
           result.push(
@@ -53,7 +49,10 @@ function objDiff(
       return result;
     }
 
-    if (Object.prototype.toString.call(a) === "[object Object]") {
+    if (
+      Object.prototype.toString.call(a) === "[object Object]" &&
+      Object.prototype.toString.call(b) === "[object Object]"
+    ) {
       for (const k of Object.keys(a)) {
         if (Object.hasOwn(b, k)) {
           result.push(
@@ -83,13 +82,13 @@ function objDiff(
       return result;
     }
 
-    if (a instanceof Date) {
+    if (a instanceof Date && b instanceof Date) {
       if (!Object.is(a.getTime(), (b as Date).getTime())) {
         return [{ t: CHANGED, p: path, v: b }];
       }
     }
 
-    if (a instanceof Map) {
+    if (a instanceof Map && b instanceof Map) {
       if (a.size !== (b as Map<unknown, unknown>).size) {
         return [{ t: CHANGED, p: path, v: b }];
       }
@@ -101,7 +100,7 @@ function objDiff(
       }
     }
 
-    if (a instanceof Set) {
+    if (a instanceof Set && b instanceof Set) {
       if (a.size !== (b as Set<unknown>).size) {
         return [{ t: CHANGED, p: path, v: b }];
       }
@@ -111,6 +110,12 @@ function objDiff(
           return [{ t: CHANGED, p: path, v: b }];
         }
       }
+    }
+
+    if (
+      Object.prototype.toString.call(a) !== Object.prototype.toString.call(b)
+    ) {
+      return [{ t: CHANGED, p: path, v: b }];
     }
   } else {
     if (!Object.is(a, b)) {

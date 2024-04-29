@@ -388,4 +388,15 @@ describe("diff", () => {
     b = { s: new Set([1, 2, 3]) };
     expect(diff(a, b)).toEqual([{ t: 2, p: ["s"], v: new Set([1, 2, 3]) }]);
   });
+
+  test("mix objects", () => {
+    const a = {
+      m: new Map([[1, 2]]),
+    };
+    const b = {
+      m: new Set([1]),
+    };
+
+    expect(diff(a, b)).toEqual([{ t: 2, p: ["m"], v: new Set([1]) }]);
+  });
 });
