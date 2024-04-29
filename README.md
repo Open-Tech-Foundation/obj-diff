@@ -12,7 +12,7 @@
 
 </div>
 
-> The Fast, Accurate, JavaScript Objects Diffing Library.
+> The Fast, Accurate, JavaScript Objects Diffing & Patching Library.
 
 **[LIVE DEMO](https://obj-diff.pages.dev/)**
 
@@ -20,7 +20,9 @@
 
 - Deep Objects Diffing
 
-- Supports More Object Types, eg: `Map`, `Set`
+- Patching
+
+- Supports comparing more object types
 
 - TypeScript Support
 
@@ -196,6 +198,21 @@ diff(a, b);
   },
 ]
 */
+```
+
+## Patching
+
+You can apply the diff result onto the original object to get the modified object.
+
+```js
+import { diff, patch } from '@opentf/obj-diff';
+
+const a = {a: 1, b: 2};
+const b = {a: 2, c: 3};
+
+const out = patch(a, diff(a, b));
+
+assert.deepStrictEqual(out, b); // ok
 ```
 
 ## Benchmark

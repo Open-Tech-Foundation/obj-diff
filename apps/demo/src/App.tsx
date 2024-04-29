@@ -142,7 +142,7 @@ function App() {
         <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
           <Card size="sm">
             <Typography level="body-lg">
-              🚀 The Fast, Accurate, JavaScript Objects Diffing Library.
+              🚀 The Fast, Accurate, JavaScript Objects Diffing & Patching Library.
             </Typography>
           </Card>
         </Box>

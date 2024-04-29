@@ -104,6 +104,10 @@ importers:
         version: 5.2.10(@types/node@20.12.7)
 
   packages/obj-diff:
+    dependencies:
+      '@opentf/std':
+        specifier: ^0.11.0
+        version: 0.11.0
     devDependencies:
       '@eslint/js':
         specifier: ^9.1.1
@@ -1106,6 +1110,10 @@ packages:
 
   '@opentf/std@0.10.0':
     resolution: {integrity: sha512-+uDSjkc0glk0JP8RFd9qYjb7wKzwde8wUPNWP4oqR0YsQBbUfZO3ljxTXCBUddInjH/yE59px8NnCRhwoTF4SA==}
+    engines: {node: '>=16.20.2'}
+
+  '@opentf/std@0.11.0':
+    resolution: {integrity: sha512-IlFEAAjz314QFQUrAq2RpTXuVywfxcqRNonHY2hFI6xgiVLLwXfbnQTVeWCWVUyYLsh2tQ3DZ7tLCtFwKuvdBQ==}
     engines: {node: '>=16.20.2'}
 
   '@pkgjs/parseargs@0.11.0':
@@ -4623,6 +4631,8 @@ snapshots:
   '@opentf/obj-diff@0.4.0': {}
 
   '@opentf/std@0.10.0': {}
+
+  '@opentf/std@0.11.0': {}
 
   '@pkgjs/parseargs@0.11.0':
     optional: true

@@ -1,4 +1,5 @@
 import diff from "./diff";
+import patch from "./patch";
 import type { DiffResult } from "./types";
 
-export { diff, DiffResult };
+export { diff, patch, DiffResult };
