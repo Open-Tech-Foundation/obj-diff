@@ -1,5 +1,11 @@
 # @opentf/obj-diff
 
+## 0.7.0
+
+### Minor Changes
+
+- 802d3f9: Fixed mixed type comparison.
+
 ## 0.6.0
 
 ### Minor Changes
