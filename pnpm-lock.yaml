@@ -48,8 +48,8 @@ importers:
         specifier: 5.0.0-beta.36
         version: 5.0.0-beta.36(@emotion/react@11.11.4(@types/react@18.3.0)(react@18.3.0))(@emotion/styled@11.11.5(@emotion/react@11.11.4(@types/react@18.3.0)(react@18.3.0))(@types/react@18.3.0)(react@18.3.0))(@types/react@18.3.0)(react-dom@18.3.0(react@18.3.0))(react@18.3.0)
       '@opentf/obj-diff':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: ^0.7.0
+        version: 0.7.0
       '@opentf/std':
         specifier: ^0.11.0
         version: 0.11.0
@@ -1104,8 +1104,8 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@opentf/obj-diff@0.6.0':
-    resolution: {integrity: sha512-Yy9IsDXIijzppUVzWsttVH1cn3cmv7X1ok0UoEGIBsvTC51eoyvxV2AyxeAHtVPO3/5ZWc610oagFYxHYz8nnQ==}
+  '@opentf/obj-diff@0.7.0':
+    resolution: {integrity: sha512-mvPE/dHS7gq69B6ADUwR7qo/BaPSPM+4tYWd+y/tdVHbgoG9Sbnkrh7NlwLHvtnbd9RFB024v3Noql+H4bcT9w==}
     engines: {node: '>=16.20.2'}
 
   '@opentf/std@0.11.0':
@@ -4624,7 +4624,7 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.17.1
 
-  '@opentf/obj-diff@0.6.0':
+  '@opentf/obj-diff@0.7.0':
     dependencies:
       '@opentf/std': 0.11.0
 
