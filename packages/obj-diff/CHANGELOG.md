@@ -1,5 +1,11 @@
 # @opentf/obj-diff
 
+## 0.6.0
+
+### Minor Changes
+
+- d60d2d8: Fixed Map & Set size diff.
+
 ## 0.5.0
 
 ### Minor Changes
