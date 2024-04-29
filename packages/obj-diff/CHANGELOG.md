@@ -1,5 +1,11 @@
 # @opentf/obj-diff
 
+## 0.5.0
+
+### Minor Changes
+
+- f0a3e0f: Added patch function.
+
 ## 0.4.0
 
 ### Minor Changes
