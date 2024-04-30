@@ -22,7 +22,7 @@
 
 - Patching
 
-- Supports comparing more object types
+- Supports comparing custom object types
 
 - TypeScript Support
 
@@ -213,6 +213,66 @@ const b = {a: 2, c: 3};
 const out = patch(a, diff(a, b));
 
 assert.deepStrictEqual(out, b); // ok
+```
+
+## Comparing Custom Types
+
+By default, the `diff` function cannot compare every object types other than the list above.
+
+You can extend the default `diff` function using the `diffWith` function.
+
+Now you can compare any object types of your own.
+
+### Usage - diffWith()
+```js
+diff(
+  obj1: object,
+  obj2: object,
+  fn: (a: object, b: object) => boolean | undefined
+): Array<DiffResult>
+```
+
+### Examples
+
+Let us compare the `MongoDB` bson `ObjectId` objects.
+
+```js
+import { ObjectId } from "bson";
+import { diffWith } from "../src";
+
+const record1 = {
+  _id: new ObjectId(),
+  title: "Article 1",
+  desc: "The article description.",
+};
+
+const record2 = {
+  _id: new ObjectId(),
+  title: "Article 1",
+  desc: "The new article description.",
+};
+
+const result = diffWith(record1, record2, (a, b) => {
+  if (a instanceof ObjectId && b instanceof ObjectId) {
+    return a.toString() !== b.toString();
+  }
+});
+
+console.log(result);
+/*
+[
+  {
+    t: 2,
+    p: [ "_id" ],
+    v: new ObjectId('663088b877dd3c9aaec482d4'),
+  }, 
+  {
+    t: 2,
+    p: [ "desc" ],
+    v: "The new article description.",
+  }
+]
+*/
 ```
 
 ## Benchmark

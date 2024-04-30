@@ -1,6 +1,15 @@
 import { clone, set, unset } from "@opentf/std";
 import { DiffResult } from "./types";
 
+/**
+ * You can apply the diff result onto the original object to get the modified object.
+ *
+ * @example
+ * const a = {a: 1, b: 2};
+ * const b = {a: 2, c: 3};
+ * const out = patch(a, diff(a, b));
+ * assert.deepStrictEqual(out, b); // ok
+ */
 export default function patch(obj: object, patches: Array<DiffResult>) {
   const c = clone(obj);
 
