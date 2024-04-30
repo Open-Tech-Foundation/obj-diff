@@ -1,5 +1,11 @@
 # @opentf/obj-diff
 
+## 0.8.0
+
+### Minor Changes
+
+- 03ba9e0: Added diffWith function to compare custom object types.
+
 ## 0.7.0
 
 ### Minor Changes
