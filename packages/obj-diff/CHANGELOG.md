@@ -1,5 +1,11 @@
 # @opentf/obj-diff
 
+## 0.9.0
+
+### Minor Changes
+
+- 39521b0: Fixed other object null type checking.
+
 ## 0.8.0
 
 ### Minor Changes
