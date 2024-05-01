@@ -10,7 +10,12 @@ function objDiff(
 ): DiffResult[] {
   const result: DiffResult[] = [];
 
-  if (typeof a === "object" && a !== null && b !== null) {
+  if (
+    typeof a === "object" &&
+    typeof b === "object" &&
+    a !== null &&
+    b !== null
+  ) {
     // For circular refs
     if (objRefSet1.has(a) && objRefSet2.has(b)) {
       return [];

@@ -137,7 +137,7 @@ function objDiff(
  * @example
  * diff({a: 1}, {a: 5}) //=> [{t: 2, p: ['a'], v: 5}]
  */
-export default function diff(
+export default function diffWith(
   obj1: object,
   obj2: object,
   fn: (a: object, b: object) => boolean | undefined

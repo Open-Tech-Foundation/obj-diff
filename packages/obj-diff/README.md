@@ -26,9 +26,12 @@
 
 - TypeScript Support
 
+- Cross-Platform
+
 ## Supported Types
 
 - Primitives
+
   - Undefined
   - Null
   - Number
@@ -88,8 +91,8 @@ type DiffResult = {
 1. Diff two simple objects.
 
 ```js
-const a = {a: 1, b: 2};
-const b = {a: 2, c: 3};
+const a = { a: 1, b: 2 };
+const b = { a: 2, c: 3 };
 
 diff(a, b);
 /*
@@ -149,25 +152,25 @@ diff(a, b);
 const a = {
   foo: {
     bar: {
-      a: ['a', 'b'],
+      a: ["a", "b"],
       b: 2,
-      c: ['x', 'y'],
-      e: 100
-    }
+      c: ["x", "y"],
+      e: 100,
+    },
   },
-  buzz: 'world'
+  buzz: "world",
 };
 
 const b = {
   foo: {
     bar: {
-      a: ['a'],
+      a: ["a"],
       b: 2,
-      c: ['x', 'y', 'z'],
-      d: 'Hello, world!'
-    }
+      c: ["x", "y", "z"],
+      d: "Hello, world!",
+    },
   },
-  buzz: 'fizz'
+  buzz: "fizz",
 };
 
 diff(a, b);
@@ -205,10 +208,10 @@ diff(a, b);
 You can apply the diff result onto the original object to get the modified object.
 
 ```js
-import { diff, patch } from '@opentf/obj-diff';
+import { diff, patch } from "@opentf/obj-diff";
 
-const a = {a: 1, b: 2};
-const b = {a: 2, c: 3};
+const a = { a: 1, b: 2 };
+const b = { a: 2, c: 3 };
 
 const out = patch(a, diff(a, b));
 
@@ -217,15 +220,18 @@ assert.deepStrictEqual(out, b); // ok
 
 ## Comparing Custom Types
 
-By default, the `diff` function cannot compare every object types other than the list above.
+By default, the `diff` function cannot compare every object types other than the supported list above.
 
 You can extend the default `diff` function using the `diffWith` function.
 
 Now you can compare any object types of your own.
 
 ### Usage - diffWith()
+
 ```js
-diff(
+import { diffWith } from '@opentf/obj-diff';
+
+diffWith(
   obj1: object,
   obj2: object,
   fn: (a: object, b: object) => boolean | undefined
@@ -238,7 +244,7 @@ Let us compare the `MongoDB` bson `ObjectId` objects.
 
 ```js
 import { ObjectId } from "bson";
-import { diffWith } from "../src";
+import { diffWith } from "@opentf/obj-diff";
 
 const record1 = {
   _id: new ObjectId(),
@@ -275,6 +281,26 @@ console.log(result);
 */
 ```
 
+## FAQs
+
+### 1. **Why the standard JSON Patch protocol is not supported?**
+
+The `JSON Patch` protocol is complicated in nature. And simply we don't want use it as our existing solution works for most of the projects.
+
+### 2. Is deep equals work with the Map & Set Objects?
+
+No, currently it can detect only whether the object was changed or not.
+
+### 3. What is the meaning of empty array `{p: []}` in path property?
+
+The empty path denotes `Root` path, and it simply means the entire object was replaced.
+
+For Eg:
+
+```js
+diff({}, null); //=> [{t: 2, p: [], v: null}]
+```
+
 ## Benchmark
 
 ```diff
@@ -288,7 +314,6 @@ console.log(result);
 │ 4 │ deep-diff        │ 160,802 │ 6218.820533549017 │ ±1.59% │ 16081   │
 └───┴──────────────────┴─────────┴───────────────────┴────────┴─────────┘
 ```
-
 
 ### Running benchmarks
 
