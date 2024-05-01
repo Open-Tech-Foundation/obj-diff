@@ -10,7 +10,7 @@ import { DiffResult } from "./types";
  * const out = patch(a, diff(a, b));
  * assert.deepStrictEqual(out, b); // ok
  */
-export default function patch(obj: object, patches: Array<DiffResult>) {
+export default function patch<T>(obj: T, patches: Array<DiffResult>): T {
   const c = clone(obj);
 
   for (const p of patches) {
