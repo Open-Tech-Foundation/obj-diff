@@ -5,8 +5,7 @@ function objDiff(
   a: object,
   b: object,
   path: Array<string | number>,
-  objRefSet1: WeakSet<WeakKey>,
-  objRefSet2: WeakSet<WeakKey>
+  _refs: WeakSet<WeakKey>
 ): DiffResult[] {
   const result: DiffResult[] = [];
 
@@ -17,12 +16,12 @@ function objDiff(
     b !== null
   ) {
     // For circular refs
-    if (objRefSet1.has(a) && objRefSet2.has(b)) {
+    if (_refs.has(a) && _refs.has(b)) {
       return [];
     }
 
-    objRefSet1.add(a as WeakKey);
-    objRefSet2.add(b as WeakKey);
+    _refs.add(a as WeakKey);
+    _refs.add(b as WeakKey);
 
     if (Array.isArray(a) && Array.isArray(b)) {
       for (let i = 0; i < a.length; i++) {
@@ -32,8 +31,7 @@ function objDiff(
               a[i],
               (b as Array<unknown>)[i] as object,
               [...path, i],
-              objRefSet1,
-              objRefSet2
+              _refs
             )
           );
         } else {
@@ -51,6 +49,9 @@ function objDiff(
         }
       }
 
+      _refs.delete(a);
+      _refs.delete(b);
+
       return result;
     }
 
@@ -65,8 +66,7 @@ function objDiff(
               (a as Record<string, unknown>)[k] as object,
               (b as Record<string, unknown>)[k] as object,
               [...path, k],
-              objRefSet1,
-              objRefSet2
+              _refs
             )
           );
         } else {
@@ -83,6 +83,9 @@ function objDiff(
           });
         }
       }
+
+      _refs.delete(a);
+      _refs.delete(b);
 
       return result;
     }
@@ -138,8 +141,5 @@ function objDiff(
  * diff({a: 1}, {a: 5}) //=> [{t: 2, p: ['a'], v: 5}]
  */
 export default function diff(obj1: object, obj2: object): Array<DiffResult> {
-  const objRefSet1 = new WeakSet();
-  const objRefSet2 = new WeakSet();
-
-  return objDiff(obj1, obj2, [], objRefSet1, objRefSet2);
+  return objDiff(obj1, obj2, [], new WeakSet());
 }

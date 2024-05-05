@@ -1,3 +1,4 @@
+import { clone } from "@opentf/std";
 import { diff } from "../src";
 
 describe("diff", () => {
@@ -285,13 +286,48 @@ describe("diff", () => {
   });
 
   test("circular refs", () => {
-    let obj1 = {};
-    obj1.a = obj1;
-    expect(diff(obj1, obj1)).toEqual([]);
+    let obj1 = {
+      a: 1,
+    };
+    obj1.self = obj1;
+    let obj2 = structuredClone(obj1);
+    expect(diff(obj1, obj2)).toEqual([]);
+
+    obj1 = {
+      a: 1,
+    };
+    obj1.self = obj1;
+    obj2 = structuredClone(obj1);
+    obj2.self = null;
+    expect(diff(obj1, obj2)).toEqual([
+      {
+        p: ["self"],
+        t: 2,
+        v: null,
+      },
+    ]);
+
+    const tmp = { a: 1 };
+    obj1 = { a: { tmp }, b: { tmp } };
+    obj2 = structuredClone(obj1);
+    obj2.a.tmp.b = 2;
+
+    expect(diff(obj1, obj2)).toEqual([
+      {
+        p: ["a", "tmp", "b"],
+        t: 1,
+        v: 2,
+      },
+      {
+        p: ["b", "tmp", "b"],
+        t: 1,
+        v: 2,
+      },
+    ]);
 
     obj1 = { a: { b: 2, c: [1, 2, 3] } };
     obj1.b = obj1;
-    const obj2 = { a: { b: 2, c: [1, 5, 3] } };
+    obj2 = { a: { b: 2, c: [1, 5, 3] } };
     obj2.b = obj2;
     expect(diff(obj1, obj2)).toEqual([
       {
@@ -398,5 +434,24 @@ describe("diff", () => {
     };
 
     expect(diff(a, b)).toEqual([{ t: 2, p: ["m"], v: new Set([1]) }]);
+  });
+
+  test("multiple references to the same object", () => {
+    const array = [1];
+    const a = { test1: array, test2: array };
+    const b = clone(a);
+    b.test1.push(2);
+    expect(diff(a, b)).toEqual([
+      {
+        p: ["test1", 1],
+        t: 1,
+        v: 2,
+      },
+      {
+        p: ["test2", 1],
+        t: 1,
+        v: 2,
+      },
+    ]);
   });
 });
