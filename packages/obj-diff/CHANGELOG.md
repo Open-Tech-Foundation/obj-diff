@@ -1,5 +1,11 @@
 # @opentf/obj-diff
 
+## 0.10.0
+
+### Minor Changes
+
+- b32e7c8: Fixed circular refs.
+
 ## 0.9.0
 
 ### Minor Changes
