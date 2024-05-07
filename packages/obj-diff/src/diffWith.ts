@@ -6,20 +6,24 @@ function objDiff(
   a: object,
   b: object,
   path: Array<string | number>,
-  objRefSet1: WeakSet<WeakKey>,
-  objRefSet2: WeakSet<WeakKey>,
+  _refs: WeakSet<WeakKey>,
   fn: (a: object, b: object) => boolean | undefined
 ): DiffResult[] {
   const result: DiffResult[] = [];
 
-  if (typeof a === "object" && a !== null && b !== null) {
+  if (
+    typeof a === "object" &&
+    typeof b === "object" &&
+    a !== null &&
+    b !== null
+  ) {
     // For circular refs
-    if (objRefSet1.has(a) && objRefSet2.has(b)) {
+    if (_refs.has(a) && _refs.has(b)) {
       return [];
     }
 
-    objRefSet1.add(a as WeakKey);
-    objRefSet2.add(b as WeakKey);
+    _refs.add(a as WeakKey);
+    _refs.add(b as WeakKey);
 
     if (Array.isArray(a) && Array.isArray(b)) {
       for (let i = 0; i < a.length; i++) {
@@ -29,8 +33,7 @@ function objDiff(
               a[i],
               (b as Array<unknown>)[i] as object,
               [...path, i],
-              objRefSet1,
-              objRefSet2,
+              _refs,
               fn
             )
           );
@@ -49,6 +52,9 @@ function objDiff(
         }
       }
 
+      _refs.delete(a);
+      _refs.delete(b);
+
       return result;
     }
 
@@ -60,8 +66,7 @@ function objDiff(
               (a as Record<string, unknown>)[k] as object,
               (b as Record<string, unknown>)[k] as object,
               [...path, k],
-              objRefSet1,
-              objRefSet2,
+              _refs,
               fn
             )
           );
@@ -80,6 +85,9 @@ function objDiff(
         }
       }
 
+      _refs.delete(a);
+      _refs.delete(b);
+
       return result;
     }
 
@@ -90,25 +98,52 @@ function objDiff(
     }
 
     if (a instanceof Map && b instanceof Map) {
-      if (a.size !== (b as Map<unknown, unknown>).size) {
-        return [{ t: CHANGED, p: path, v: b }];
+      for (const k of a.keys()) {
+        if (b.has(k)) {
+          result.push(...objDiff(a.get(k), b.get(k), [...path, k], _refs, fn));
+        } else {
+          result.push({ t: DELETED, p: [...path, k] });
+        }
       }
 
-      for (const k of a.keys()) {
-        if (!Object.is(a.get(k), (b as Map<unknown, unknown>).get(k))) {
-          return [{ t: CHANGED, p: path, v: b }];
+      for (const k of b.keys()) {
+        if (!a.has(k)) {
+          result.push({
+            t: ADDED,
+            p: [...path, k],
+            v: b.get(k),
+          });
         }
       }
     }
 
     if (a instanceof Set && b instanceof Set) {
-      if (a.size !== (b as Set<unknown>).size) {
-        return [{ t: CHANGED, p: path, v: b }];
+      const aArr = [...a];
+      const bArr = [...b];
+
+      for (let i = 0; i < aArr.length; i++) {
+        if (Object.hasOwn(bArr, i)) {
+          result.push(
+            ...objDiff(
+              aArr[i],
+              (bArr as Array<unknown>)[i] as object,
+              [...path, i],
+              _refs,
+              fn
+            )
+          );
+        } else {
+          result.push({ t: DELETED, p: [...path, i] });
+        }
       }
 
-      for (const v of a) {
-        if (!(b as Set<unknown>).has(v)) {
-          return [{ t: CHANGED, p: path, v: b }];
+      for (let i = 0; i < (bArr as []).length; i++) {
+        if (!Object.hasOwn(aArr, i)) {
+          result.push({
+            t: ADDED,
+            p: [...path, i],
+            v: (bArr as Array<unknown>)[i],
+          });
         }
       }
     }
@@ -135,15 +170,12 @@ function objDiff(
  * Performs a deep difference between two objects with custom comparator function.
  *
  * @example
- * diff({a: 1}, {a: 5}) //=> [{t: 2, p: ['a'], v: 5}]
+ * diffWith({a: 1}, {a: 5}, (a, b) => {}) //=> [{t: 2, p: ['a'], v: 5}]
  */
 export default function diffWith(
   obj1: object,
   obj2: object,
   fn: (a: object, b: object) => boolean | undefined
 ): Array<DiffResult> {
-  const objRefSet1 = new WeakSet();
-  const objRefSet2 = new WeakSet();
-
-  return objDiff(obj1, obj2, [], objRefSet1, objRefSet2, fn);
+  return objDiff(obj1, obj2, [], new WeakSet(), fn);
 }

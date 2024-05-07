@@ -287,11 +287,7 @@ console.log(result);
 
 The `JSON Patch` protocol is complicated in nature. And simply we don't want use it as our existing solution works for most of the projects.
 
-### 2. Is deep equals work with the Map & Set Objects?
-
-No, currently it can detect only whether the object was changed or not.
-
-### 3. What is the meaning of empty array `{p: []}` in path property?
+### 2. What is the meaning of empty array `{p: []}` in path property?
 
 The empty path denotes `Root` path, and it simply means the entire object was replaced.
 

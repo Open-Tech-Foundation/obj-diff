@@ -374,13 +374,9 @@ describe("diff", () => {
       )
     ).toEqual([
       {
-        p: ["m"],
-        t: 2,
-        v: new Map([
-          ["x", 1],
-          ["y", 2],
-          ["z", 3],
-        ]),
+        p: ["m", "z"],
+        t: 1,
+        v: 3,
       },
     ]);
 
@@ -402,11 +398,8 @@ describe("diff", () => {
     ).toEqual([
       {
         t: 2,
-        p: ["m"],
-        v: new Map([
-          ["x", 5],
-          ["y", 2],
-        ]),
+        p: ["m", "x"],
+        v: 5,
       },
     ]);
   });
@@ -418,11 +411,30 @@ describe("diff", () => {
 
     a = { s: new Set([1, 2, 3]) };
     b = { s: new Set([1, 2, 3, 4]) };
-    expect(diff(a, b)).toEqual([{ t: 2, p: ["s"], v: new Set([1, 2, 3, 4]) }]);
+    expect(diff(a, b)).toEqual([{ t: 1, p: ["s", 3], v: 4 }]);
 
     a = { s: new Set([1, 3, 5, 2, 4]) };
     b = { s: new Set([1, 2, 3]) };
-    expect(diff(a, b)).toEqual([{ t: 2, p: ["s"], v: new Set([1, 2, 3]) }]);
+    expect(diff(a, b)).toEqual([
+      {
+        p: ["s", 1],
+        t: 2,
+        v: 2,
+      },
+      {
+        p: ["s", 2],
+        t: 2,
+        v: 3,
+      },
+      {
+        p: ["s", 3],
+        t: 0,
+      },
+      {
+        p: ["s", 4],
+        t: 0,
+      },
+    ]);
   });
 
   test("mix objects", () => {

@@ -97,25 +97,51 @@ function objDiff(
     }
 
     if (a instanceof Map && b instanceof Map) {
-      if (a.size !== (b as Map<unknown, unknown>).size) {
-        return [{ t: CHANGED, p: path, v: b }];
+      for (const k of a.keys()) {
+        if (b.has(k)) {
+          result.push(...objDiff(a.get(k), b.get(k), [...path, k], _refs));
+        } else {
+          result.push({ t: DELETED, p: [...path, k] });
+        }
       }
 
-      for (const k of a.keys()) {
-        if (!Object.is(a.get(k), (b as Map<unknown, unknown>).get(k))) {
-          return [{ t: CHANGED, p: path, v: b }];
+      for (const k of b.keys()) {
+        if (!a.has(k)) {
+          result.push({
+            t: ADDED,
+            p: [...path, k],
+            v: b.get(k),
+          });
         }
       }
     }
 
     if (a instanceof Set && b instanceof Set) {
-      if (a.size !== (b as Set<unknown>).size) {
-        return [{ t: CHANGED, p: path, v: b }];
+      const aArr = [...a]
+      const bArr = [...b]
+
+      for (let i = 0; i < aArr.length; i++) {
+        if (Object.hasOwn(bArr, i)) {
+          result.push(
+            ...objDiff(
+              aArr[i],
+              (bArr as Array<unknown>)[i] as object,
+              [...path, i],
+              _refs
+            )
+          );
+        } else {
+          result.push({ t: DELETED, p: [...path, i] });
+        }
       }
 
-      for (const v of a) {
-        if (!(b as Set<unknown>).has(v)) {
-          return [{ t: CHANGED, p: path, v: b }];
+      for (let i = 0; i < (bArr as []).length; i++) {
+        if (!Object.hasOwn(aArr, i)) {
+          result.push({
+            t: ADDED,
+            p: [...path, i],
+            v: (bArr as Array<unknown>)[i],
+          });
         }
       }
     }
