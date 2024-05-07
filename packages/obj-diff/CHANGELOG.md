@@ -1,5 +1,11 @@
 # @opentf/obj-diff
 
+## 0.11.0
+
+### Minor Changes
+
+- 01f7696: Added deep diffing support for Map & Set objects.
+
 ## 0.10.0
 
 ### Minor Changes
