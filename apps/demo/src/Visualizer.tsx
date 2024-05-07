@@ -1,7 +1,7 @@
 import ReportIcon from "@mui/icons-material/Report";
 import { Alert, Box, Typography } from "@mui/joy";
 import { DiffResult } from "@opentf/obj-diff";
-import { isArr, isEql, isObj, set } from "@opentf/std";
+import { get, isArr, isEql, isObj, set } from "@opentf/std";
 import ShortUniqueId from "short-unique-id";
 import safeEval from "./safeEval";
 
@@ -22,8 +22,23 @@ function combine(o: unknown, diff: Array<DiffResult>) {
   try {
     if (isObj(o) || isArr(o)) {
       for (const patch of diff) {
+        const obj = get(o, patch.p.slice(0, -1));
+
         if (patch.t === 1 || patch.t === 2) {
-          o = set(o, patch.p, patch.v);
+          if (obj instanceof Map) {
+            obj.set(patch.p.slice(-1)[0], patch.v);
+            continue;
+          }
+
+          if (obj instanceof Set) {
+            const arr = [...obj];
+            const key = patch.p.slice(-1)[0];
+            arr[key] = patch.v;
+            set(o, patch.p.slice(0, -1), new Set(arr));
+            continue;
+          }
+
+          set(o, patch.p, patch.v);
         }
       }
     }
@@ -96,7 +111,7 @@ function Row({
   );
 }
 
-function getRows(k, o: unknown, path = [], diff) {
+function getRows(k, o: unknown, path = [], diff, printKey = true) {
   const rows = [];
 
   if (isObj(o)) {
@@ -138,7 +153,7 @@ function getRows(k, o: unknown, path = [], diff) {
   if (typeof o === "string") {
     rows.push(
       <Row key={randomUUID()} path={path} diff={diff}>
-        <Box sx={{ display: "inline" }}>{k}:</Box>
+        {printKey && <Box sx={{ display: "inline" }}>{k}:</Box>}
         <Box sx={{ display: "inline", ml: 2 }}>{`"${o}"`}</Box>,
       </Row>
     );
@@ -147,7 +162,7 @@ function getRows(k, o: unknown, path = [], diff) {
   if (typeof o === "number") {
     rows.push(
       <Row key={randomUUID()} path={path} diff={diff}>
-        <Box sx={{ display: "inline" }}>{k}:</Box>
+        {printKey && <Box sx={{ display: "inline" }}>{k}:</Box>}
         <Box sx={{ display: "inline", ml: 2 }}>{o}</Box>,
       </Row>
     );
@@ -156,7 +171,7 @@ function getRows(k, o: unknown, path = [], diff) {
   if (typeof o === "bigint") {
     rows.push(
       <Row key={randomUUID()} path={path} diff={diff}>
-        <Box sx={{ display: "inline" }}>{k}:</Box>
+        {printKey && <Box sx={{ display: "inline" }}>{k}:</Box>}
         <Box sx={{ display: "inline", ml: 2 }}>{o.toString()}n</Box>,
       </Row>
     );
@@ -165,7 +180,7 @@ function getRows(k, o: unknown, path = [], diff) {
   if (o === null) {
     rows.push(
       <Row key={randomUUID()} path={path} diff={diff}>
-        <Box sx={{ display: "inline" }}>{k}:</Box>
+        {printKey && <Box sx={{ display: "inline" }}>{k}:</Box>}
         <Box sx={{ display: "inline", ml: 2 }}>null</Box>,
       </Row>
     );
@@ -174,7 +189,7 @@ function getRows(k, o: unknown, path = [], diff) {
   if (o === undefined) {
     rows.push(
       <Row key={randomUUID()} path={path} diff={diff}>
-        <Box sx={{ display: "inline" }}>{k}:</Box>
+        {printKey && <Box sx={{ display: "inline" }}>{k}:</Box>}
         <Box sx={{ display: "inline", ml: 2 }}>undefined</Box>,
       </Row>
     );
@@ -183,7 +198,7 @@ function getRows(k, o: unknown, path = [], diff) {
   if (typeof o === "boolean") {
     rows.push(
       <Row key={randomUUID()} path={path} diff={diff}>
-        <Box sx={{ display: "inline" }}>{k}:</Box>
+        {printKey && <Box sx={{ display: "inline" }}>{k}:</Box>}
         <Box sx={{ display: "inline", ml: 2 }}>
           {o === true ? "true" : "false"}
         </Box>
@@ -202,23 +217,43 @@ function getRows(k, o: unknown, path = [], diff) {
   }
 
   if (o instanceof Map) {
-    const arr = Array.from(o);
-    const str = `Map(${o.size}) ${JSON.stringify(arr, null, 2)}`;
     rows.push(
       <Row key={randomUUID()} path={path} diff={diff}>
-        <Box sx={{ display: "inline" }}>{k}:</Box>
-        <Box sx={{ display: "inline", ml: 2 }}>{str}</Box>,
+        {k && <Box sx={{ display: "inline" }}>{k}:</Box>}
+        <Box sx={{ display: "inline", ml: k ? 2 : 0 }}>
+          <Box component="span" sx={{ color: "grey" }}>{`Map(${o.size}) `}</Box>
+          {"{"}
+        </Box>
+      </Row>
+    );
+    for (const [key, val] of o) {
+      rows.push(...getRows(key, val, [...path, key], diff));
+    }
+    rows.push(
+      <Row key={randomUUID()} path={path} diff={diff}>
+        {"}"}
       </Row>
     );
   }
 
   if (o instanceof Set) {
-    const arr = Array.from(o);
-    const str = `Set(${o.size}) ${JSON.stringify(arr, null, 2)}`;
     rows.push(
       <Row key={randomUUID()} path={path} diff={diff}>
-        <Box sx={{ display: "inline" }}>{k}:</Box>
-        <Box sx={{ display: "inline", ml: 2 }}>{str}</Box>,
+        {k && <Box sx={{ display: "inline" }}>{k}:</Box>}
+        <Box sx={{ display: "inline", ml: k ? 2 : 0 }}>
+          <Box component="span" sx={{ color: "grey" }}>{`Set(${o.size}) `}</Box>
+          {"["}
+        </Box>
+      </Row>
+    );
+
+    [...o].forEach((val, idx) => {
+      rows.push(...getRows(idx, val, [...path, idx], diff, false));
+    });
+
+    rows.push(
+      <Row key={randomUUID()} path={path} diff={diff}>
+        {"]"}
       </Row>
     );
   }
