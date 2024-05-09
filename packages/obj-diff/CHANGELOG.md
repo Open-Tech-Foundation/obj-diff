@@ -1,5 +1,11 @@
 # @opentf/obj-diff
 
+## 0.12.0
+
+### Minor Changes
+
+- e5b61db: Added value prop to the Set removed diff results.
+
 ## 0.11.0
 
 ### Minor Changes
