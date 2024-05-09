@@ -133,7 +133,7 @@ function objDiff(
             )
           );
         } else {
-          result.push({ t: DELETED, p: [...path, i] });
+          result.push({ t: DELETED, p: [...path, i], v: aArr[i] });
         }
       }
 

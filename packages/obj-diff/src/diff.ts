@@ -117,8 +117,8 @@ function objDiff(
     }
 
     if (a instanceof Set && b instanceof Set) {
-      const aArr = [...a]
-      const bArr = [...b]
+      const aArr = [...a];
+      const bArr = [...b];
 
       for (let i = 0; i < aArr.length; i++) {
         if (Object.hasOwn(bArr, i)) {
@@ -131,7 +131,7 @@ function objDiff(
             )
           );
         } else {
-          result.push({ t: DELETED, p: [...path, i] });
+          result.push({ t: DELETED, p: [...path, i], v: aArr[i] });
         }
       }
 

@@ -1,5 +1,5 @@
 import { clone } from "@opentf/std";
-import { diff } from "../src";
+import diff from "../src/diff";
 
 describe("diff", () => {
   test("no params", () => {
@@ -409,6 +409,42 @@ describe("diff", () => {
     let b = { s: new Set([1, 2, 3]) };
     expect(diff(a, b)).toEqual([]);
 
+    a = new Set([1, 2, 3]);
+    b = new Set([1, 2, 3]);
+    b.delete(1);
+    b.delete(2);
+    b.delete(3);
+    b.add(3);
+    b.add(2);
+    b.add(1);
+
+    expect(diff(a, b)).toEqual([
+      { t: 2, p: [0], v: 3 },
+      { t: 2, p: [2], v: 1 },
+    ]);
+
+    a = new Set([1, 2, 3]);
+    b = clone(a);
+    b.clear();
+    const res = diff(a, b);
+    expect(res).toEqual([
+      {
+        p: [0],
+        t: 0,
+        v: 1,
+      },
+      {
+        p: [1],
+        t: 0,
+        v: 2,
+      },
+      {
+        p: [2],
+        t: 0,
+        v: 3,
+      },
+    ]);
+
     a = { s: new Set([1, 2, 3]) };
     b = { s: new Set([1, 2, 3, 4]) };
     expect(diff(a, b)).toEqual([{ t: 1, p: ["s", 3], v: 4 }]);
@@ -429,10 +465,12 @@ describe("diff", () => {
       {
         p: ["s", 3],
         t: 0,
+        v: 2,
       },
       {
         p: ["s", 4],
         t: 0,
+        v: 4,
       },
     ]);
   });
