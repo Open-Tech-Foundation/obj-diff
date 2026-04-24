@@ -1,4 +1,4 @@
-import { diff, patch } from "../src";
+import { diff, patch } from "./utils";
 
 describe("patch", () => {
   test("simple objects", () => {

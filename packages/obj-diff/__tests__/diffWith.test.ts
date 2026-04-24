@@ -1,5 +1,5 @@
 import { ObjectId } from "bson";
-import { diffWith } from "../src";
+import { diffWith } from "./utils";
 
 describe("diffWith", () => {
   test("compare custom class object", () => {

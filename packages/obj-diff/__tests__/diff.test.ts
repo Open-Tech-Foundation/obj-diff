@@ -1,5 +1,5 @@
 import { clone } from "@opentf/std";
-import diff from "../src/diff";
+import { diff, diffWith, patch } from "./utils";
 
 describe("diff", () => {
   test("no params", () => {
