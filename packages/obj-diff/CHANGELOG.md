@@ -1,5 +1,11 @@
 # @opentf/obj-diff
 
+## 0.13.1
+
+### Patch Changes
+
+- 5f0b4e6: Update pkg readme with updated docs.
+
 ## 0.13.0
 
 ### Minor Changes
