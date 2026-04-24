@@ -1,5 +1,6 @@
 {
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "pnpm --filter=demo run dev",
     "build": "pnpm --filter=@opentf/obj-diff run build",
@@ -11,8 +12,10 @@
     "@changesets/cli": "^2.27.1",
     "deep-diff": "^1.0.2",
     "deep-object-diff": "^1.1.9",
+    "jsondiffpatch": "^0.7.3",
     "just-diff": "^6.0.2",
     "microdiff": "^1.4.0",
+    "recursive-diff": "^1.0.9",
     "tinybench": "^2.8.0"
   }
 }

@@ -80,9 +80,9 @@ diff(obj1: object, obj2: object): Array<DiffResult>
 
 ```ts
 type DiffResult = {
-  t: 0 | 1 | 2; // The type of diff, 0 - Deleted, 1 - Created, 2 - Updated
-  p: Array<string | number>; // The object path
-  v?: unknown; // The current value
+  type: 0 | 1 | 2; // The type of diff, 0 - Deleted, 1 - Created, 2 - Updated
+  path: Array<string | number>; // The object path
+  value?: unknown; // The current value
 };
 ```
 
@@ -98,18 +98,18 @@ diff(a, b);
 /*
 [
   {
-    t: 2,
-    p: ["a"],
-    v: 2,
+    type: 2,
+    path: ["a"],
+    value: 2,
   },
   {
-    t: 0,
-    p: ["b"],
+    type: 0,
+    path: ["b"],
   },
   {
-    t: 1,
-    p: ["c"],
-    v: 3,
+    type: 1,
+    path: ["c"],
+    value: 3,
   },
 ]
 */
@@ -125,22 +125,22 @@ diff(a, b);
 /* 
 [
   {
-    t: 2,
-    p: [1],
-    v: 3,
+    type: 2,
+    path: [1],
+    value: 3,
   },
   {
-    t: 2,
-    p: [2],
-    v: 5,
+    type: 2,
+    path: [2],
+    value: 5,
   },
   {
-    t: 0,
-    p: [3],
+    type: 0,
+    path: [3],
   },
   {
-    t: 0,
-    p: [4],
+    type: 0,
+    path: [4],
   },
 ]
 */
@@ -177,27 +177,27 @@ diff(a, b);
 /*
 [
   {
-    t: 0,
-    p: ["foo", "bar", "a", 1],
+    type: 0,
+    path: ["foo", "bar", "a", 1],
   },
   {
-    t: 1,
-    p: ["foo", "bar", "c", 2],
-    v: "z",
+    type: 1,
+    path: ["foo", "bar", "c", 2],
+    value: "z",
   },
   {
-    t: 0,
-    p: ["foo", "bar", "e"],
+    type: 0,
+    path: ["foo", "bar", "e"],
   },
   {
-    t: 1,
-    p: ["foo", "bar", "d"],
-    v: "Hello, world!",
+    type: 1,
+    path: ["foo", "bar", "d"],
+    value: "Hello, world!",
   },
   {
-    t: 2,
-    p: ["buzz"],
-    v: "fizz",
+    type: 2,
+    path: ["buzz"],
+    value: "fizz",
   },
 ]
 */
@@ -268,14 +268,14 @@ console.log(result);
 /*
 [
   {
-    t: 2,
-    p: [ "_id" ],
-    v: new ObjectId('663088b877dd3c9aaec482d4'),
+    type: 2,
+    path: [ "_id" ],
+    value: new ObjectId('663088b877dd3c9aaec482d4'),
   }, 
   {
-    t: 2,
-    p: [ "desc" ],
-    v: "The new article description.",
+    type: 2,
+    path: [ "desc" ],
+    value: "The new article description.",
   }
 ]
 */
@@ -294,28 +294,26 @@ The empty path denotes `Root` path, and it simply means the entire object was re
 For Eg:
 
 ```js
-diff({}, null); //=> [{t: 2, p: [], v: null}]
+diff({}, null); //=> [{type: 2, path: [], value: null}]
 ```
 
 ## Benchmark
 
-```diff
-┌───┬──────────────────┬─────────┬───────────────────┬────────┬─────────┐
-│   │ Task Name        │ ops/sec │ Average Time (ns) │ Margin │ Samples │
-├───┼──────────────────┼─────────┼───────────────────┼────────┼─────────┤
-+ 0 │ diff             │ 252,694 │ 3957.346814404028 │ ±1.60% │ 25270   │
-│ 1 │ microdiff        │ 218,441 │ 4577.892286564301 │ ±0.92% │ 21845   │
-│ 2 │ deep-object-diff │ 121,385 │ 8238.188318642591 │ ±1.66% │ 12139   │
-│ 3 │ just-diff        │ 105,292 │ 9497.35384615396  │ ±1.66% │ 10530   │
-│ 4 │ deep-diff        │ 160,802 │ 6218.820533549017 │ ±1.59% │ 16081   │
-└───┴──────────────────┴─────────┴───────────────────┴────────┴─────────┘
-```
+| Library | Ops/sec | Average Time | Notes |
+| :--- | :--- | :--- | :--- |
+| **@opentf/obj-diff** | **246,154** | **~4.0μs** | **Fastest; Full Diff + Patch support.** |
+| microdiff | 158,745 | ~6.3μs | Very fast; No patching support. |
+| jsondiffpatch | 157,453 | ~6.3μs | Rich features (LCS, RFC6902); Slower. |
+| deep-object-diff | 151,559 | ~6.6μs | Fast; Basic diffing only. |
+| deep-diff | 111,615 | ~9.0μs | Medium; Classic library. |
+| recursive-diff | 79,628 | ~12.5μs | Slower; Good for complex recursion. |
+| just-diff | 66,477 | ~15.0μs | Slowest in this test. |
 
 ### Running benchmarks
 
 ```sh
-$ bun run build
-$ bun benchmark.js
+pnpm run build
+node benchmark.js
 ```
 
 ## Articles
