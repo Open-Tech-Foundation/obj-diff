@@ -1,5 +1,5 @@
 import diff from "./diff";
-import { DiffResult } from "./types";
+import type { DiffResult } from "./types";
 
 /**
  * Performs a deep difference between two objects with custom comparator function.
@@ -10,7 +10,7 @@ import { DiffResult } from "./types";
 export default function diffWith(
   obj1: unknown,
   obj2: unknown,
-  fn: (a: object, b: object) => boolean | undefined
+  fn: (a: object, b: object) => boolean | undefined,
 ): Array<DiffResult> {
   return diff(obj1, obj2, fn);
 }

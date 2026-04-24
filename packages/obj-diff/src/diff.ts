@@ -1,6 +1,6 @@
 import { isObj } from "@opentf/std";
 import { ADDED, CHANGED, DELETED } from "./constants";
-import { DiffResult } from "./types";
+import type { DiffResult } from "./types";
 
 function objDiff(
   a: unknown,
@@ -8,16 +8,11 @@ function objDiff(
   path: Array<string | number>,
   _refsA: WeakSet<WeakKey>,
   _refsB: WeakSet<WeakKey>,
-  fn?: (a: object, b: object) => boolean | undefined
+  fn?: (a: object, b: object) => boolean | undefined,
 ): DiffResult[] {
   const result: DiffResult[] = [];
 
-  if (
-    typeof a === "object" &&
-    typeof b === "object" &&
-    a !== null &&
-    b !== null
-  ) {
+  if (typeof a === "object" && typeof b === "object" && a !== null && b !== null) {
     // For circular refs
     if (_refsA.has(a as WeakKey) && _refsB.has(b as WeakKey)) {
       return [];
@@ -26,7 +21,7 @@ function objDiff(
     _refsA.add(a as WeakKey);
     _refsB.add(b as WeakKey);
 
-    const customMatch = fn && fn(a as object, b as object);
+    const customMatch = fn?.(a as object, b as object);
     if (customMatch === true) {
       _refsA.delete(a as WeakKey);
       _refsB.delete(b as WeakKey);
@@ -42,17 +37,17 @@ function objDiff(
     if (Array.isArray(a) && Array.isArray(b)) {
       const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
       for (const k of keys) {
-        const i = isNaN(Number(k)) ? k : Number(k);
+        const i = Number.isNaN(Number(k)) ? k : Number(k);
         if (Object.hasOwn(a, k) && Object.hasOwn(b, k)) {
           result.push(
             ...objDiff(
-              (a as any)[k],
-              (b as any)[k],
+              (a as unknown as Record<string, unknown>)[k],
+              (b as unknown as Record<string, unknown>)[k],
               [...path, i],
               _refsA,
               _refsB,
-              fn
-            )
+              fn,
+            ),
           );
         } else if (Object.hasOwn(a, k)) {
           result.push({ type: DELETED, path: [...path, i] });
@@ -60,7 +55,7 @@ function objDiff(
           result.push({
             type: ADDED,
             path: [...path, i],
-            value: (b as any)[k],
+            value: (b as unknown as Record<string, unknown>)[k],
           });
         }
       }
@@ -81,8 +76,8 @@ function objDiff(
               [...path, k],
               _refsA,
               _refsB,
-              fn
-            )
+              fn,
+            ),
           );
         } else {
           result.push({ type: DELETED, path: [...path, k] });
@@ -119,9 +114,7 @@ function objDiff(
     if (a instanceof Map && b instanceof Map) {
       for (const k of a.keys()) {
         if (b.has(k)) {
-          result.push(
-            ...objDiff(a.get(k), b.get(k), [...path, k], _refsA, _refsB, fn)
-          );
+          result.push(...objDiff(a.get(k), b.get(k), [...path, k], _refsA, _refsB, fn));
         } else {
           result.push({ type: DELETED, path: [...path, k] });
         }
@@ -156,8 +149,8 @@ function objDiff(
               [...path, i],
               _refsA,
               _refsB,
-              fn
-            )
+              fn,
+            ),
           );
         } else {
           result.push({ type: DELETED, path: [...path, i], value: aArr[i] });
@@ -180,14 +173,11 @@ function objDiff(
       return result;
     }
 
-    if (
-      Object.prototype.toString.call(a) !== Object.prototype.toString.call(b)
-    ) {
+    if (Object.prototype.toString.call(a) !== Object.prototype.toString.call(b)) {
       _refsA.delete(a as WeakKey);
       _refsB.delete(b as WeakKey);
       return [{ type: CHANGED, path, value: b }];
     }
-
 
     _refsA.delete(a as WeakKey);
     _refsB.delete(b as WeakKey);
@@ -209,7 +199,7 @@ function objDiff(
 export default function diff(
   obj1: unknown,
   obj2: unknown,
-  fn?: (a: object, b: object) => boolean | undefined
+  fn?: (a: object, b: object) => boolean | undefined,
 ): Array<DiffResult> {
   return objDiff(obj1, obj2, [], new WeakSet(), new WeakSet(), fn);
 }

@@ -3,4 +3,4 @@ import diffWith from "./diffWith";
 import patch from "./patch";
 import type { DiffResult } from "./types";
 
-export { diff, diffWith, patch, DiffResult };
+export { type DiffResult, diff, diffWith, patch };

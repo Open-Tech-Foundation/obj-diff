@@ -1,41 +1,36 @@
 import { clone } from "@opentf/std";
-import { DiffResult } from "./types";
+import type { DiffResult } from "./types";
 
 export default function patch<T>(obj: T, patches: Array<DiffResult>): T {
   if (patches.length === 0) return clone(obj);
 
-  // Initial deep clone that preserves all internal sharing and circular refs
   let c = clone(obj);
-  
-  // Restore null prototype if necessary
   if (obj && typeof obj === "object" && Object.getPrototypeOf(obj) === null) {
     Object.setPrototypeOf(c, null);
   }
 
-  // To solve aliasing while preserving circular refs, we need to ensure that
-  // if we are mutating a shared object, we only do it if the change is intended 
-  // for all aliases, OR we break the alias if it's not.
-  // However, the most common expectation is that patch() produces a result matching 'b'.
-  
   for (const p of patches) {
     if (p.path.length === 0) {
       if (p.type === 1 || p.type === 2) {
-        c = p.value as any;
+        c = p.value as T;
         continue;
       }
       if (p.type === 0) {
-        c = undefined as any;
+        c = undefined as unknown as T;
         continue;
       }
     }
 
-    let current: any = c;
+    let current: Record<string, unknown> | Map<unknown, unknown> | Set<unknown> = c as Record<
+      string,
+      unknown
+    >;
     for (let i = 0; i < p.path.length - 1; i++) {
       const key = p.path[i];
       if (current instanceof Map) {
-        current = current.get(key);
+        current = current.get(key) as Record<string, unknown>;
       } else {
-        current = current[key];
+        current = (current as Record<string, unknown>)[key] as Record<string, unknown>;
       }
     }
 
@@ -48,15 +43,9 @@ export default function patch<T>(obj: T, patches: Array<DiffResult>): T {
         const arr = Array.from(current);
         arr[lastKey as number] = p.value;
         current.clear();
-        arr.forEach((v) => current.add(v));
+        for (const v of arr) current.add(v);
       } else {
-        // If we are about to mutate a property, and the value is an object,
-        // we might be affecting an alias. 
-        // A simple way to break aliasing in a targeted way:
-        if (current[lastKey] && typeof current[lastKey] === 'object' && p.value && typeof p.value === 'object') {
-           // If both are objects, we might be descending deeper.
-        }
-        current[lastKey] = p.value;
+        (current as Record<string | number, unknown>)[lastKey] = p.value;
       }
     } else if (p.type === 0) {
       if (current instanceof Map) {
@@ -65,16 +54,16 @@ export default function patch<T>(obj: T, patches: Array<DiffResult>): T {
         const arr = Array.from(current);
         arr.splice(lastKey as number, 1);
         current.clear();
-        arr.forEach((v) => current.add(v));
+        for (const v of arr) current.add(v);
       } else {
-        delete current[lastKey];
+        delete (current as Record<string | number, unknown>)[lastKey];
       }
     }
   }
 
   // Final pass to pack arrays and handle any post-patch cleanup
   const visited = new WeakSet();
-  const packArrays = (val: any) => {
+  const packArrays = (val: unknown) => {
     if (!val || typeof val !== "object" || visited.has(val)) return;
     visited.add(val);
 
@@ -82,7 +71,7 @@ export default function patch<T>(obj: T, patches: Array<DiffResult>): T {
       const packed = val.filter(() => true);
       if (packed.length !== val.length) {
         val.length = 0;
-        packed.forEach((v) => val.push(v));
+        for (const v of packed) val.push(v);
       }
       val.forEach(packArrays);
     } else if (!(val instanceof Date) && !(val instanceof Map) && !(val instanceof Set)) {
