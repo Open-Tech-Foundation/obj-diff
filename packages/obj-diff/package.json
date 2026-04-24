@@ -42,7 +42,8 @@
     "build": "tsup",
     "test": "jest",
     "lint": "eslint src/** --fix",
-    "ci": "pnpm run build && pnpm run test && pnpm run lint"
+    "type-check": "tsc --noEmit",
+    "ci": "pnpm run build && pnpm run test && pnpm run type-check && pnpm run lint"
   },
   "files": [
     "dist"

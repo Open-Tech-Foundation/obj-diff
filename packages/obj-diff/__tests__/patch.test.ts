@@ -39,4 +39,22 @@ describe("patch", () => {
     };
     expect(patch(a, diff(a, b))).toEqual(b);
   });
+
+  test("Dates", () => {
+    const a = { d: new Date("2024-01-01") };
+    const b = { d: new Date("2024-01-02") };
+    expect(patch(a, diff(a, b))).toEqual(b);
+  });
+
+  test("Maps", () => {
+    const a = { m: new Map([["x", 1]]) };
+    const b = { m: new Map([["x", 2], ["y", 3]]) };
+    expect(patch(a, diff(a, b))).toEqual(b);
+  });
+
+  test("Sets", () => {
+    const a = { s: new Set([1, 2]) };
+    const b = { s: new Set([2, 3]) };
+    expect(patch(a, diff(a, b))).toEqual(b);
+  });
 });

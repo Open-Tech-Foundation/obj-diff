@@ -1,5 +1,5 @@
 export type DiffResult = {
-  t: 0 | 1 | 2;
-  p: Array<string | number>;
-  v?: unknown;
+  type: 0 | 1 | 2;
+  path: Array<string | number>;
+  value?: unknown;
 };

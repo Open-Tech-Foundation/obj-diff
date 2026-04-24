@@ -3,8 +3,8 @@ import { ADDED, CHANGED, DELETED } from "./constants";
 import { DiffResult } from "./types";
 
 function objDiff(
-  a: object,
-  b: object,
+  a: unknown,
+  b: unknown,
   path: Array<string | number>,
   _refsA: WeakSet<WeakKey>,
   _refsB: WeakSet<WeakKey>,
@@ -40,16 +40,16 @@ function objDiff(
             )
           );
         } else {
-          result.push({ t: DELETED, p: [...path, i] });
+          result.push({ type: DELETED, path: [...path, i] });
         }
       }
 
       for (let i = 0; i < (b as []).length; i++) {
         if (!Object.hasOwn(a, i)) {
           result.push({
-            t: ADDED,
-            p: [...path, i],
-            v: (b as Array<unknown>)[i],
+            type: ADDED,
+            path: [...path, i],
+            value: (b as Array<unknown>)[i],
           });
         }
       }
@@ -74,16 +74,16 @@ function objDiff(
             )
           );
         } else {
-          result.push({ t: DELETED, p: [...path, k] });
+          result.push({ type: DELETED, path: [...path, k] });
         }
       }
 
       for (const k of Object.keys(b)) {
         if (!Object.hasOwn(a, k)) {
           result.push({
-            t: ADDED,
-            p: [...path, k],
-            v: (b as Record<string, unknown>)[k],
+            type: ADDED,
+            path: [...path, k],
+            value: (b as Record<string, unknown>)[k],
           });
         }
       }
@@ -98,7 +98,7 @@ function objDiff(
       if (!Object.is(a.getTime(), (b as Date).getTime())) {
         _refsA.delete(a as WeakKey);
         _refsB.delete(b as WeakKey);
-        return [{ t: CHANGED, p: path, v: b }];
+        return [{ type: CHANGED, path, value: b }];
       }
       _refsA.delete(a as WeakKey);
       _refsB.delete(b as WeakKey);
@@ -112,16 +112,16 @@ function objDiff(
             ...objDiff(a.get(k), b.get(k), [...path, k], _refsA, _refsB, fn)
           );
         } else {
-          result.push({ t: DELETED, p: [...path, k] });
+          result.push({ type: DELETED, path: [...path, k] });
         }
       }
 
       for (const k of b.keys()) {
         if (!a.has(k)) {
           result.push({
-            t: ADDED,
-            p: [...path, k],
-            v: b.get(k),
+            type: ADDED,
+            path: [...path, k],
+            value: b.get(k),
           });
         }
       }
@@ -149,16 +149,16 @@ function objDiff(
             )
           );
         } else {
-          result.push({ t: DELETED, p: [...path, i], v: aArr[i] });
+          result.push({ type: DELETED, path: [...path, i], value: aArr[i] });
         }
       }
 
       for (let i = 0; i < (bArr as []).length; i++) {
         if (!Object.hasOwn(aArr, i)) {
           result.push({
-            t: ADDED,
-            p: [...path, i],
-            v: (bArr as Array<unknown>)[i],
+            type: ADDED,
+            path: [...path, i],
+            value: (bArr as Array<unknown>)[i],
           });
         }
       }
@@ -174,20 +174,20 @@ function objDiff(
     ) {
       _refsA.delete(a as WeakKey);
       _refsB.delete(b as WeakKey);
-      return [{ t: CHANGED, p: path, v: b }];
+      return [{ type: CHANGED, path, value: b }];
     }
 
-    if (fn && fn(a, b)) {
+    if (fn && fn(a as object, b as object)) {
       _refsA.delete(a as WeakKey);
       _refsB.delete(b as WeakKey);
-      return [{ t: CHANGED, p: path, v: b }];
+      return [{ type: CHANGED, path, value: b }];
     }
 
     _refsA.delete(a as WeakKey);
     _refsB.delete(b as WeakKey);
   } else {
     if (!Object.is(a, b)) {
-      return [{ t: CHANGED, p: path, v: b }];
+      return [{ type: CHANGED, path, value: b as object }];
     }
   }
 
@@ -198,11 +198,11 @@ function objDiff(
  * Performs a deep difference between two objects.
  *
  * @example
- * diff({a: 1}, {a: 5}) //=> [{t: 2, p: ['a'], v: 5}]
+ * diff({a: 1}, {a: 5}) //=> [{type: 2, path: ['a'], value: 5}]
  */
 export default function diff(
-  obj1: object,
-  obj2: object,
+  obj1: unknown,
+  obj2: unknown,
   fn?: (a: object, b: object) => boolean | undefined
 ): Array<DiffResult> {
   return objDiff(obj1, obj2, [], new WeakSet(), new WeakSet(), fn);

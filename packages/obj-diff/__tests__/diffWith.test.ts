@@ -4,7 +4,9 @@ import { diffWith } from "../src";
 describe("diffWith", () => {
   test("compare custom class object", () => {
     class Person {
-      constructor(name) {
+      _id: string;
+      name: string;
+      constructor(name: string) {
         this._id = Math.random().toString().slice(2);
         this.name = name;
       }
@@ -29,8 +31,8 @@ describe("diffWith", () => {
       }
     });
 
-    expect(result[0].t).toBe(2);
-    expect(result[0].p).toEqual(["person"]);
+    expect(result[0].type).toBe(2);
+    expect(result[0].path).toEqual(["person"]);
   });
 
   test("bson ObjectId", () => {
@@ -61,9 +63,9 @@ describe("diffWith", () => {
     
     expect(result).toEqual([
       {
-        p: ["desc"],
-        t: 2,
-        v: "The new article description.",
+        path: ["desc"],
+        type: 2,
+        value: "The new article description.",
       },
     ]);
     
@@ -72,7 +74,7 @@ describe("diffWith", () => {
         return a.toString() !== b.toString();
       }
     });
-    expect(result[0].t).toBe(2);
-    expect(result[0].p).toEqual(["_id"]);
+    expect(result[0].type).toBe(2);
+    expect(result[0].path).toEqual(["_id"]);
   });
 });

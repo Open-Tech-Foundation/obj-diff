@@ -3,6 +3,7 @@ import diff from "../src/diff";
 
 describe("diff", () => {
   test("no params", () => {
+    // @ts-ignore
     expect(diff()).toEqual([]);
   });
 
@@ -16,25 +17,25 @@ describe("diff", () => {
     expect(diff("a", "a")).toEqual([]);
     expect(diff("App", "Apples")).toEqual([
       {
-        p: [],
-        t: 2,
-        v: "Apples",
+        path: [],
+        type: 2,
+        value: "Apples",
       },
     ]);
     expect(diff(true, true)).toEqual([]);
     expect(diff(false, false)).toEqual([]);
-    expect(diff(1000, NaN)).toEqual([{ t: 2, p: [], v: NaN }]);
+    expect(diff(1000, NaN)).toEqual([{ type: 2, path: [], value: NaN }]);
   });
 
   test("different type of non objects", () => {
-    expect(diff(undefined, null)).toEqual([{ t: 2, p: [], v: null }]);
-    expect(diff(1, "1")).toEqual([{ t: 2, p: [], v: "1" }]);
-    expect(diff(1, true)).toEqual([{ t: 2, p: [], v: true }]);
+    expect(diff(undefined, null)).toEqual([{ type: 2, path: [], value: null }]);
+    expect(diff(1, "1")).toEqual([{ type: 2, path: [], value: "1" }]);
+    expect(diff(1, true)).toEqual([{ type: 2, path: [], value: true }]);
   });
 
   test("compare object with null", () => {
-    expect(diff({}, null)).toEqual([{ t: 2, p: [], v: null }]);
-    expect(diff(null, { a: 1 })).toEqual([{ t: 2, p: [], v: { a: 1 } }]);
+    expect(diff({}, null)).toEqual([{ type: 2, path: [], value: null }]);
+    expect(diff(null, { a: 1 })).toEqual([{ type: 2, path: [], value: { a: 1 } }]);
   });
 
   test("empty objects", () => {
@@ -51,47 +52,47 @@ describe("diff", () => {
       diff({ date: new Date("2024-01-01") }, { date: new Date("2024-01-02") })
     ).toEqual([
       {
-        p: ["date"],
-        t: 2,
-        v: new Date("2024-01-02"),
+        path: ["date"],
+        type: 2,
+        value: new Date("2024-01-02"),
       },
     ]);
   });
 
   test("array", () => {
-    expect(diff([], [1])).toEqual([{ t: 1, p: [0], v: 1 }]);
-    expect(diff([1], [2])).toEqual([{ t: 2, p: [0], v: 2 }]);
-    expect(diff([1], [])).toEqual([{ t: 0, p: [0] }]);
+    expect(diff([], [1])).toEqual([{ type: 1, path: [0], value: 1 }]);
+    expect(diff([1], [2])).toEqual([{ type: 2, path: [0], value: 2 }]);
+    expect(diff([1], [])).toEqual([{ type: 0, path: [0] }]);
     expect(diff([1, 2, 3], [1, 2, 3, 4, 5])).toEqual([
       {
-        p: [3],
-        t: 1,
-        v: 4,
+        path: [3],
+        type: 1,
+        value: 4,
       },
       {
-        p: [4],
-        t: 1,
-        v: 5,
+        path: [4],
+        type: 1,
+        value: 5,
       },
     ]);
     expect(diff([1, 2, 3, 4, 5], [1, 3, 5])).toEqual([
       {
-        p: [1],
-        t: 2,
-        v: 3,
+        path: [1],
+        type: 2,
+        value: 3,
       },
       {
-        p: [2],
-        t: 2,
-        v: 5,
+        path: [2],
+        type: 2,
+        value: 5,
       },
       {
-        p: [3],
-        t: 0,
+        path: [3],
+        type: 0,
       },
       {
-        p: [4],
-        t: 0,
+        path: [4],
+        type: 0,
       },
     ]);
   });
@@ -99,9 +100,9 @@ describe("diff", () => {
   test("array deep", () => {
     expect(diff([1, 2, [3], 4, 5], [1, 2, [4], 4, 5])).toEqual([
       {
-        p: [2, 0],
-        t: 2,
-        v: 4,
+        path: [2, 0],
+        type: 2,
+        value: 4,
       },
     ]);
 
@@ -109,48 +110,48 @@ describe("diff", () => {
       diff([1, 2, [3, 6, [1, 2, 3]], 4, 5], [1, 2, [3, 5, [7, 2]], 4, 5, 6])
     ).toEqual([
       {
-        p: [2, 1],
-        t: 2,
-        v: 5,
+        path: [2, 1],
+        type: 2,
+        value: 5,
       },
       {
-        p: [2, 2, 0],
-        t: 2,
-        v: 7,
+        path: [2, 2, 0],
+        type: 2,
+        value: 7,
       },
       {
-        p: [2, 2, 2],
-        t: 0,
+        path: [2, 2, 2],
+        type: 0,
       },
       {
-        p: [5],
-        t: 1,
-        v: 6,
+        path: [5],
+        type: 1,
+        value: 6,
       },
     ]);
   });
 
   test("objects", () => {
     expect(diff({ a: undefined }, { a: undefined })).toEqual([]);
-    expect(diff({ a: undefined }, {})).toEqual([{ t: 0, p: ["a"] }]);
+    expect(diff({ a: undefined }, {})).toEqual([{ type: 0, path: ["a"] }]);
     expect(diff({ a: 1 }, { a: 1 })).toEqual([]);
-    expect(diff({ a: 1 }, { a: 2 })).toEqual([{ t: 2, p: ["a"], v: 2 }]);
-    expect(diff({ a: 1 }, { a: 1, b: 2 })).toEqual([{ t: 1, p: ["b"], v: 2 }]);
-    expect(diff({ a: 1 }, {})).toEqual([{ t: 0, p: ["a"] }]);
+    expect(diff({ a: 1 }, { a: 2 })).toEqual([{ type: 2, path: ["a"], value: 2 }]);
+    expect(diff({ a: 1 }, { a: 1, b: 2 })).toEqual([{ type: 1, path: ["b"], value: 2 }]);
+    expect(diff({ a: 1 }, {})).toEqual([{ type: 0, path: ["a"] }]);
     expect(diff({ a: 1, b: 2 }, { a: 2, c: 5 })).toEqual([
       {
-        p: ["a"],
-        t: 2,
-        v: 2,
+        path: ["a"],
+        type: 2,
+        value: 2,
       },
       {
-        p: ["b"],
-        t: 0,
+        path: ["b"],
+        type: 0,
       },
       {
-        p: ["c"],
-        t: 1,
-        v: 5,
+        path: ["c"],
+        type: 1,
+        value: 5,
       },
     ]);
   });
@@ -182,27 +183,27 @@ describe("diff", () => {
 
     expect(diff(lhs, rhs)).toEqual([
       {
-        p: ["foo", "bar", "a", 1],
-        t: 0,
+        path: ["foo", "bar", "a", 1],
+        type: 0,
       },
       {
-        p: ["foo", "bar", "c", 2],
-        t: 1,
-        v: "z",
+        path: ["foo", "bar", "c", 2],
+        type: 1,
+        value: "z",
       },
       {
-        p: ["foo", "bar", "e"],
-        t: 0,
+        path: ["foo", "bar", "e"],
+        type: 0,
       },
       {
-        p: ["foo", "bar", "d"],
-        t: 1,
-        v: "Hello, world!",
+        path: ["foo", "bar", "d"],
+        type: 1,
+        value: "Hello, world!",
       },
       {
-        p: ["buzz"],
-        t: 2,
-        v: "fizz",
+        path: ["buzz"],
+        type: 2,
+        value: "fizz",
       },
     ]);
 
@@ -259,34 +260,34 @@ describe("diff", () => {
 
     expect(diff(obj1, obj2)).toEqual([
       {
-        p: ["description"],
-        t: 2,
-        v: "Style and speed. Stand out on.",
+        path: ["description"],
+        type: 2,
+        value: "Style and speed. Stand out on.",
       },
       {
-        p: ["price"],
-        t: 2,
-        v: 1599,
+        path: ["price"],
+        type: 2,
+        value: 1599,
       },
       {
-        p: ["stock", "count"],
-        t: 2,
-        v: 18,
+        path: ["stock", "count"],
+        type: 2,
+        value: 18,
       },
       {
-        p: ["resources", "images", "items", 4],
-        t: 0,
+        path: ["resources", "images", "items", 4],
+        type: 0,
       },
       {
-        p: ["updatedAt"],
-        t: 2,
-        v: new Date("2024-01-03"),
+        path: ["updatedAt"],
+        type: 2,
+        value: new Date("2024-01-03"),
       },
     ]);
   });
 
   test("circular refs", () => {
-    let obj1 = {
+    let obj1: any = {
       a: 1,
     };
     obj1.self = obj1;
@@ -301,27 +302,27 @@ describe("diff", () => {
     obj2.self = null;
     expect(diff(obj1, obj2)).toEqual([
       {
-        p: ["self"],
-        t: 2,
-        v: null,
+        path: ["self"],
+        type: 2,
+        value: null,
       },
     ]);
 
-    const tmp = { a: 1 };
+    const tmp: any = { a: 1 };
     obj1 = { a: { tmp }, b: { tmp } };
     obj2 = structuredClone(obj1);
     obj2.a.tmp.b = 2;
 
     expect(diff(obj1, obj2)).toEqual([
       {
-        p: ["a", "tmp", "b"],
-        t: 1,
-        v: 2,
+        path: ["a", "tmp", "b"],
+        type: 1,
+        value: 2,
       },
       {
-        p: ["b", "tmp", "b"],
-        t: 1,
-        v: 2,
+        path: ["b", "tmp", "b"],
+        type: 1,
+        value: 2,
       },
     ]);
 
@@ -331,9 +332,9 @@ describe("diff", () => {
     obj2.b = obj2;
     expect(diff(obj1, obj2)).toEqual([
       {
-        p: ["a", "c", 1],
-        t: 2,
-        v: 5,
+        path: ["a", "c", 1],
+        type: 2,
+        value: 5,
       },
     ]);
   });
@@ -374,9 +375,9 @@ describe("diff", () => {
       )
     ).toEqual([
       {
-        p: ["m", "z"],
-        t: 1,
-        v: 3,
+        path: ["m", "z"],
+        type: 1,
+        value: 3,
       },
     ]);
 
@@ -397,16 +398,16 @@ describe("diff", () => {
       )
     ).toEqual([
       {
-        t: 2,
-        p: ["m", "x"],
-        v: 5,
+        type: 2,
+        path: ["m", "x"],
+        value: 5,
       },
     ]);
   });
 
   test("Set", () => {
-    let a = { s: new Set([1, 2, 3]) };
-    let b = { s: new Set([1, 2, 3]) };
+    let a: any = { s: new Set([1, 2, 3]) };
+    let b: any = { s: new Set([1, 2, 3]) };
     expect(diff(a, b)).toEqual([]);
 
     a = new Set([1, 2, 3]);
@@ -419,8 +420,8 @@ describe("diff", () => {
     b.add(1);
 
     expect(diff(a, b)).toEqual([
-      { t: 2, p: [0], v: 3 },
-      { t: 2, p: [2], v: 1 },
+      { type: 2, path: [0], value: 3 },
+      { type: 2, path: [2], value: 1 },
     ]);
 
     a = new Set([1, 2, 3]);
@@ -429,48 +430,48 @@ describe("diff", () => {
     const res = diff(a, b);
     expect(res).toEqual([
       {
-        p: [0],
-        t: 0,
-        v: 1,
+        path: [0],
+        type: 0,
+        value: 1,
       },
       {
-        p: [1],
-        t: 0,
-        v: 2,
+        path: [1],
+        type: 0,
+        value: 2,
       },
       {
-        p: [2],
-        t: 0,
-        v: 3,
+        path: [2],
+        type: 0,
+        value: 3,
       },
     ]);
 
     a = { s: new Set([1, 2, 3]) };
     b = { s: new Set([1, 2, 3, 4]) };
-    expect(diff(a, b)).toEqual([{ t: 1, p: ["s", 3], v: 4 }]);
+    expect(diff(a, b)).toEqual([{ type: 1, path: ["s", 3], value: 4 }]);
 
     a = { s: new Set([1, 3, 5, 2, 4]) };
     b = { s: new Set([1, 2, 3]) };
     expect(diff(a, b)).toEqual([
       {
-        p: ["s", 1],
-        t: 2,
-        v: 2,
+        path: ["s", 1],
+        type: 2,
+        value: 2,
       },
       {
-        p: ["s", 2],
-        t: 2,
-        v: 3,
+        path: ["s", 2],
+        type: 2,
+        value: 3,
       },
       {
-        p: ["s", 3],
-        t: 0,
-        v: 2,
+        path: ["s", 3],
+        type: 0,
+        value: 2,
       },
       {
-        p: ["s", 4],
-        t: 0,
-        v: 4,
+        path: ["s", 4],
+        type: 0,
+        value: 4,
       },
     ]);
   });
@@ -483,7 +484,7 @@ describe("diff", () => {
       m: new Set([1]),
     };
 
-    expect(diff(a, b)).toEqual([{ t: 2, p: ["m"], v: new Set([1]) }]);
+    expect(diff(a, b)).toEqual([{ type: 2, path: ["m"], value: new Set([1]) }]);
   });
 
   test("multiple references to the same object", () => {
@@ -493,14 +494,14 @@ describe("diff", () => {
     b.test1.push(2);
     expect(diff(a, b)).toEqual([
       {
-        p: ["test1", 1],
-        t: 1,
-        v: 2,
+        path: ["test1", 1],
+        type: 1,
+        value: 2,
       },
       {
-        p: ["test2", 1],
-        t: 1,
-        v: 2,
+        path: ["test2", 1],
+        type: 1,
+        value: 2,
       },
     ]);
   });
@@ -511,8 +512,8 @@ describe("diff", () => {
     const a = { foo: obj1, bar: obj2 };
     const b = { foo: obj2, bar: obj1 };
     expect(diff(a, b)).toEqual([
-      { t: 2, p: ["foo", "x"], v: 2 },
-      { t: 2, p: ["bar", "x"], v: 1 },
+      { type: 2, path: ["foo", "x"], value: 2 },
+      { type: 2, path: ["bar", "x"], value: 1 },
     ]);
   });
 });
