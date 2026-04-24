@@ -4,7 +4,7 @@
 
 **The Fast, Accurate, and Modern JavaScript Objects Diffing & Patching Library.**
 
-[![Build Status](https://github.com/Open-Tech-Foundation/obj-diff/actions/workflows/build.yml/badge.svg)](https://github.com/Open-Tech-Foundation/obj-diff/actions/workflows/build.yml)
+[![CI Status](https://github.com/Open-Tech-Foundation/obj-diff/actions/workflows/ci.yml/badge.svg)](https://github.com/Open-Tech-Foundation/obj-diff/actions/workflows/ci.yml)
 [![JSR Score](https://jsr.io/badges/@opentf/obj-diff/score)](https://jsr.io/@opentf/obj-diff)
 
 *Part of the <img src="https://open-tech-foundation.pages.dev/img/Logo.svg" width="18" height="18" style="vertical-align: middle;"> [Open Tech Foundation](https://github.com/Open-Tech-Foundation) ecosystem.*
