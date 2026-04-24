@@ -51,11 +51,7 @@
 Install it using your favourite package manager.
 
 ```sh
-npm install @opentf/obj-diff
-```
-
-```sh
-yarn add @opentf/obj-diff
+bun add @opentf/obj-diff
 ```
 
 ```sh
@@ -63,7 +59,7 @@ pnpm add @opentf/obj-diff
 ```
 
 ```sh
-bun add @opentf/obj-diff
+npm install @opentf/obj-diff
 ```
 
 ```sh
@@ -312,8 +308,8 @@ diff({}, null); //=> [{type: 2, path: [], value: null}]
 ### Running benchmarks
 
 ```sh
-pnpm run build
-node benchmark.js
+bun run build
+bun benchmark.js
 ```
 
 ## Articles

@@ -43,7 +43,7 @@
     "test": "jest",
     "lint": "eslint src/** --fix",
     "type-check": "tsc --noEmit",
-    "ci": "pnpm run build && pnpm run test && pnpm run type-check && pnpm run lint"
+    "ci": "bun run build && bun run test && bun run type-check && bun run lint"
   },
   "files": [
     "dist"

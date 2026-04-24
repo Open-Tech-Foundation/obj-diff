@@ -1,12 +1,16 @@
 {
   "private": true,
   "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
-    "dev": "pnpm --filter=demo run dev",
-    "build": "pnpm --filter=@opentf/obj-diff run build",
-    "test": "pnpm --filter=@opentf/obj-diff run test",
-    "ci": "pnpm --filter=@opentf/obj-diff run ci",
-    "publish-packages": "pnpm run build && pnpm run test && changeset version && changeset publish"
+    "dev": "bun run --cwd apps/demo dev",
+    "build": "bun run --cwd packages/obj-diff build",
+    "test": "bun run --cwd packages/obj-diff test",
+    "ci": "bun run --cwd packages/obj-diff ci",
+    "publish-packages": "bun run build && bun run test && bun x changeset version && bun x changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
