@@ -7,6 +7,8 @@
 [![Build Status](https://github.com/Open-Tech-Foundation/obj-diff/actions/workflows/build.yml/badge.svg)](https://github.com/Open-Tech-Foundation/obj-diff/actions/workflows/build.yml)
 [![JSR Score](https://jsr.io/badges/@opentf/obj-diff/score)](https://jsr.io/@opentf/obj-diff)
 
+*Part of the <img src="https://open-tech-foundation.pages.dev/img/Logo.svg" width="18" height="18" style="vertical-align: middle;"> [Open Tech Foundation](https://github.com/Open-Tech-Foundation) ecosystem.*
+
 ![Demo image](./demo.png)
 
 [**Live Demo**](https://obj-diff.pages.dev/) | [**Report Bug**](https://github.com/Open-Tech-Foundation/obj-diff/issues) | [**Standard Library**](https://github.com/Open-Tech-Foundation/std)
