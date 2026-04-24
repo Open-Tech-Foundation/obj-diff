@@ -2,7 +2,16 @@ import diff from "./diff";
 import type { DiffResult } from "./types";
 
 /**
- * Performs a deep difference between two objects with custom comparator function.
+ * Performs a deep difference between two objects using a custom comparator function.
+ *
+ * Return `true` from the comparator to mark objects as changed.
+ * Return `false` to mark them as equal (skips deep comparison).
+ * Return `undefined` to fall through to the default comparison.
+ *
+ * @param obj1 - The original object.
+ * @param obj2 - The modified object.
+ * @param fn - A custom comparator function.
+ * @returns An array of differences.
  *
  * @example
  * diffWith({a: 1}, {a: 5}, (a, b) => {}) //=> [{type: 2, path: ['a'], value: 5}]

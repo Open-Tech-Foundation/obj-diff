@@ -6,6 +6,9 @@ on:
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   release:
     name: Release & Publish
@@ -41,4 +44,4 @@ jobs:
       - name: Publish to JSR
         # Only publish to JSR if a release was actually published to NPM
         if: steps.changesets.outputs.published == 'true'
-        run: cd packages/obj-diff && npx jsr publish
+        run: cd packages/obj-diff && npx jsr publish --allow-dirty

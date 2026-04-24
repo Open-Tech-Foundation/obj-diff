@@ -2,189 +2,191 @@ import { isObj } from "@opentf/std";
 import { ADDED, CHANGED, DELETED } from "./constants";
 import type { DiffResult } from "./types";
 
+type Path = Array<string | number>;
+type CompareFn = (a: object, b: object) => boolean | undefined;
+
+function cleanupRefs(a: WeakKey, b: WeakKey, refsA: WeakSet<WeakKey>, refsB: WeakSet<WeakKey>) {
+  refsA.delete(a);
+  refsB.delete(b);
+}
+
 function objDiff(
   a: unknown,
   b: unknown,
-  path: Array<string | number>,
-  _refsA: WeakSet<WeakKey>,
-  _refsB: WeakSet<WeakKey>,
-  fn?: (a: object, b: object) => boolean | undefined,
+  path: Path,
+  refsA: WeakSet<WeakKey>,
+  refsB: WeakSet<WeakKey>,
+  fn?: CompareFn,
+): DiffResult[] {
+  if (typeof a !== "object" || typeof b !== "object" || a === null || b === null) {
+    return Object.is(a, b) ? [] : [{ type: CHANGED, path, value: b }];
+  }
+
+  // Circular reference guard
+  if (refsA.has(a) && refsB.has(b)) return [];
+
+  refsA.add(a);
+  refsB.add(b);
+
+  // Custom comparator takes priority
+  const customMatch = fn?.(a as object, b as object);
+  if (customMatch === true) {
+    cleanupRefs(a, b, refsA, refsB);
+    return [{ type: CHANGED, path, value: b }];
+  }
+  if (customMatch === false) {
+    cleanupRefs(a, b, refsA, refsB);
+    return [];
+  }
+
+  let result: DiffResult[];
+
+  if (Array.isArray(a) && Array.isArray(b)) {
+    result = diffArrays(a, b, path, refsA, refsB, fn);
+  } else if (isObj(a) && isObj(b)) {
+    result = diffObjects(
+      a as Record<string, unknown>,
+      b as Record<string, unknown>,
+      path,
+      refsA,
+      refsB,
+      fn,
+    );
+  } else if (a instanceof Date && b instanceof Date) {
+    result = a.getTime() === b.getTime() ? [] : [{ type: CHANGED, path, value: b }];
+  } else if (a instanceof Map && b instanceof Map) {
+    result = diffMaps(a, b, path, refsA, refsB, fn);
+  } else if (a instanceof Set && b instanceof Set) {
+    result = diffSets(a, b, path, refsA, refsB, fn);
+  } else if (Object.prototype.toString.call(a) !== Object.prototype.toString.call(b)) {
+    result = [{ type: CHANGED, path, value: b }];
+  } else {
+    result = [];
+  }
+
+  cleanupRefs(a, b, refsA, refsB);
+  return result;
+}
+
+function diffArrays(
+  a: unknown[],
+  b: unknown[],
+  path: Path,
+  refsA: WeakSet<WeakKey>,
+  refsB: WeakSet<WeakKey>,
+  fn?: CompareFn,
+): DiffResult[] {
+  const result: DiffResult[] = [];
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+
+  for (const k of keys) {
+    const i = Number.isNaN(Number(k)) ? k : Number(k);
+    const aHas = Object.hasOwn(a, k);
+    const bHas = Object.hasOwn(b, k);
+
+    if (aHas && bHas) {
+      const sub = objDiff(
+        (a as unknown as Record<string, unknown>)[k],
+        (b as unknown as Record<string, unknown>)[k],
+        [...path, i],
+        refsA,
+        refsB,
+        fn,
+      );
+      for (const d of sub) result.push(d);
+    } else if (aHas) {
+      result.push({ type: DELETED, path: [...path, i] });
+    } else {
+      result.push({
+        type: ADDED,
+        path: [...path, i],
+        value: (b as unknown as Record<string, unknown>)[k],
+      });
+    }
+  }
+
+  return result;
+}
+
+function diffObjects(
+  a: Record<string, unknown>,
+  b: Record<string, unknown>,
+  path: Path,
+  refsA: WeakSet<WeakKey>,
+  refsB: WeakSet<WeakKey>,
+  fn?: CompareFn,
 ): DiffResult[] {
   const result: DiffResult[] = [];
 
-  if (typeof a === "object" && typeof b === "object" && a !== null && b !== null) {
-    // For circular refs
-    if (_refsA.has(a as WeakKey) && _refsB.has(b as WeakKey)) {
-      return [];
+  for (const k of Object.keys(a)) {
+    if (Object.hasOwn(b, k)) {
+      const sub = objDiff(a[k], b[k], [...path, k], refsA, refsB, fn);
+      for (const d of sub) result.push(d);
+    } else {
+      result.push({ type: DELETED, path: [...path, k] });
     }
+  }
 
-    _refsA.add(a as WeakKey);
-    _refsB.add(b as WeakKey);
-
-    const customMatch = fn?.(a as object, b as object);
-    if (customMatch === true) {
-      _refsA.delete(a as WeakKey);
-      _refsB.delete(b as WeakKey);
-      return [{ type: CHANGED, path, value: b }];
+  for (const k of Object.keys(b)) {
+    if (!Object.hasOwn(a, k)) {
+      result.push({ type: ADDED, path: [...path, k], value: b[k] });
     }
+  }
 
-    if (customMatch === false) {
-      _refsA.delete(a as WeakKey);
-      _refsB.delete(b as WeakKey);
-      return [];
+  return result;
+}
+
+function diffMaps(
+  a: Map<unknown, unknown>,
+  b: Map<unknown, unknown>,
+  path: Path,
+  refsA: WeakSet<WeakKey>,
+  refsB: WeakSet<WeakKey>,
+  fn?: CompareFn,
+): DiffResult[] {
+  const result: DiffResult[] = [];
+
+  for (const k of a.keys()) {
+    if (b.has(k)) {
+      const sub = objDiff(a.get(k), b.get(k), [...path, k as string | number], refsA, refsB, fn);
+      for (const d of sub) result.push(d);
+    } else {
+      result.push({ type: DELETED, path: [...path, k as string | number] });
     }
+  }
 
-    if (Array.isArray(a) && Array.isArray(b)) {
-      const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
-      for (const k of keys) {
-        const i = Number.isNaN(Number(k)) ? k : Number(k);
-        if (Object.hasOwn(a, k) && Object.hasOwn(b, k)) {
-          result.push(
-            ...objDiff(
-              (a as unknown as Record<string, unknown>)[k],
-              (b as unknown as Record<string, unknown>)[k],
-              [...path, i],
-              _refsA,
-              _refsB,
-              fn,
-            ),
-          );
-        } else if (Object.hasOwn(a, k)) {
-          result.push({ type: DELETED, path: [...path, i] });
-        } else {
-          result.push({
-            type: ADDED,
-            path: [...path, i],
-            value: (b as unknown as Record<string, unknown>)[k],
-          });
-        }
-      }
-
-      _refsA.delete(a as WeakKey);
-      _refsB.delete(b as WeakKey);
-
-      return result;
+  for (const k of b.keys()) {
+    if (!a.has(k)) {
+      result.push({ type: ADDED, path: [...path, k as string | number], value: b.get(k) });
     }
+  }
 
-    if (isObj(a) && isObj(b)) {
-      for (const k of Object.keys(a)) {
-        if (Object.hasOwn(b, k)) {
-          result.push(
-            ...objDiff(
-              (a as Record<string, unknown>)[k] as object,
-              (b as Record<string, unknown>)[k] as object,
-              [...path, k],
-              _refsA,
-              _refsB,
-              fn,
-            ),
-          );
-        } else {
-          result.push({ type: DELETED, path: [...path, k] });
-        }
-      }
+  return result;
+}
 
-      for (const k of Object.keys(b)) {
-        if (!Object.hasOwn(a, k)) {
-          result.push({
-            type: ADDED,
-            path: [...path, k],
-            value: (b as Record<string, unknown>)[k],
-          });
-        }
-      }
+function diffSets(
+  a: Set<unknown>,
+  b: Set<unknown>,
+  path: Path,
+  refsA: WeakSet<WeakKey>,
+  refsB: WeakSet<WeakKey>,
+  fn?: CompareFn,
+): DiffResult[] {
+  const result: DiffResult[] = [];
+  const aArr = [...a];
+  const bArr = [...b];
 
-      _refsA.delete(a as WeakKey);
-      _refsB.delete(b as WeakKey);
-
-      return result;
+  for (let i = 0; i < aArr.length; i++) {
+    if (i < bArr.length) {
+      const sub = objDiff(aArr[i], bArr[i], [...path, i], refsA, refsB, fn);
+      for (const d of sub) result.push(d);
+    } else {
+      result.push({ type: DELETED, path: [...path, i], value: aArr[i] });
     }
+  }
 
-    if (a instanceof Date && b instanceof Date) {
-      if (!Object.is(a.getTime(), (b as Date).getTime())) {
-        _refsA.delete(a as WeakKey);
-        _refsB.delete(b as WeakKey);
-        return [{ type: CHANGED, path, value: b }];
-      }
-      _refsA.delete(a as WeakKey);
-      _refsB.delete(b as WeakKey);
-      return [];
-    }
-
-    if (a instanceof Map && b instanceof Map) {
-      for (const k of a.keys()) {
-        if (b.has(k)) {
-          result.push(...objDiff(a.get(k), b.get(k), [...path, k], _refsA, _refsB, fn));
-        } else {
-          result.push({ type: DELETED, path: [...path, k] });
-        }
-      }
-
-      for (const k of b.keys()) {
-        if (!a.has(k)) {
-          result.push({
-            type: ADDED,
-            path: [...path, k],
-            value: b.get(k),
-          });
-        }
-      }
-
-      _refsA.delete(a as WeakKey);
-      _refsB.delete(b as WeakKey);
-
-      return result;
-    }
-
-    if (a instanceof Set && b instanceof Set) {
-      const aArr = [...a];
-      const bArr = [...b];
-
-      for (let i = 0; i < aArr.length; i++) {
-        if (Object.hasOwn(bArr, i)) {
-          result.push(
-            ...objDiff(
-              aArr[i],
-              (bArr as Array<unknown>)[i] as object,
-              [...path, i],
-              _refsA,
-              _refsB,
-              fn,
-            ),
-          );
-        } else {
-          result.push({ type: DELETED, path: [...path, i], value: aArr[i] });
-        }
-      }
-
-      for (let i = 0; i < (bArr as []).length; i++) {
-        if (!Object.hasOwn(aArr, i)) {
-          result.push({
-            type: ADDED,
-            path: [...path, i],
-            value: (bArr as Array<unknown>)[i],
-          });
-        }
-      }
-
-      _refsA.delete(a as WeakKey);
-      _refsB.delete(b as WeakKey);
-
-      return result;
-    }
-
-    if (Object.prototype.toString.call(a) !== Object.prototype.toString.call(b)) {
-      _refsA.delete(a as WeakKey);
-      _refsB.delete(b as WeakKey);
-      return [{ type: CHANGED, path, value: b }];
-    }
-
-    _refsA.delete(a as WeakKey);
-    _refsB.delete(b as WeakKey);
-  } else {
-    if (!Object.is(a, b)) {
-      return [{ type: CHANGED, path, value: b as object }];
-    }
+  for (let i = aArr.length; i < bArr.length; i++) {
+    result.push({ type: ADDED, path: [...path, i], value: bArr[i] });
   }
 
   return result;
@@ -193,13 +195,14 @@ function objDiff(
 /**
  * Performs a deep difference between two objects.
  *
+ * @param obj1 - The original object.
+ * @param obj2 - The modified object.
+ * @param fn - Optional custom comparator for specialized types.
+ * @returns An array of differences between the two objects.
+ *
  * @example
  * diff({a: 1}, {a: 5}) //=> [{type: 2, path: ['a'], value: 5}]
  */
-export default function diff(
-  obj1: unknown,
-  obj2: unknown,
-  fn?: (a: object, b: object) => boolean | undefined,
-): Array<DiffResult> {
+export default function diff(obj1: unknown, obj2: unknown, fn?: CompareFn): Array<DiffResult> {
   return objDiff(obj1, obj2, [], new WeakSet(), new WeakSet(), fn);
 }
