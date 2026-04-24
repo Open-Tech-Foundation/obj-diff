@@ -77,4 +77,23 @@ describe("diffWith", () => {
     expect(result[0].type).toBe(2);
     expect(result[0].path).toEqual(["_id"]);
   });
+
+  test("explicit equality using false", () => {
+    const a = { obj: { x: 1, y: 2 } };
+    const b = { obj: { x: 1, y: 3 } }; // 'y' is different
+
+    // Without custom comparator, it should detect a change in 'y'
+    expect(diffWith(a, b, () => undefined)).toEqual([
+      { type: 2, path: ["obj", "y"], value: 3 },
+    ]);
+
+    // With custom comparator returning false, it should treat 'obj' as equal
+    const result = diffWith(a, b, (val1, val2) => {
+      if ((val1 as any).x === 1 && (val2 as any).x === 1) {
+        return false;
+      }
+    });
+
+    expect(result).toEqual([]);
+  });
 });

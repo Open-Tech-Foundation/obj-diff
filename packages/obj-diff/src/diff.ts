@@ -26,6 +26,19 @@ function objDiff(
     _refsA.add(a as WeakKey);
     _refsB.add(b as WeakKey);
 
+    const customMatch = fn && fn(a as object, b as object);
+    if (customMatch === true) {
+      _refsA.delete(a as WeakKey);
+      _refsB.delete(b as WeakKey);
+      return [{ type: CHANGED, path, value: b }];
+    }
+
+    if (customMatch === false) {
+      _refsA.delete(a as WeakKey);
+      _refsB.delete(b as WeakKey);
+      return [];
+    }
+
     if (Array.isArray(a) && Array.isArray(b)) {
       const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
       for (const k of keys) {
@@ -175,11 +188,6 @@ function objDiff(
       return [{ type: CHANGED, path, value: b }];
     }
 
-    if (fn && fn(a as object, b as object)) {
-      _refsA.delete(a as WeakKey);
-      _refsB.delete(b as WeakKey);
-      return [{ type: CHANGED, path, value: b }];
-    }
 
     _refsA.delete(a as WeakKey);
     _refsB.delete(b as WeakKey);
