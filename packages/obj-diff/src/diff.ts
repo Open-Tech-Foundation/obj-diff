@@ -27,29 +27,27 @@ function objDiff(
     _refsB.add(b as WeakKey);
 
     if (Array.isArray(a) && Array.isArray(b)) {
-      for (let i = 0; i < a.length; i++) {
-        if (Object.hasOwn(b, i)) {
+      const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+      for (const k of keys) {
+        const i = isNaN(Number(k)) ? k : Number(k);
+        if (Object.hasOwn(a, k) && Object.hasOwn(b, k)) {
           result.push(
             ...objDiff(
-              a[i],
-              (b as Array<unknown>)[i] as object,
+              (a as any)[k],
+              (b as any)[k],
               [...path, i],
               _refsA,
               _refsB,
               fn
             )
           );
-        } else {
+        } else if (Object.hasOwn(a, k)) {
           result.push({ type: DELETED, path: [...path, i] });
-        }
-      }
-
-      for (let i = 0; i < (b as []).length; i++) {
-        if (!Object.hasOwn(a, i)) {
+        } else {
           result.push({
             type: ADDED,
             path: [...path, i],
-            value: (b as Array<unknown>)[i],
+            value: (b as any)[k],
           });
         }
       }

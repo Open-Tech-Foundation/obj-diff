@@ -1,91 +1,90 @@
-<img align="left" src="https://open-tech-foundation.pages.dev/img/Logo.svg" width="50" height="50">
-
-&nbsp;[OPEN TECH FOUNDATION](https://open-tech-foundation.pages.dev/)
-
 <div align="center">
 
-# obj-diff
+# @opentf/obj-diff
 
-[![Build](https://github.com/Open-Tech-Foundation/obj-diff/actions/workflows/build.yml/badge.svg)](https://github.com/Open-Tech-Foundation/obj-diff/actions/workflows/build.yml) &nbsp; [![JSR Score](https://jsr.io/badges/@opentf/obj-diff/score)](https://jsr.io/@opentf/obj-diff)
+**The Fast, Accurate, and Modern JavaScript Objects Diffing & Patching Library.**
+
+[![Build Status](https://github.com/Open-Tech-Foundation/obj-diff/actions/workflows/build.yml/badge.svg)](https://github.com/Open-Tech-Foundation/obj-diff/actions/workflows/build.yml)
+[![JSR Score](https://jsr.io/badges/@opentf/obj-diff/score)](https://jsr.io/@opentf/obj-diff)
 
 ![Demo image](./demo.png)
 
+[**Live Demo**](https://obj-diff.pages.dev/) | [**Report Bug**](https://github.com/Open-Tech-Foundation/obj-diff/issues) | [**Standard Library**](https://github.com/Open-Tech-Foundation/std)
+
 </div>
 
-> The Fast, Accurate, JavaScript Objects Diffing & Patching Library.
+---
 
-**[LIVE DEMO](https://obj-diff.pages.dev/)**
+## 🚀 Features
 
-## Features
+- 🔍 **Deep Objects Diffing**: Detects changes at any depth.
+- 🩹 **Efficient Patching**: Apply diffs to recreate target objects.
+- 🛠️ **Extensible**: Support for custom object types via `diffWith()`.
+- 📦 **Modern Ecosystem**: Built for Bun, Node.js, Deno, and Browser.
+- 🟦 **TypeScript Native**: Full type safety and autocompletion.
+- ⚡ **High Performance**: Optimized for speed and minimal memory footprint.
 
-- Deep Objects Diffing
+## 📦 Installation
 
-- Patching
-
-- Supports comparing custom object types
-
-- TypeScript Support
-
-- Cross-Platform
-
-## Supported Types
-
-- Primitives
-
-  - Undefined
-  - Null
-  - Number
-  - String
-  - Boolean
-  - BigInt
-
-- Objects
-  - Plain Objects, eg: `{}`
-  - Array
-  - Date
-  - Map
-  - Set
-
-## Installation
-
-Install it using your favourite package manager.
+Install `@opentf/obj-diff` using your preferred package manager:
 
 ```sh
+# Bun
 bun add @opentf/obj-diff
-```
 
-```sh
+# pnpm
 pnpm add @opentf/obj-diff
-```
 
-```sh
+# npm
 npm install @opentf/obj-diff
-```
 
-```sh
+# Deno
 deno add @opentf/obj-diff
 ```
 
-## Usage
+## 🛠 Supported Types
 
-```js
-import { diff } from '@opentf/obj-diff';
+The library natively supports the following types:
 
-diff(obj1: object, obj2: object): Array<DiffResult>
-```
+- **Primitives**: `Undefined`, `Null`, `Number`, `String`, `Boolean`, `BigInt`.
+- **Built-in Objects**: `Plain Objects {}`, `Array`, `Date`, `Map`, `Set`.
+
+## 📖 Usage
+
+### `diff(obj1, obj2)`
+
+Performs a deep comparison between two objects.
 
 ```ts
+import { diff } from '@opentf/obj-diff';
+
+const result = diff(obj1, obj2);
+```
+
+#### `DiffResult` Structure
+```ts
 type DiffResult = {
-  type: 0 | 1 | 2; // The type of diff, 0 - Deleted, 1 - Created, 2 - Updated
-  path: Array<string | number>; // The object path
-  value?: unknown; // The current value
+  type: 0 | 1 | 2;              // 0: Deleted, 1: Created, 2: Updated
+  path: Array<string | number>; // The path to the property
+  value?: unknown;              // The value (for Created/Updated)
 };
 ```
 
-## Examples
+### `patch(obj, patches)`
 
-1. Diff two simple objects.
+Applies an array of diff results to an object.
 
+```ts
+import { patch } from "@opentf/obj-diff";
+
+const updatedObj = patch(originalObj, diffResults);
+```
+
+---
+
+## 💡 Examples
+
+### 1. Basic Objects
 ```js
 const a = { a: 1, b: 2 };
 const b = { a: 2, c: 3 };
@@ -93,207 +92,95 @@ const b = { a: 2, c: 3 };
 diff(a, b);
 /*
 [
-  {
-    type: 2,
-    path: ["a"],
-    value: 2,
-  },
-  {
-    type: 0,
-    path: ["b"],
-  },
-  {
-    type: 1,
-    path: ["c"],
-    value: 3,
-  },
+  { type: 2, path: ["a"], value: 2 },
+  { type: 0, path: ["b"] },
+  { type: 1, path: ["c"], value: 3 }
 ]
 */
 ```
 
-2. Diff two arrays.
-
+### 2. Nested Structures
 ```js
-const a = [1, 2, 3, 4, 5];
-const b = [1, 3, 5];
+const a = { foo: { bar: [1, 2] } };
+const b = { foo: { bar: [1] } };
 
-diff(a, b);
-/* 
-[
-  {
-    type: 2,
-    path: [1],
-    value: 3,
-  },
-  {
-    type: 2,
-    path: [2],
-    value: 5,
-  },
-  {
-    type: 0,
-    path: [3],
-  },
-  {
-    type: 0,
-    path: [4],
-  },
-]
-*/
+const d = diff(a, b);
+const res = patch(a, d); // res is deep equal to b
 ```
 
-3. Deep diff two objects.
+### 3. ES6 Map & Set Support
+Natively diff and patch modern collections.
 
 ```js
-const a = {
-  foo: {
-    bar: {
-      a: ["a", "b"],
-      b: 2,
-      c: ["x", "y"],
-      e: 100,
-    },
-  },
-  buzz: "world",
-};
-
-const b = {
-  foo: {
-    bar: {
-      a: ["a"],
-      b: 2,
-      c: ["x", "y", "z"],
-      d: "Hello, world!",
-    },
-  },
-  buzz: "fizz",
-};
+const a = new Set([1, 2]);
+const b = new Set([2, 3]);
 
 diff(a, b);
 /*
 [
-  {
-    type: 0,
-    path: ["foo", "bar", "a", 1],
-  },
-  {
-    type: 1,
-    path: ["foo", "bar", "c", 2],
-    value: "z",
-  },
-  {
-    type: 0,
-    path: ["foo", "bar", "e"],
-  },
-  {
-    type: 1,
-    path: ["foo", "bar", "d"],
-    value: "Hello, world!",
-  },
-  {
-    type: 2,
-    path: ["buzz"],
-    value: "fizz",
-  },
+  { type: 0, path: [0], value: 1 },
+  { type: 1, path: [1], value: 3 }
 ]
 */
 ```
 
-## Patching
-
-You can apply the diff result onto the original object to get the modified object.
+### 4. Circular Reference Safety
+Safe comparison of recursive objects without infinite loops.
 
 ```js
-import { diff, patch } from "@opentf/obj-diff";
+const a = { id: 1 };
+a.self = a;
+const b = { id: 2 };
+b.self = b;
 
-const a = { a: 1, b: 2 };
-const b = { a: 2, c: 3 };
-
-const out = patch(a, diff(a, b));
-
-assert.deepStrictEqual(out, b); // ok
+diff(a, b); 
+// Output: [{ type: 2, path: ["id"], value: 2 }]
 ```
 
-## Comparing Custom Types
-
-By default, the `diff` function cannot compare every object types other than the supported list above.
-
-You can extend the default `diff` function using the `diffWith` function.
-
-Now you can compare any object types of your own.
-
-### Usage - diffWith()
+### 5. Custom Types via `diffWith()`
+Extend the diffing logic for specialized types like MongoDB `ObjectId`.
 
 ```js
-import { diffWith } from '@opentf/obj-diff';
-
-diffWith(
-  obj1: object,
-  obj2: object,
-  fn: (a: object, b: object) => boolean | undefined
-): Array<DiffResult>
-```
-
-### Examples
-
-Let us compare the `MongoDB` bson `ObjectId` objects.
-
-```js
-import { ObjectId } from "bson";
 import { diffWith } from "@opentf/obj-diff";
-
-const record1 = {
-  _id: new ObjectId(),
-  title: "Article 1",
-  desc: "The article description.",
-};
-
-const record2 = {
-  _id: new ObjectId(),
-  title: "Article 1",
-  desc: "The new article description.",
-};
+import { ObjectId } from "bson";
 
 const result = diffWith(record1, record2, (a, b) => {
   if (a instanceof ObjectId && b instanceof ObjectId) {
     return a.toString() !== b.toString();
   }
 });
-
-console.log(result);
-/*
-[
-  {
-    type: 2,
-    path: [ "_id" ],
-    value: new ObjectId('663088b877dd3c9aaec482d4'),
-  }, 
-  {
-    type: 2,
-    path: [ "desc" ],
-    value: "The new article description.",
-  }
-]
-*/
 ```
 
-## FAQs
+---
 
-### 1. **Why the standard JSON Patch protocol is not supported?**
+## ⚠️ Caveats
 
-The `JSON Patch` protocol is complicated in nature. And simply we don't want use it as our existing solution works for most of the projects.
+### Internal Object Sharing (Aliasing)
 
-### 2. What is the meaning of empty array `{p: []}` in path property?
+For maximum performance, `@opentf/obj-diff` preserves internal object identity (sharing) during the `patch()` operation. 
 
-The empty path denotes `Root` path, and it simply means the entire object was replaced.
-
-For Eg:
+If your original object contains multiple paths pointing to the **same object instance**, patching one of those paths will affect all its aliases.
 
 ```js
-diff({}, null); //=> [{type: 2, path: [], value: null}]
+const shared = { x: 1 };
+const a = { first: shared, second: shared };
+const b = { first: { x: 1 }, second: { x: 2 } };
+
+const d = diff(a, b);
+const res = patch(a, d);
+
+// res.first.x will be 2 because it shares the same instance as res.second
+console.log(res.first.x); // 2
 ```
 
-## Benchmark
+> [!TIP]
+> If you require independent branches after patching, ensure your input objects do not share internal references that are expected to diverge.
+
+---
+
+## 📊 Benchmark
+
+We prioritize performance without sacrificing accuracy.
 
 | Library | Ops/sec | Average Time | Notes |
 | :--- | :--- | :--- | :--- |
@@ -305,21 +192,32 @@ diff({}, null); //=> [{type: 2, path: [], value: null}]
 | recursive-diff | 79,628 | ~12.5μs | Slower; Good for complex recursion. |
 | just-diff | 66,477 | ~15.0μs | Slowest in this test. |
 
-### Running benchmarks
-
+### Running Benchmarks Locally
 ```sh
 bun run build
 bun benchmark.js
 ```
 
-## Articles
+---
 
-Please read our important articles:
+## ❓ FAQs
 
+### 1. Why is JSON Patch (RFC 6902) not supported?
+The JSON Patch protocol is quite heavy and complex. We've optimized `@opentf/obj-diff` for performance and simplicity, which covers the vast majority of real-world use cases.
+
+### 2. What does an empty path `path: []` mean?
+An empty path denotes the **Root** of the object. It typically means the entire source was replaced by the target value (e.g., comparing an object to `null`).
+
+---
+
+## 📖 Articles
+
+Explore the philosophy behind our standard library:
 - [Introducing Our New JavaScript Standard Library](https://ganapathy.hashnode.dev/introducing-our-new-javascript-standard-library)
-
 - [You Don’t Need JavaScript Native Methods](https://ganapathy.hashnode.dev/you-dont-need-javascript-native-methods)
 
-## License
+---
 
-Copyright (c) [Thanga Ganapathy](https://github.com/Thanga-Ganapathy) ([MIT License](./LICENSE)).
+## 📄 License
+
+This project is licensed under the [MIT License](./LICENSE).
