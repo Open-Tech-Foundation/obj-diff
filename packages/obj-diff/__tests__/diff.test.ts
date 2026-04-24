@@ -504,4 +504,15 @@ describe("diff", () => {
       },
     ]);
   });
+
+  test("shared object swap", () => {
+    const obj1 = { x: 1 };
+    const obj2 = { x: 2 };
+    const a = { foo: obj1, bar: obj2 };
+    const b = { foo: obj2, bar: obj1 };
+    expect(diff(a, b)).toEqual([
+      { t: 2, p: ["foo", "x"], v: 2 },
+      { t: 2, p: ["bar", "x"], v: 1 },
+    ]);
+  });
 });
