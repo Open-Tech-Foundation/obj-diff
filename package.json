@@ -20,10 +20,14 @@
     "deep-diff": "^1.0.2",
     "deep-diff-ts": "^1.0.1",
     "deep-object-diff": "^1.1.9",
+    "diff": "^9.0.0",
+    "fast-json-patch": "^3.1.1",
     "jsondiffpatch": "^0.7.6",
     "just-diff": "^6.0.2",
+    "just-diff-apply": "^5.5.0",
     "microdiff": "^1.5.0",
+    "mitata": "^1.0.34",
     "recursive-diff": "^1.0.9",
-    "tinybench": "^6.0.2"
+    "rfc6902": "^5.2.0"
   }
 }
