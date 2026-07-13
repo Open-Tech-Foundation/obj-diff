@@ -1,3 +1,4 @@
+
 import { Bench, hrtimeNow } from "tinybench";
 import mdiff from "microdiff";
 import { diff } from "./packages/obj-diff/dist/index.js";
@@ -6,6 +7,8 @@ import { diff as justDiff } from "just-diff";
 import deepDiff from "deep-diff";
 import { getDiff } from "recursive-diff";
 import * as jsondiffpatch from "jsondiffpatch";
+import { diff as deepDiffTs } from "deep-diff-ts";
+import { diff as adobeDiff } from "@adobe/optimized-diff";
 
 const obj1 = {
   id: 8,
@@ -82,9 +85,15 @@ bench
   })
   .add("jsondiffpatch", () => {
     jsondiffpatch.diff(obj1, obj2);
+  })
+  .add("deep-diff-ts", () => {
+    deepDiffTs(obj1, obj2);
+  })
+  .add("@adobe/optimized-diff", () => {
+    adobeDiff(obj1, obj2);
   });
 
-await bench.warmup();
+
 await bench.run();
 
 console.table(bench.table());

@@ -46,6 +46,8 @@ export default function patch<T>(obj: T, patches: Array<DiffResult>): T {
       const key = p.path[i];
       if (current instanceof Map) {
         current = current.get(key) as Record<string, unknown>;
+      } else if (current instanceof Set) {
+        current = [...current][key as number] as Record<string, unknown>;
       } else {
         current = (current as Record<string, unknown>)[key] as Record<string, unknown>;
       }
@@ -110,7 +112,9 @@ function packSparseArrays(val: unknown, visited = new WeakSet()): void {
       for (const v of packed) val.push(v);
     }
     for (const item of val) packSparseArrays(item, visited);
-  } else if (!(val instanceof Date) && !(val instanceof Map) && !(val instanceof Set)) {
-    for (const v of Object.values(val)) packSparseArrays(v, visited);
+  } else if (val instanceof Map || val instanceof Set) {
+    for (const v of val.values()) packSparseArrays(v, visited);
+  } else if (!(val instanceof Date)) {
+    for (const v of Object.values(val as Record<string, unknown>)) packSparseArrays(v, visited);
   }
 }

@@ -1,5 +1,18 @@
 # @opentf/obj-diff
 
+## [Unreleased]
+
+### Fixed
+- Fixed asymmetrical circular reference diffing to avoid false positives and stack overflows.
+- Improved comparison of unhandled object types (e.g. `RegExp`, `Error`) by falling back to string value comparison.
+- Fixed deep `patch()` traversal failing when encountering `Set` collections.
+- Fixed `packSparseArrays` to properly traverse and clean sparse arrays nested within `Map` values and `Set` elements.
+
+### Added
+- Added comprehensive accuracy evaluation script (`evaluate.js`) covering ES6 collections and edge cases.
+- Added updated benchmark competitors (`deep-diff-ts`, `@adobe/optimized-diff`).
+- Updated README.md with detailed Accuracy vs Performance matrices.
+
 ## 0.14.0
 
 ### Minor Changes

@@ -180,24 +180,44 @@ console.log(res.first.x); // 2
 
 ---
 
-## 📊 Benchmark
+## 🎯 Accuracy & Performance Benchmark
 
-We prioritize performance without sacrificing accuracy.
+We prioritize correctness for modern JavaScript. **`@opentf/obj-diff` is the only library among major competitors that correctly diffs ES6 Collections (Map & Set) and reliably handles edge cases.**
+
+### Accuracy Evaluation
+
+| Library | Nested Objects | Dates | RegExps | Maps | Sets | Sparse Arrays | Circular Refs |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **@opentf/obj-diff** | ✅ Pass | ✅ Pass | ✅ Pass | ✅ Pass | ✅ Pass | ✅ Pass | ✅ Pass |
+| **microdiff** | ✅ Pass | ✅ Pass | ✅ Pass | ⚠️ Fail | ⚠️ Fail | ✅ Pass | ✅ Pass |
+| **jsondiffpatch** | ✅ Pass | ✅ Pass | ✅ Pass | ⚠️ Fail | ⚠️ Fail | ✅ Pass | ✅ Pass |
+| **deep-diff-ts** | ✅ Pass | ✅ Pass | ✅ Pass | ⚠️ Fail | ⚠️ Fail | ✅ Pass | ✅ Pass |
+| **deep-diff** | ✅ Pass | ✅ Pass | ✅ Pass | ⚠️ Fail | ⚠️ Fail | ✅ Pass | ✅ Pass |
+| **recursive-diff** | ✅ Pass | ✅ Pass | ✅ Pass | ⚠️ Fail | ⚠️ Fail | ✅ Pass | ✅ Pass |
+| **just-diff** | ✅ Pass | ✅ Pass | ✅ Pass | ⚠️ Fail | ⚠️ Fail | ✅ Pass | ✅ Pass |
+| **deep-object-diff** | ✅ Pass | ✅ Pass | ⚠️ Fail | ⚠️ Fail | ⚠️ Fail | ✅ Pass | ✅ Pass |
+| **@adobe/optimized-diff** | ✅ Pass | ⚠️ Fail | ⚠️ Fail | ⚠️ Fail | ⚠️ Fail | ✅ Pass | ✅ Pass |
+
+### Speed Benchmark
+
+While being the most robust, it remains in the top tier for performance:
 
 | Library | Ops/sec | Average Time | Notes |
 | :--- | :--- | :--- | :--- |
-| **@opentf/obj-diff** | **246,154** | **~4.0μs** | **Fastest; Full Diff + Patch support.** |
-| microdiff | 158,745 | ~6.3μs | Very fast; No patching support. |
-| jsondiffpatch | 157,453 | ~6.3μs | Rich features (LCS, RFC6902); Slower. |
-| deep-object-diff | 151,559 | ~6.6μs | Fast; Basic diffing only. |
-| deep-diff | 111,615 | ~9.0μs | Medium; Classic library. |
-| recursive-diff | 79,628 | ~12.5μs | Slower; Good for complex recursion. |
-| just-diff | 66,477 | ~15.0μs | Slowest in this test. |
+| **jsondiffpatch** | 232,145 | ~4.6μs | Extremely fast; lacks modern JS types support. |
+| **deep-diff-ts** | 222,852 | ~4.8μs | High performance; TS native. |
+| **microdiff** | 188,232 | ~5.6μs | Very fast; No patching support. |
+| **@opentf/obj-diff** | **185,605** | **~5.7μs** | **Most accurate; Full Diff + Patch support.** |
+| **deep-diff** | 169,288 | ~6.2μs | Medium; Classic library. |
+| **recursive-diff** | 138,005 | ~7.5μs | Good for complex recursion. |
+| **@adobe/optimized-diff**| 117,607 | ~9.1μs | High performance Adobe library. |
+| **deep-object-diff** | 100,747 | ~10.6μs | Fast; Basic diffing only. |
+| **just-diff** | 84,038 | ~12.6μs | Slowest in this test. |
 
 ### Running Benchmarks Locally
 ```sh
-bun run build
-bun benchmark.js
+bun run evaluate.js
+bun run benchmark.js
 ```
 
 ---

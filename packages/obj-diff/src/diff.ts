@@ -23,7 +23,10 @@ function objDiff(
   }
 
   // Circular reference guard
-  if (refsA.has(a) && refsB.has(b)) return [];
+  if (refsA.has(a) || refsB.has(b)) {
+    if (refsA.has(a) && refsB.has(b)) return [];
+    return [{ type: CHANGED, path, value: b }];
+  }
 
   refsA.add(a);
   refsB.add(b);
@@ -61,7 +64,7 @@ function objDiff(
   } else if (Object.prototype.toString.call(a) !== Object.prototype.toString.call(b)) {
     result = [{ type: CHANGED, path, value: b }];
   } else {
-    result = [];
+    result = String(a) === String(b) ? [] : [{ type: CHANGED, path, value: b }];
   }
 
   cleanupRefs(a, b, refsA, refsB);
