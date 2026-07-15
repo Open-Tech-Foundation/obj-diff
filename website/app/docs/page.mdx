@@ -1,27 +1,39 @@
 ---
 title: Getting Started
-description: Learn how the generated OTF Web docs starter is structured.
+description: The complete guide to @opentf/obj-diff.
 ---
 
-# Getting Started
+import { Tabs, CodeBlock } from "@opentf/web-docs";
 
-This page is rendered by `app/docs/page.mdx` and wrapped by
-`app/docs/layout.jsx`, which uses `DocsLayout` from `@opentf/web-docs`.
+export const installTabs = [
+  { label: "Bun", content: <CodeBlock lang="sh" code="bun add @opentf/obj-diff" /> },
+  { label: "pnpm", content: <CodeBlock lang="sh" code="pnpm add @opentf/obj-diff" /> },
+  { label: "npm", content: <CodeBlock lang="sh" code="npm install @opentf/obj-diff" /> },
+  { label: "Deno", content: <CodeBlock lang="sh" code="deno add @opentf/obj-diff" /> }
+];
 
-## Navigation
+# Introduction
 
-The top navbar links here from the landing page. The sidebar is generated from the
-docs route tree, and `app/docs/_meta.js` controls the page labels and order.
+**@opentf/obj-diff** is the fast, accurate, and modern JavaScript Objects Diffing & Patching Library.
 
-## Table Of Contents
+## 🚀 Features
 
-Headings on this page are collected into the right-side table of contents. Add more
-`##` and `###` headings to see it grow.
+- 🔍 **Deep Objects Diffing**: Detects changes at any depth.
+- 🩹 **Efficient Patching**: Apply diffs to recreate target objects.
+- 🛠️ **Extensible**: Support for custom object types via `diffWith()`.
+- 📦 **Modern Ecosystem**: Built for Bun, Node.js, Deno, and Browser.
+- 🟦 **TypeScript Native**: Full type safety and autocompletion.
+- ⚡ **High Performance**: Optimized for speed and minimal memory footprint.
 
-## Edit Content
+## 📦 Installation
 
-Change this MDX file and run the dev server:
+Install `@opentf/obj-diff` using your preferred package manager:
 
-```bash
-bun run dev
-```
+<Tabs tabs={installTabs} />
+
+## 🛠 Supported Types
+
+The library natively supports the following types:
+
+- **Primitives**: `Undefined`, `Null`, `Number`, `String`, `Boolean`, `BigInt`.
+- **Built-in Objects**: `Plain Objects {}`, `Array`, `Date`, `Map`, `Set`, `TypedArray` (`Uint8Array`, `Float32Array`, etc.).

@@ -1,0 +1,70 @@
+---
+title: Examples
+description: Real-world usage examples for @opentf/obj-diff.
+---
+
+# Examples
+
+## 1. Basic Objects
+```js
+const a = { a: 1, b: 2 };
+const b = { a: 2, c: 3 };
+
+diff(a, b);
+/*
+[
+  { type: 2, path: ["a"], value: 2 },
+  { type: 0, path: ["b"] },
+  { type: 1, path: ["c"], value: 3 }
+]
+*/
+```
+
+## 2. Nested Structures
+```js
+const a = { foo: { bar: [1, 2] } };
+const b = { foo: { bar: [1] } };
+
+const d = diff(a, b);
+const res = patch(a, d); // res is deep equal to b
+```
+
+## 3. ES6 Map & Set Support
+Natively diff and patch modern collections.
+
+```js
+const a = new Set([1, 2]);
+const b = new Set([2, 3]);
+
+diff(a, b);
+/*
+[
+  { type: 0, path: [0], value: 1 },
+  { type: 1, path: [1], value: 3 }
+]
+*/
+```
+
+## 4. Circular Reference Safety
+Safe comparison of recursive objects without infinite loops.
+
+```js
+const a = { id: 1 };
+a.self = a;
+const b = { id: 2 };
+b.self = b;
+
+diff(a, b); 
+// Output: [{ type: 2, path: ["id"], value: 2 }]
+```
+
+## 5. Native TypedArray Performance
+Accurately diffs large chunks of binary data incredibly fast.
+
+```js
+const a = new Uint8Array([1, 2, 3]);
+const b = new Uint8Array([1, 4, 3]);
+
+diff(a, b); 
+// Output: [{ type: 2, path: [1], value: 4 }]
+```

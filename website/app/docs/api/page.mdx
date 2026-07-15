@@ -1,0 +1,58 @@
+---
+title: API Reference
+description: API documentation for diff, patch, and diffWith.
+---
+
+# API Reference
+
+## `diff(obj1, obj2)`
+
+Performs a deep comparison between two objects and generates a list of diffs.
+
+```ts
+import { diff } from '@opentf/obj-diff';
+
+const result = diff(obj1, obj2);
+```
+
+### `DiffResult` Structure
+```ts
+type DiffResult = {
+  type: 0 | 1 | 2;              // 0: Deleted, 1: Created, 2: Updated
+  path: Array<string | number>; // The path to the property
+  value?: unknown;              // The value (for Created/Updated)
+};
+```
+
+---
+
+## `patch(obj, patches)`
+
+Applies an array of diff results to an object.
+
+```ts
+import { patch, diff } from "@opentf/obj-diff";
+
+const originalObj = { a: 1 };
+const targetObj = { a: 2 };
+
+const diffResults = diff(originalObj, targetObj);
+const updatedObj = patch(originalObj, diffResults);
+```
+
+---
+
+## `diffWith(obj1, obj2, customEqualityFn)`
+
+Allows you to inject a custom equality function for checking specific structures, classes, or types (e.g. MongoDB `ObjectId`).
+
+```ts
+import { diffWith } from "@opentf/obj-diff";
+import { ObjectId } from "bson";
+
+const result = diffWith(record1, record2, (a, b) => {
+  if (a instanceof ObjectId && b instanceof ObjectId) {
+    return a.toString() !== b.toString();
+  }
+});
+```

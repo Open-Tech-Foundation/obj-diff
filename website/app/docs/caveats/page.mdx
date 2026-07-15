@@ -1,0 +1,38 @@
+---
+title: Caveats & FAQs
+description: Things to know when working with @opentf/obj-diff.
+---
+
+# Caveats & FAQs
+
+## Caveats
+
+### Internal Object Sharing (Aliasing)
+
+For maximum performance, `@opentf/obj-diff` preserves internal object identity (sharing) during the `patch()` operation. 
+
+If your original object contains multiple paths pointing to the **same object instance**, patching one of those paths will affect all its aliases.
+
+```js
+const shared = { x: 1 };
+const a = { first: shared, second: shared };
+const b = { first: { x: 1 }, second: { x: 2 } };
+
+const d = diff(a, b);
+const res = patch(a, d);
+
+// res.first.x will be 2 because it shares the same instance as res.second
+console.log(res.first.x); // 2
+```
+
+> **Tip:** If you require independent branches after patching, ensure your input objects do not share internal references that are expected to diverge.
+
+---
+
+## FAQs
+
+### 1. Why is JSON Patch (RFC 6902) not supported?
+The JSON Patch protocol is quite heavy and complex. We've optimized `@opentf/obj-diff` for performance and simplicity, which covers the vast majority of real-world use cases and securely handles Native JS objects (Maps, Sets, TypedArrays) which JSON patching simply cannot do.
+
+### 2. What does an empty path `path: []` mean?
+An empty path denotes the **Root** of the object. It typically means the entire source was replaced by the target value (e.g., comparing an object to `null`).
