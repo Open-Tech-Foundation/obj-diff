@@ -1,4 +1,4 @@
-import { clone } from "@opentf/std";
+import { clone, isTypedArray } from "@opentf/std";
 import { ADDED, CHANGED, DELETED } from "./constants";
 import type { DiffResult } from "./types";
 
@@ -114,7 +114,7 @@ function packSparseArrays(val: unknown, visited = new WeakSet()): void {
     for (const item of val) packSparseArrays(item, visited);
   } else if (val instanceof Map || val instanceof Set) {
     for (const v of val.values()) packSparseArrays(v, visited);
-  } else if (!(val instanceof Date)) {
+  } else if (!(val instanceof Date) && !isTypedArray(val)) {
     for (const v of Object.values(val as Record<string, unknown>)) packSparseArrays(v, visited);
   }
 }

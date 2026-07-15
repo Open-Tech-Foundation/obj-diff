@@ -60,4 +60,16 @@ group('Mixed object changes', () => {
   bench('just-diff', () => justDiff(mixed1, mixed2));
 });
 
+group('Large TypedArray (10k elements, 1 change)', () => {
+  const ta1 = new Uint32Array(10000);
+  const ta2 = new Uint32Array(10000);
+  ta2[5000] = 9999;
+  
+  bench('@opentf/obj-diff', () => objDiff({ arr: ta1 }, { arr: ta2 }));
+  bench('microdiff', () => mdiff({ arr: ta1 }, { arr: ta2 }));
+  bench('deep-diff', () => deepDiff({ arr: ta1 }, { arr: ta2 }));
+  bench('deep-object-diff', () => deepObjectDiff({ arr: ta1 }, { arr: ta2 }));
+  bench('just-diff', () => justDiff({ arr: ta1 }, { arr: ta2 }));
+});
+
 await run();

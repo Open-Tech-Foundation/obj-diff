@@ -1,5 +1,5 @@
 import mdiff from "microdiff";
-import { diff as opentfDiff, patch as opentfPatch } from "./packages/obj-diff/dist/index.js";
+import { diff as opentfDiff, patch as opentfPatch } from "../packages/obj-diff/dist/index.js";
 import { detailedDiff as adobeDiff } from "@adobe/optimized-diff";
 import { diff as justDiff } from "just-diff";
 import deepDiff from "deep-diff";
@@ -42,6 +42,12 @@ const createDate = () => {
   return [{ d: new Date("2024-01-01") }, { d: new Date("2024-01-02") }];
 };
 
+const createTypedArray = () => {
+  const a = new Uint8Array([1, 2, 3]);
+  const b = new Uint8Array([1, 4, 3]);
+  return [a, b];
+};
+
 const testCases = [
   { name: "Nested Objects", get: () => [{ a: { b: 1 } }, { a: { b: 2 } }] },
   { name: "Dates", get: createDate },
@@ -49,7 +55,8 @@ const testCases = [
   { name: "Maps", get: createMap },
   { name: "Sets", get: createSet },
   { name: "Sparse Arrays", get: createSparseArray },
-  { name: "Circular References", get: createCircular }
+  { name: "Circular References", get: createCircular },
+  { name: "TypedArrays", get: createTypedArray }
 ];
 
 const libraries = [

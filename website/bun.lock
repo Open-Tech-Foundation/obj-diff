@@ -8,7 +8,7 @@
         "@codemirror/lang-javascript": "^6.2.5",
         "@codemirror/theme-one-dark": "^6.1.3",
         "@opentf/obj-diff": "../packages/obj-diff",
-        "@opentf/std": "^0.13.0",
+        "@opentf/std": "^1.0.0-beta.3",
         "@opentf/web": "^0.18.0",
         "@opentf/web-docs": "^0.15.0",
         "codemirror": "^6.0.2",
@@ -85,7 +85,7 @@
 
     "@opentf/obj-diff": ["@opentf/obj-diff@file:../packages/obj-diff", { "dependencies": { "@opentf/std": "^0.12.0" }, "devDependencies": { "@biomejs/biome": "^2.4.13", "bson": "^6.6.0", "typescript": "^5.4.5" } }],
 
-    "@opentf/std": ["@opentf/std@0.13.0", "", {}, "sha512-VG9vn7oML5prxWipDvod1X7z9+3fyyCbw+SuD5F7cWx9F1bXFZdAYGIKGqqHLtfxz3mrXZWHcxnm8d0YwQ7tKQ=="],
+    "@opentf/std": ["@opentf/std@1.0.0-beta.3", "", {}, "sha512-cYjPKcKil0sSNmXownPYOH/LqvFdmHsfuIP+JwN6wxX/4+igva+HfPjONxxeHCgKpyUnSDZo/oi6VGq4MXzQxw=="],
 
     "@opentf/web": ["@opentf/web@0.18.0", "", {}, "sha512-E0zec0Ddligbhlv8b/Wl5NwduHpussp5DkfUm5lSAb0wGMdeeTgc9cM5Z+K/ERyOWECsYo4D88MWaUgA0BZCnw=="],
 

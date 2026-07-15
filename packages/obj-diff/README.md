@@ -49,7 +49,7 @@ deno add @opentf/obj-diff
 The library natively supports the following types:
 
 - **Primitives**: `Undefined`, `Null`, `Number`, `String`, `Boolean`, `BigInt`.
-- **Built-in Objects**: `Plain Objects {}`, `Array`, `Date`, `Map`, `Set`.
+- **Built-in Objects**: `Plain Objects {}`, `Array`, `Date`, `Map`, `Set`, `TypedArray` (`Uint8Array`, `Float32Array`, etc.).
 
 ## 📖 Usage
 
@@ -221,6 +221,7 @@ We have rebuilt our benchmark suite using `mitata` and split it into distinct ca
 | **Date** | ✅ | ✅ | ✅ | JSON only |
 | **Map** | ✅ | ❌ | ❌ | ❌ |
 | **Set** | ✅ | ❌ | ❌ | ❌ |
+| **TypedArray** | ✅ | ✅ | ✅ | ❌ |
 | **Circular Refs** | ✅ | ✅ | ✅ | ❌ |
 | **RegExp** | ✅ | ✅ | ✅ | ❌ |
 | **Sparse Arrays** | ✅ | ✅ | ✅ | JSON only |

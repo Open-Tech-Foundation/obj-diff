@@ -1,5 +1,5 @@
 import { diff, patch } from "@opentf/obj-diff";
-import { strReplace } from "@opentf/std";
+import { strReplace, isTypedArray } from "@opentf/std";
 import { EditorView, basicSetup } from "codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -24,18 +24,20 @@ const scenarios = [
   {
     id: "collections",
     label: "Native collections",
-    detail: "Map, Set, Date, BigInt",
+    detail: "Map, Set, Date, BigInt, TypedArray",
     before: `{
   inventory: new Map([['tea', 4], ['coffee', 8]]),
   tags: new Set(['stable', 'public']),
   released: new Date('2025-01-01'),
-  downloads: 9007199254740993n
+  downloads: 9007199254740993n,
+  buffer: new Uint8Array([1, 2, 3])
 }`,
     after: `{
   inventory: new Map([['tea', 2], ['coffee', 8], ['cocoa', 3]]),
   tags: new Set(['stable', 'featured']),
   released: new Date('2026-07-15'),
-  downloads: 9007199254741993n
+  downloads: 9007199254741993n,
+  buffer: new Uint8Array([1, 4, 3])
 }`,
   },
   {
@@ -65,6 +67,7 @@ function replacer(key, value) {
   if (value === undefined) return `__INTERNAL__UNDEFINED`;
   if (value instanceof Map) return `Map(${value.size}) ${JSON.stringify(Array.from(value))}`;
   if (value instanceof Set) return `Set(${value.size}) ${JSON.stringify(Array.from(value))}`;
+  if (isTypedArray(value)) return `${value.constructor.name}(${value.length}) ${JSON.stringify(Array.from(value))}`;
   return value;
 }
 
@@ -84,6 +87,7 @@ function formatValue(value) {
   if (value instanceof Date) return `Date(${value.toISOString()})`;
   if (value instanceof Map) return `Map(${value.size})`;
   if (value instanceof Set) return `Set(${value.size})`;
+  if (isTypedArray(value)) return `${value.constructor.name}(${value.length})`;
   if (typeof value === "string") return `“${value}”`;
   if (value && typeof value === "object") return Array.isArray(value) ? `Array(${value.length})` : "Object";
   return String(value);
@@ -196,7 +200,7 @@ export default function Home() {
           <a class="button button-primary" href="/docs">Get started</a>
         </div>
         <div class="capability-row" aria-label="Supported JavaScript values">
-          <span>Map</span><span>Set</span><span>Date</span><span>BigInt</span><span>Cycles</span><span>Sparse arrays</span>
+          <span>Map</span><span>Set</span><span>Date</span><span>BigInt</span><span>TypedArray</span><span>Cycles</span><span>Sparse arrays</span>
         </div>
       </section>
 
@@ -273,7 +277,7 @@ export default function Home() {
       <section class="proof-grid" aria-label="obj-diff advantages">
         <article><span class="proof-number">01</span><h2>Readable operations</h2><p>Start with a human change list, then open the raw data only when you need it.</p></article>
         <article><span class="proof-number">02</span><h2>Patch proof included</h2><p>Every edit is checked by applying the generated diff back to a fresh source object.</p></article>
-        <article><span class="proof-number">03</span><h2>JavaScript-native</h2><p>Test collections, cycles, dates, BigInts, and sparse arrays without flattening them into JSON.</p></article>
+        <article><span class="proof-number">03</span><h2>JavaScript-native</h2><p>Test collections, cycles, dates, BigInts, TypedArrays, and sparse arrays without flattening them into JSON.</p></article>
       </section>
     </main>
   );

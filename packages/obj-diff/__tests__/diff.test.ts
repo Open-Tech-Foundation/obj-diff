@@ -516,4 +516,25 @@ describe("diff", () => {
       { type: 2, path: ["bar", "x"], value: 1 },
     ]);
   });
+
+  test("TypedArray", () => {
+    const a = new Uint8Array([1, 2, 3]);
+    const b = new Uint8Array([1, 4, 3]);
+    expect(diff(a, b)).toEqual([
+      { type: 2, path: [1], value: 4 },
+    ]);
+
+    const c = new Uint8Array([1, 2, 3]);
+    const d = new Uint8Array([1, 2, 3, 4]);
+    expect(diff(c, d)).toEqual([
+      { type: 2, path: [], value: d },
+    ]);
+
+    const e = new Int8Array([1, 2, 3]);
+    const f = new Uint8Array([1, 2, 3]);
+    expect(diff(e, f)).toEqual([
+      { type: 2, path: [], value: f },
+    ]);
+  });
 });
+

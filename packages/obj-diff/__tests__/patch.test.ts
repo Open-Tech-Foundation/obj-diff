@@ -57,4 +57,19 @@ describe("patch", () => {
     const b = { s: new Set([2, 3]) };
     expect(patch(a, diff(a, b))).toEqual(b);
   });
+
+  test("TypedArray", () => {
+    const a = { t: new Uint8Array([1, 2, 3]) };
+    const b = { t: new Uint8Array([1, 4, 3]) };
+    expect(patch(a, diff(a, b))).toEqual(b);
+
+    const c = { t: new Uint8Array([1, 2, 3]) };
+    const d = { t: new Uint8Array([1, 2, 3, 4]) };
+    expect(patch(c, diff(c, d))).toEqual(d);
+
+    const e = { t: new Int8Array([1, 2, 3]) };
+    const f = { t: new Uint8Array([1, 2, 3]) };
+    expect(patch(e, diff(e, f))).toEqual(f);
+  });
 });
+

@@ -9,6 +9,7 @@
 - Fixed `packSparseArrays` to properly traverse and clean sparse arrays nested within `Map` values and `Set` elements.
 
 ### Added
+- Native diffing and patching support for all JavaScript TypedArrays (`Uint8Array`, `Float32Array`, `BigInt64Array`, etc.) allowing precise element-level diffs and preserving array types during patching.
 - Added comprehensive accuracy evaluation script (`evaluate.js`) covering ES6 collections and edge cases.
 - Added updated benchmark competitors (`deep-diff-ts`, `@adobe/optimized-diff`).
 - Updated README.md with detailed Accuracy vs Performance matrices.

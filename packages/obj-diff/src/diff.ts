@@ -1,4 +1,4 @@
-import { isObj } from "@opentf/std";
+import { isPlainObject, isTypedArray } from "@opentf/std";
 import { ADDED, CHANGED, DELETED } from "./constants";
 import type { DiffResult } from "./types";
 
@@ -46,7 +46,9 @@ function objDiff(
 
   if (Array.isArray(a) && Array.isArray(b)) {
     result = diffArrays(a, b, path, refsA, refsB, fn);
-  } else if (isObj(a) && isObj(b)) {
+  } else if (isTypedArray(a) && isTypedArray(b)) {
+    result = diffTypedArrays(a, b, path);
+  } else if (isPlainObject(a) && isPlainObject(b)) {
     result = diffObjects(
       a as Record<string, unknown>,
       b as Record<string, unknown>,
@@ -105,6 +107,37 @@ function diffArrays(
         path: [...path, i],
         value: (b as unknown as Record<string, unknown>)[k],
       });
+    }
+  }
+
+  return result;
+}
+
+type TypedArray =
+  | Int8Array
+  | Uint8Array
+  | Uint8ClampedArray
+  | Int16Array
+  | Uint16Array
+  | Int32Array
+  | Uint32Array
+  | Float32Array
+  | Float64Array
+  | BigInt64Array
+  | BigUint64Array;
+
+function diffTypedArrays(a: TypedArray, b: TypedArray, path: Path): DiffResult[] {
+  if (
+    a.length !== b.length ||
+    Object.prototype.toString.call(a) !== Object.prototype.toString.call(b)
+  ) {
+    return [{ type: CHANGED, path, value: b }];
+  }
+
+  const result: DiffResult[] = [];
+  for (let i = 0; i < a.length; i++) {
+    if (!Object.is(a[i], b[i])) {
+      result.push({ type: CHANGED, path: [...path, i], value: b[i] });
     }
   }
 
