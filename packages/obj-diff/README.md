@@ -2,12 +2,7 @@
 
 # @opentf/obj-diff
 
-**The Fast, Accurate, and Modern JavaScript Objects Diffing & Patching Library.**
-
-[![CI Status](https://github.com/Open-Tech-Foundation/obj-diff/actions/workflows/ci.yml/badge.svg)](https://github.com/Open-Tech-Foundation/obj-diff/actions/workflows/ci.yml)
-[![JSR Score](https://jsr.io/badges/@opentf/obj-diff/score)](https://jsr.io/@opentf/obj-diff)
-
-*Part of the <img src="https://open-tech-foundation.pages.dev/img/Logo.svg" width="18" height="18" style="vertical-align: middle;"> [Open Tech Foundation](https://github.com/Open-Tech-Foundation) ecosystem.*
+> # The Fast, Accurate, and Modern JavaScript Objects Diffing & Patching Library.
 
 ![Demo image](https://raw.githubusercontent.com/Open-Tech-Foundation/obj-diff/main/demo.png)
 
@@ -248,14 +243,10 @@ An empty path denotes the **Root** of the object. It typically means the entire 
 
 ---
 
-## 📖 Articles
-
-Explore the philosophy behind our standard library:
-- [Introducing Our New JavaScript Standard Library](https://ganapathy.hashnode.dev/introducing-our-new-javascript-standard-library)
-- [You Don’t Need JavaScript Native Methods](https://ganapathy.hashnode.dev/you-dont-need-javascript-native-methods)
-
----
-
 ## 📄 License
 
 This project is licensed under the [MIT License](./LICENSE).
+
+---
+
+<p> Powered by <a href="https://opentechf.org">Open Tech Foundation</a></p>
