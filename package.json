@@ -9,12 +9,10 @@
     "dev": "bun run --cwd apps/demo dev",
     "build": "bun run --cwd packages/obj-diff build",
     "test": "bun run --cwd packages/obj-diff test",
-    "ci": "bun run --cwd packages/obj-diff ci",
-    "publish-packages": "bun run build && bun run test && bun x changeset version && bun x changeset publish"
+    "ci": "bun run --cwd packages/obj-diff ci"
   },
   "devDependencies": {
     "@adobe/optimized-diff": "^1.0.0",
-    "@changesets/cli": "^2.27.1",
     "@types/bun": "^1.3.13",
     "@types/node": "^25.6.0",
     "deep-diff": "^1.0.2",
