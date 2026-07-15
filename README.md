@@ -6,8 +6,6 @@
 
 ![Demo image](https://raw.githubusercontent.com/Open-Tech-Foundation/obj-diff/main/demo.png)
 
-[**Live Demo**](https://obj-diff.pages.dev/) | [**Report Bug**](https://github.com/Open-Tech-Foundation/obj-diff/issues) | [**Standard Library**](https://github.com/Open-Tech-Foundation/std)
-
 </div>
 
 ---
@@ -247,6 +245,4 @@ An empty path denotes the **Root** of the object. It typically means the entire 
 
 This project is licensed under the [MIT License](./LICENSE).
 
----
-
-<p> Powered by <a href="https://opentechf.org">Open Tech Foundation</a></p>
+<p align="center">⚡ Powered by <a href="https://opentechf.org">Open Tech Foundation</a></p>

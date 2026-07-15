@@ -247,6 +247,4 @@ An empty path denotes the **Root** of the object. It typically means the entire 
 
 This project is licensed under the [MIT License](./LICENSE).
 
----
-
-<p> Powered by <a href="https://opentechf.org">Open Tech Foundation</a></p>
+<p align="center">⚡ Powered by <a href="https://opentechf.org">Open Tech Foundation</a></p>
