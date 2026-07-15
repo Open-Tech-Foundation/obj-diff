@@ -1,0 +1,21 @@
+{
+  "name": "website",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "otfw dev",
+    "build": "otfw build --ssg"
+  },
+  "dependencies": {
+    "@codemirror/lang-javascript": "^6.2.5",
+    "@codemirror/theme-one-dark": "^6.1.3",
+    "@opentf/obj-diff": "../packages/obj-diff",
+    "@opentf/std": "^0.13.0",
+    "@opentf/web": "^0.18.0",
+    "@opentf/web-docs": "^0.15.0",
+    "codemirror": "^6.0.2"
+  },
+  "devDependencies": {
+    "@opentf/web-cli": "^1.14.0"
+  }
+}
