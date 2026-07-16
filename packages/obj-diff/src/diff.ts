@@ -42,6 +42,12 @@ function objDiff(
     return [];
   }
 
+  // Identical references are always deeply equal
+  if (a === b) {
+    cleanupRefs(a, b, refsA, refsB);
+    return [];
+  }
+
   let result: DiffResult[];
 
   if (Array.isArray(a) && Array.isArray(b)) {
@@ -65,6 +71,20 @@ function objDiff(
     result = diffSets(a, b, path, refsA, refsB, fn);
   } else if (Object.prototype.toString.call(a) !== Object.prototype.toString.call(b)) {
     result = [{ type: CHANGED, path, value: b }];
+  } else if (Object.prototype.toString.call(a) === "[object Object]") {
+    // Class instances: diff own enumerable properties when the prototypes
+    // match, otherwise report the object as replaced.
+    result =
+      Object.getPrototypeOf(a) === Object.getPrototypeOf(b)
+        ? diffObjects(
+            a as Record<string, unknown>,
+            b as Record<string, unknown>,
+            path,
+            refsA,
+            refsB,
+            fn,
+          )
+        : [{ type: CHANGED, path, value: b }];
   } else {
     result = String(a) === String(b) ? [] : [{ type: CHANGED, path, value: b }];
   }

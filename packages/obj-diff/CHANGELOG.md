@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Fixed
+- Fixed class instances always comparing as equal: non-plain objects fell through to a string comparison where both sides stringify to `[object Object]`. Instances sharing the same prototype are now diffed by their own enumerable properties, and instances of different classes are reported as replaced.
 - Fixed `patch()` corrupting `Map`s that use object keys: cloning the map broke key reference identity, so patches missed the entry and inserted a duplicate key instead. Non-primitive patch keys are now matched against existing map keys by structural equality.
 - Fixed `patch()` mutating the target object it was diffed against: the sparse array cleanup walked the whole result, following values inserted by reference, and compacted sparse arrays belonging to the caller's objects.
 - Fixed `patch()` compacting sparse arrays that no patch touched, shifting indices of unrelated data. Array cleanup is now limited to arrays that actually received deletions, and only trailing holes are truncated — so patching to a sparse target (e.g. `[1, 2, 3]` → `[1, , 3]`) now round-trips correctly.
@@ -13,6 +14,7 @@
 - Fixed `packSparseArrays` to properly traverse and clean sparse arrays nested within `Map` values and `Set` elements.
 
 ### Changed
+- Objects that are the same reference now short-circuit as equal without a deep walk.
 - The `DiffResult` `path` type widened from `Array<string | number>` to `Array<unknown>`: object keys are strings and array/Set indexes are numbers as before, but `Map` entries use the map key itself, which can be a value of any type.
 
 ### Added

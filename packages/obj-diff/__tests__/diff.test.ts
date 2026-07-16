@@ -478,6 +478,45 @@ describe("diff", () => {
     ]);
   });
 
+  test("class instances", () => {
+    class Point {
+      x: number;
+      y: number;
+      constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+      }
+    }
+
+    expect(diff(new Point(1, 2), new Point(1, 2))).toEqual([]);
+    expect(diff(new Point(1, 2), new Point(1, 5))).toEqual([{ type: 2, path: ["y"], value: 5 }]);
+    expect(diff({ p: new Point(1, 2) }, { p: new Point(3, 2) })).toEqual([
+      { type: 2, path: ["p", "x"], value: 3 },
+    ]);
+
+    // Different prototypes are a whole-object replacement
+    class Vector {
+      x: number;
+      y: number;
+      constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+      }
+    }
+    expect(diff(new Point(1, 2), new Vector(1, 2))).toEqual([
+      { type: 2, path: [], value: new Vector(1, 2) },
+    ]);
+    expect(diff(new Point(1, 2), { x: 1, y: 2 })).toEqual([
+      { type: 2, path: [], value: { x: 1, y: 2 } },
+    ]);
+  });
+
+  test("same object reference is equal", () => {
+    const shared = { a: 1, wm: new WeakMap() };
+    expect(diff(shared, shared)).toEqual([]);
+    expect(diff({ o: shared }, { o: shared })).toEqual([]);
+  });
+
   test("mix objects", () => {
     const a = {
       m: new Map([[1, 2]]),

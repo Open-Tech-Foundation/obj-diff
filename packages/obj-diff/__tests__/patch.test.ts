@@ -104,6 +104,23 @@ describe("patch", () => {
     expect(patch(g, diff(g, h))).toEqual(h);
   });
 
+  test("class instances", () => {
+    class Point {
+      x: number;
+      y: number;
+      constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+      }
+    }
+
+    const a = { p: new Point(1, 2) };
+    const b = { p: new Point(1, 5) };
+    const res = patch(a, diff(a, b));
+    expect(res.p).toBeInstanceOf(Point);
+    expect(res.p.y).toBe(5);
+  });
+
   test("TypedArray", () => {
     const a = { t: new Uint8Array([1, 2, 3]) };
     const b = { t: new Uint8Array([1, 4, 3]) };
