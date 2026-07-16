@@ -18,6 +18,7 @@
 - The `DiffResult` `path` type widened from `Array<string | number>` to `Array<unknown>`: object keys are strings and array/Set indexes are numbers as before, but `Map` entries use the map key itself, which can be a value of any type.
 
 ### Added
+- Native diffing support for `ArrayBuffer` and `DataView`: contents are compared byte-by-byte (including `byteOffset`/`byteLength` for views) instead of always comparing as equal via the string fallback.
 - Native diffing and patching support for all JavaScript TypedArrays (`Uint8Array`, `Float32Array`, `BigInt64Array`, etc.) allowing precise element-level diffs and preserving array types during patching.
 - Added comprehensive accuracy evaluation script (`evaluate.js`) covering ES6 collections and edge cases.
 - Added updated benchmark competitors (`deep-diff-ts`, `@adobe/optimized-diff`).

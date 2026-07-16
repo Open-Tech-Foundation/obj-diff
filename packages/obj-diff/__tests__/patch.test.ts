@@ -104,6 +104,14 @@ describe("patch", () => {
     expect(patch(g, diff(g, h))).toEqual(h);
   });
 
+  test("ArrayBuffer", () => {
+    const a = { buf: new Uint8Array([1, 2, 3]).buffer };
+    const b = { buf: new Uint8Array([1, 9, 3]).buffer };
+    const res = patch(a, diff(a, b));
+    expect(res.buf).toBeInstanceOf(ArrayBuffer);
+    expect([...new Uint8Array(res.buf)]).toEqual([1, 9, 3]);
+  });
+
   test("class instances", () => {
     class Point {
       x: number;

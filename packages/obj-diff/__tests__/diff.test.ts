@@ -478,6 +478,29 @@ describe("diff", () => {
     ]);
   });
 
+  test("ArrayBuffer and DataView", () => {
+    const bufA = new Uint8Array([1, 2, 3]).buffer;
+    const bufB = new Uint8Array([1, 2, 3]).buffer;
+    const bufC = new Uint8Array([1, 9, 3]).buffer;
+
+    expect(diff(bufA, bufB)).toEqual([]);
+    expect(diff(bufA, bufC)).toEqual([{ type: 2, path: [], value: bufC }]);
+    expect(diff({ b: bufA }, { b: bufC })).toEqual([{ type: 2, path: ["b"], value: bufC }]);
+
+    // Different lengths
+    expect(diff(bufA, new Uint8Array([1, 2]).buffer)).toHaveLength(1);
+
+    const dvA = new DataView(bufA);
+    const dvB = new DataView(bufB);
+    const dvC = new DataView(bufC);
+    expect(diff(dvA, dvB)).toEqual([]);
+    expect(diff(dvA, dvC)).toEqual([{ type: 2, path: [], value: dvC }]);
+
+    // Same buffer, different view windows
+    const dvOffset = new DataView(bufA, 1);
+    expect(diff(dvA, dvOffset)).toHaveLength(1);
+  });
+
   test("class instances", () => {
     class Point {
       x: number;

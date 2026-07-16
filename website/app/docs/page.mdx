@@ -36,5 +36,5 @@ Install `@opentf/obj-diff` using your preferred package manager:
 The library natively supports the following types:
 
 - **Primitives**: `Undefined`, `Null`, `Number`, `String`, `Boolean`, `BigInt`.
-- **Built-in Objects**: `Plain Objects {}`, `Array`, `Date`, `Map`, `Set`, `TypedArray` (`Uint8Array`, `Float32Array`, etc.).
+- **Built-in Objects**: `Plain Objects {}`, `Array`, `Date`, `Map`, `Set`, `TypedArray` (`Uint8Array`, `Float32Array`, etc.), `ArrayBuffer`, `DataView`.
 - **Class Instances**: instances sharing the same prototype are diffed by their own enumerable properties; instances of different classes are reported as replaced.

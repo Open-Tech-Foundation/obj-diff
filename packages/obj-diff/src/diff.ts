@@ -69,6 +69,17 @@ function objDiff(
     result = diffMaps(a, b, path, refsA, refsB, fn);
   } else if (a instanceof Set && b instanceof Set) {
     result = diffSets(a, b, path, refsA, refsB, fn);
+  } else if (a instanceof ArrayBuffer && b instanceof ArrayBuffer) {
+    result = isSameBytes(new Uint8Array(a), new Uint8Array(b))
+      ? []
+      : [{ type: CHANGED, path, value: b }];
+  } else if (a instanceof DataView && b instanceof DataView) {
+    result = isSameBytes(
+      new Uint8Array(a.buffer, a.byteOffset, a.byteLength),
+      new Uint8Array(b.buffer, b.byteOffset, b.byteLength),
+    )
+      ? []
+      : [{ type: CHANGED, path, value: b }];
   } else if (Object.prototype.toString.call(a) !== Object.prototype.toString.call(b)) {
     result = [{ type: CHANGED, path, value: b }];
   } else if (Object.prototype.toString.call(a) === "[object Object]") {
@@ -162,6 +173,14 @@ function diffTypedArrays(a: TypedArray, b: TypedArray, path: Path): DiffResult[]
   }
 
   return result;
+}
+
+function isSameBytes(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
 }
 
 function diffObjects(
