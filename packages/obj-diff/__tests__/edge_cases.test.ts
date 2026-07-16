@@ -19,6 +19,32 @@ describe("edge cases", () => {
       expect(patch(a, d)).toEqual(b);
     });
 
+    test("patching to a sparse target preserves interior holes", () => {
+      const a = [1, 2, 3];
+      const b = [1, , 3];
+      const res = patch(a, diff(a, b));
+      expect(res.length).toBe(3);
+      expect(1 in res).toBe(false);
+      expect(res[0]).toBe(1);
+      expect(res[2]).toBe(3);
+    });
+
+    test("untouched sparse arrays are not compacted", () => {
+      const a = { arr: [1, , 3], x: 1 };
+      const b = { arr: [1, , 3], x: 2 };
+      const res = patch(a, diff(a, b));
+      expect(res.x).toBe(2);
+      expect(res.arr.length).toBe(3);
+      expect(1 in res.arr).toBe(false);
+    });
+
+    test("patch does not mutate the target object's arrays", () => {
+      const b = { a: [1, , 3] };
+      patch({}, diff({}, b));
+      expect(b.a.length).toBe(3);
+      expect(1 in b.a).toBe(false);
+    });
+
     test("array with non-index properties", () => {
       const a: any = [1];
       a.foo = "bar";
