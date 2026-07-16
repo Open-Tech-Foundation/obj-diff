@@ -1,4 +1,4 @@
-import { clone, isEql } from "@opentf/std";
+import { clone, isEql, isTypedArray } from "@opentf/std";
 import { ADDED, CHANGED, DELETED } from "./constants";
 import type { DiffResult } from "./types";
 
@@ -16,16 +16,16 @@ import type { DiffResult } from "./types";
  * assert.deepStrictEqual(out, b); // ok
  */
 export default function patch<T>(obj: T, patches: Array<DiffResult>): T {
-  if (patches.length === 0) return clone(obj);
+  if (patches.length === 0) {
+    const cloned = clone(obj);
+    restoreNullProtos(obj, cloned, new WeakSet());
+    return cloned;
+  }
 
   let c = clone(obj);
+  restoreNullProtos(obj, c, new WeakSet());
   // Arrays that received deletions; their trailing holes are truncated at the end.
   const holedArrays = new Set<unknown[]>();
-
-  // Preserve null prototype if the original had one
-  if (obj && typeof obj === "object" && Object.getPrototypeOf(obj) === null) {
-    Object.setPrototypeOf(c, null);
-  }
 
   for (const p of patches) {
     // Root-level replacement
@@ -111,6 +111,57 @@ function applyDelete(
     holedArrays.add(target);
   } else {
     delete (target as Record<string | number, unknown>)[key as string];
+  }
+}
+
+/**
+ * clone() does not preserve null prototypes, so restore them by walking the
+ * original and the clone in parallel.
+ */
+function restoreNullProtos(src: unknown, dest: unknown, visited: WeakSet<object>): void {
+  if (
+    !src ||
+    !dest ||
+    typeof src !== "object" ||
+    typeof dest !== "object" ||
+    src instanceof Date ||
+    isTypedArray(src) ||
+    visited.has(src)
+  ) {
+    return;
+  }
+  visited.add(src);
+
+  if (Object.getPrototypeOf(src) === null && Object.getPrototypeOf(dest) !== null) {
+    Object.setPrototypeOf(dest, null);
+  }
+
+  if (Array.isArray(src) && Array.isArray(dest)) {
+    for (let i = 0; i < src.length; i++) {
+      restoreNullProtos(src[i], dest[i], visited);
+    }
+  } else if (src instanceof Map && dest instanceof Map) {
+    // Iterate values positionally; clone preserves insertion order but not
+    // the reference identity of object keys.
+    const destValues = [...dest.values()];
+    let i = 0;
+    for (const v of src.values()) {
+      restoreNullProtos(v, destValues[i++], visited);
+    }
+  } else if (src instanceof Set && dest instanceof Set) {
+    const destValues = [...dest];
+    let i = 0;
+    for (const v of src) {
+      restoreNullProtos(v, destValues[i++], visited);
+    }
+  } else {
+    for (const k of Object.keys(src)) {
+      restoreNullProtos(
+        (src as Record<string, unknown>)[k],
+        (dest as Record<string, unknown>)[k],
+        visited,
+      );
+    }
   }
 }
 

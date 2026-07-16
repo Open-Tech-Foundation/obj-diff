@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Fixed
+- Fixed `patch()` losing `null` prototypes of nested objects; previously only the root object's `null` prototype was preserved.
 - Fixed two invalid `Date`s (`NaN` timestamps) being reported as changed; they now compare as equal, consistent with `NaN === NaN` handling for primitives.
 - Fixed `Error` objects with equal messages but different custom properties (or different error classes with the same message) comparing as equal. Errors now compare by prototype, `name`, `message` and own enumerable properties, and are replaced wholesale when they differ.
 - Fixed boxed primitives (`new Number()`, `new String()`, `new Boolean()`) ignoring custom properties: equal-valued boxes now diff their own enumerable properties; different values report a replacement.

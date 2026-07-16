@@ -87,6 +87,18 @@ describe("edge cases", () => {
   });
 
   describe("Object Prototypes", () => {
+    test("nested objects with null prototype", () => {
+      const makeNullProto = (v: number) => Object.assign(Object.create(null), { v });
+      const a = { o: makeNullProto(1), list: [makeNullProto(3)] };
+      const b = { o: makeNullProto(2), list: [makeNullProto(3)] };
+
+      const res = patch(a, diff(a, b));
+      expect(Object.getPrototypeOf(res.o)).toBeNull();
+      expect(res.o.v).toBe(2);
+      expect(Object.getPrototypeOf(res.list[0])).toBeNull();
+      expect(res.list[0].v).toBe(3);
+    });
+
     test("objects with null prototype", () => {
       const a = Object.create(null);
       a.x = 1;
