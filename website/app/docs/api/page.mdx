@@ -18,11 +18,43 @@ const result = diff(obj1, obj2);
 ### `DiffResult` Structure
 ```ts
 type DiffResult = {
-  type: 0 | 1 | 2;              // 0: Deleted, 1: Created, 2: Updated
-  path: Array<string | number>; // The path to the property
-  value?: unknown;              // The value (for Created/Updated)
+  type: 0 | 1 | 2 | 3 | 4; // see the op types table below
+  path: Array<unknown>;    // path to the property; Map entries use the Map key itself
+  value?: unknown;         // the new value (for types 1, 2 and 3)
 };
 ```
+
+### Op Types
+
+| Type | Constant | Meaning | Applies to |
+| :--- | :--- | :--- | :--- |
+| `0` | `DELETED` | Key no longer exists (`delete obj.k` / `map.delete(k)`; on an array index it leaves a hole) | objects, Maps, arrays (sparse) |
+| `1` | `ADDED` | New key/value (on arrays: assign at index) | objects, Maps, Sets, arrays |
+| `2` | `CHANGED` | Value replaced at the path | all |
+| `3` | `INSERTED` | Insert the value at the index, shifting later elements right (`splice(i, 0, v)`) | arrays only |
+| `4` | `REMOVED` | Remove the element at the index, shifting later elements left (`splice(i, 1)`) | arrays only |
+
+The constants are exported from the package root:
+
+```ts
+import { DELETED, ADDED, CHANGED, INSERTED, REMOVED } from "@opentf/obj-diff";
+```
+
+`INSERTED`/`REMOVED` indexes are **application-time** (RFC 6902 style): apply ops in order and each index is valid at the moment it is applied.
+
+### Compact Array Diffs
+
+`diff()` trims the common prefix and suffix of arrays and resolves the remaining middle with a bounded shortest-edit-script (Myers LCS) diff. Inserting one element at the front of a 10,000-element array produces **1 op**, not 10,001:
+
+```ts
+diff([1, 2, 3], [0, 1, 2, 3]);
+//=> [{ type: 3, path: [0], value: 0 }]
+
+diff([1, 2, 3, 4], [1, 4]);
+//=> [{ type: 4, path: [1] }, { type: 4, path: [1] }]
+```
+
+When two arrays are too different (the edit-distance cap is exceeded), diffing falls back to index-by-index comparison, which bounds worst-case time and memory.
 
 ---
 

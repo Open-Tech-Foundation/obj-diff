@@ -49,9 +49,14 @@ Only own **enumerable string keys** are diffed. Properties keyed by `Symbol`s ar
 
 `Set` elements are compared **positionally**, by insertion order. Two sets with the same members in a different order will report changes. This is intentional: insertion order is observable in JavaScript (iteration, serialization), so order changes are recorded as real changes.
 
-### Arrays Are Diffed Positionally (No Move Detection)
+### Array Diffs Are Compact, but Moves Are Not Detected
 
-Arrays are compared index-by-index. Inserting or removing an element in the middle shifts everything after it, producing one change per shifted element rather than a single "insert" operation. Patching is still correct — the diffs are just not minimal for splice-style edits.
+Arrays are diffed with prefix/suffix trimming plus a bounded shortest-edit-script (Myers LCS) algorithm, so inserts and removals produce one `INSERTED`/`REMOVED` op per actual edit. Two cases still produce larger diffs:
+
+- **Reorders**: moving an element is expressed as a removal plus an insertion (or per-element changes), not a "move" op. Heavily shuffled lists produce diffs proportional to the shuffle.
+- **Very different arrays**: when the edit distance exceeds the internal cost cap, diffing falls back to index-by-index comparison to keep worst-case time and memory bounded.
+
+Sparse arrays and arrays with own non-index properties always use the index-by-index comparison.
 
 ### `diffWith()` Comparators Only See Objects
 

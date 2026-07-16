@@ -29,7 +29,18 @@ const d = diff(a, b);
 const res = patch(a, d); // res is deep equal to b
 ```
 
-## 3. ES6 Map & Set Support
+## 3. Compact Array Diffs
+Array edits produce shortest edit scripts — one op per actual insert/remove.
+
+```js
+diff([1, 2, 3], [0, 1, 2, 3]);
+//=> [{ type: 3, path: [0], value: 0 }]   // INSERTED at index 0
+
+diff([1, 2, 3, 4], [1, 4]);
+//=> [{ type: 4, path: [1] }, { type: 4, path: [1] }]   // REMOVED (application-time indexes)
+```
+
+## 4. ES6 Map & Set Support
 Natively diff and patch modern collections.
 
 ```js
@@ -39,13 +50,13 @@ const b = new Set([2, 3]);
 diff(a, b);
 /*
 [
-  { type: 0, path: [0], value: 1 },
-  { type: 1, path: [1], value: 3 }
+  { type: 2, path: [0], value: 2 },
+  { type: 2, path: [1], value: 3 }
 ]
 */
 ```
 
-## 4. Circular Reference Safety
+## 5. Circular Reference Safety
 Safe comparison of recursive objects without infinite loops.
 
 ```js
@@ -58,7 +69,7 @@ diff(a, b);
 // Output: [{ type: 2, path: ["id"], value: 2 }]
 ```
 
-## 5. Native TypedArray Performance
+## 6. Native TypedArray Performance
 Accurately diffs large chunks of binary data incredibly fast.
 
 ```js

@@ -13,6 +13,7 @@
 ## 🚀 Features
 
 - 🔍 **Deep Objects Diffing**: Detects changes at any depth.
+- ✂️ **Compact Array Diffs**: Shortest edit scripts (Myers LCS) — inserting one element into a 10k array yields 1 op, not 10,001.
 - 🩹 **Efficient Patching**: Apply diffs to recreate target objects.
 - 🛠️ **Extensible**: Support for custom object types via `diffWith()`.
 - 📦 **Modern Ecosystem**: Built for Bun, Node.js, Deno, and Browser.
@@ -60,11 +61,21 @@ const result = diff(obj1, obj2);
 #### `DiffResult` Structure
 ```ts
 type DiffResult = {
-  type: 0 | 1 | 2;              // 0: Deleted, 1: Created, 2: Updated
-  path: Array<string | number>; // The path to the property
-  value?: unknown;              // The value (for Created/Updated)
+  type: 0 | 1 | 2 | 3 | 4; // 0: Deleted, 1: Added, 2: Changed,
+                           // 3: Inserted (array splice-in), 4: Removed (array splice-out)
+  path: Array<unknown>;    // path to the property; Map entries use the Map key itself
+  value?: unknown;         // the new value (for types 1, 2 and 3)
 };
 ```
+
+Types `3` (`INSERTED`) and `4` (`REMOVED`) are array-only splice operations with application-time indexes — they are what make array diffs compact:
+
+```js
+diff([1, 2, 3], [0, 1, 2, 3]);
+//=> [{ type: 3, path: [0], value: 0 }]  // 1 op, not 4
+```
+
+The constants (`DELETED`, `ADDED`, `CHANGED`, `INSERTED`, `REMOVED`) are exported from the package root.
 
 ### `patch(obj, patches)`
 
@@ -114,8 +125,8 @@ const b = new Set([2, 3]);
 diff(a, b);
 /*
 [
-  { type: 0, path: [0], value: 1 },
-  { type: 1, path: [1], value: 3 }
+  { type: 2, path: [0], value: 2 },
+  { type: 2, path: [1], value: 3 }
 ]
 */
 ```
