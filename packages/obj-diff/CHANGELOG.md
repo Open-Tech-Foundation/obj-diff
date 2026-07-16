@@ -3,6 +3,8 @@
 ## [Unreleased]
 
 ### Fixed
+- Fixed `Error` objects with equal messages but different custom properties (or different error classes with the same message) comparing as equal. Errors now compare by prototype, `name`, `message` and own enumerable properties, and are replaced wholesale when they differ.
+- Fixed boxed primitives (`new Number()`, `new String()`, `new Boolean()`) ignoring custom properties: equal-valued boxes now diff their own enumerable properties; different values report a replacement.
 - Fixed class instances always comparing as equal: non-plain objects fell through to a string comparison where both sides stringify to `[object Object]`. Instances sharing the same prototype are now diffed by their own enumerable properties, and instances of different classes are reported as replaced.
 - Fixed `patch()` corrupting `Map`s that use object keys: cloning the map broke key reference identity, so patches missed the entry and inserted a duplicate key instead. Non-primitive patch keys are now matched against existing map keys by structural equality.
 - Fixed `patch()` mutating the target object it was diffed against: the sparse array cleanup walked the whole result, following values inserted by reference, and compacted sparse arrays belonging to the caller's objects.

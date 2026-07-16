@@ -478,6 +478,42 @@ describe("diff", () => {
     ]);
   });
 
+  test("Errors", () => {
+    expect(diff(new Error("a"), new Error("a"))).toEqual([]);
+    expect(diff(new Error("a"), new Error("b"))).toEqual([
+      { type: 2, path: [], value: new Error("b") },
+    ]);
+
+    // Same message but different custom properties
+    const e1: any = new Error("same");
+    e1.code = 1;
+    const e2: any = new Error("same");
+    e2.code = 2;
+    expect(diff(e1, e2)).toEqual([{ type: 2, path: [], value: e2 }]);
+
+    // Different error classes with the same message
+    expect(diff(new TypeError("x"), new RangeError("x"))).toEqual([
+      { type: 2, path: [], value: new RangeError("x") },
+    ]);
+  });
+
+  test("boxed primitives", () => {
+    expect(diff(new Number(1), new Number(1))).toEqual([]);
+    expect(diff(new Number(1), new Number(2))).toEqual([
+      { type: 2, path: [], value: new Number(2) },
+    ]);
+    expect(diff(new String("a"), new String("b"))).toEqual([
+      { type: 2, path: [], value: new String("b") },
+    ]);
+
+    // Same boxed value but different custom properties
+    const n1: any = new Number(1);
+    n1.extra = "x";
+    const n2: any = new Number(1);
+    n2.extra = "y";
+    expect(diff(n1, n2)).toEqual([{ type: 2, path: ["extra"], value: "y" }]);
+  });
+
   test("ArrayBuffer and DataView", () => {
     const bufA = new Uint8Array([1, 2, 3]).buffer;
     const bufB = new Uint8Array([1, 2, 3]).buffer;

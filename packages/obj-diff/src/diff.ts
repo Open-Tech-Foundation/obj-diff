@@ -80,6 +80,30 @@ function objDiff(
     )
       ? []
       : [{ type: CHANGED, path, value: b }];
+  } else if (a instanceof Error && b instanceof Error) {
+    // Errors are replaced wholesale when they differ, since cloning does not
+    // preserve custom properties well enough for granular patching.
+    const isSame =
+      Object.getPrototypeOf(a) === Object.getPrototypeOf(b) &&
+      a.name === b.name &&
+      a.message === b.message &&
+      objDiff({ ...a }, { ...b }, path, refsA, refsB, fn).length === 0;
+    result = isSame ? [] : [{ type: CHANGED, path, value: b }];
+  } else if (
+    (a instanceof Number && b instanceof Number) ||
+    (a instanceof String && b instanceof String) ||
+    (a instanceof Boolean && b instanceof Boolean)
+  ) {
+    result = Object.is(a.valueOf(), b.valueOf())
+      ? diffObjects(
+          a as unknown as Record<string, unknown>,
+          b as unknown as Record<string, unknown>,
+          path,
+          refsA,
+          refsB,
+          fn,
+        )
+      : [{ type: CHANGED, path, value: b }];
   } else if (Object.prototype.toString.call(a) !== Object.prototype.toString.call(b)) {
     result = [{ type: CHANGED, path, value: b }];
   } else if (Object.prototype.toString.call(a) === "[object Object]") {
