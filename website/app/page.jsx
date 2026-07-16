@@ -110,6 +110,107 @@ function formatPath(path) {
   return path.map((part) => typeof part === "number" ? `[${part}]` : `.${part}`).join("").replace(/^\./, "");
 }
 
+// --- Visual diff tree (jsondiffpatch-style), powered by obj-diff for equality ---
+const MISSING = Symbol("missing");
+
+function isContainer(v) {
+  if (v === null || typeof v !== "object") return false;
+  if (Array.isArray(v)) return true;
+  const p = Object.getPrototypeOf(v);
+  return p === Object.prototype || p === null;
+}
+
+function eqNodes(a, b) {
+  try { return diff(a, b).length === 0; } catch (e) { return a === b; }
+}
+
+function leafText(v) { return formatValue(v); }
+
+// Align two arrays by LCS (matching by deep equality), then merge an adjacent
+// delete+add into a single "change" so replacements recurse and inserts show
+// cleanly — the way jsondiffpatch renders arrays. Falls back to positional
+// pairing for very large arrays to bound cost.
+function arrayPairs(a, b) {
+  const n = a.length, m = b.length;
+  if (n * m > 4000) {
+    const out = [], k = Math.max(n, m);
+    for (let i = 0; i < k; i++) out.push([i < n ? a[i] : MISSING, i < m ? b[i] : MISSING]);
+    return out;
+  }
+  const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+  for (let i = n - 1; i >= 0; i--)
+    for (let j = m - 1; j >= 0; j--)
+      dp[i][j] = eqNodes(a[i], b[j]) ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+  const raw = [];
+  let i = 0, j = 0;
+  while (i < n && j < m) {
+    if (eqNodes(a[i], b[j])) { raw.push([a[i], b[j]]); i++; j++; }
+    else if (dp[i + 1][j] >= dp[i][j + 1]) { raw.push([a[i], MISSING]); i++; }
+    else { raw.push([MISSING, b[j]]); j++; }
+  }
+  while (i < n) { raw.push([a[i], MISSING]); i++; }
+  while (j < m) { raw.push([MISSING, b[j]]); j++; }
+  const merged = [];
+  for (let k = 0; k < raw.length; k++) {
+    const cur = raw[k], nxt = raw[k + 1];
+    if (cur[1] === MISSING && nxt && nxt[0] === MISSING) { merged.push([cur[0], nxt[1]]); k++; }
+    else merged.push(cur);
+  }
+  return merged;
+}
+
+function walkDiff(a, b, key, depth, out, seen) {
+  const aMiss = a === MISSING, bMiss = b === MISSING;
+  const status = aMiss ? "added" : bMiss ? "deleted" : (eqNodes(a, b) ? "same" : "changed");
+  const present = bMiss ? a : b;
+  const bothSameKind = !aMiss && !bMiss && isContainer(a) && isContainer(b) && Array.isArray(a) === Array.isArray(b);
+  const container = ((status === "added" || status === "deleted") && isContainer(present)) || ((status === "same" || status === "changed") && bothSameKind);
+
+  if (container) {
+    if ((!aMiss && seen.has(a)) || (!bMiss && seen.has(b))) {
+      out.push({ depth, key, status: status === "changed" ? "same" : status, kind: "leaf", text: "[Circular]" });
+      return;
+    }
+    if (!aMiss) seen.add(a);
+    if (!bMiss) seen.add(b);
+    const arr = Array.isArray(present);
+    const braceStatus = status === "changed" ? "same" : status;
+    out.push({ depth, key, status: braceStatus, kind: "open", text: arr ? "[" : "{" });
+    if (arr) {
+      const pairs = arrayPairs(aMiss ? [] : a, bMiss ? [] : b);
+      for (const [av, bv] of pairs) walkDiff(av, bv, null, depth + 1, out, seen);
+    } else {
+      const keys = [], seenK = new Set();
+      if (!bMiss) for (const k of Object.keys(b)) { keys.push(k); seenK.add(k); }
+      if (!aMiss) for (const k of Object.keys(a)) if (!seenK.has(k)) keys.push(k);
+      for (const k of keys) {
+        const av = aMiss || !Object.prototype.hasOwnProperty.call(a, k) ? MISSING : a[k];
+        const bv = bMiss || !Object.prototype.hasOwnProperty.call(b, k) ? MISSING : b[k];
+        walkDiff(av, bv, k, depth + 1, out, seen);
+      }
+    }
+    out.push({ depth, status: braceStatus, kind: "close", text: arr ? "]" : "}" });
+    if (!aMiss) seen.delete(a);
+    if (!bMiss) seen.delete(b);
+    return;
+  }
+
+  if (status === "same") out.push({ depth, key, status: "same", kind: "leaf", text: leafText(b) });
+  else if (status === "added") out.push({ depth, key, status: "added", kind: "leaf", text: leafText(b) });
+  else if (status === "deleted") out.push({ depth, key, status: "deleted", kind: "leaf", text: leafText(a) });
+  else out.push({ depth, key, status: "changed", kind: "change", oldText: leafText(a), newText: leafText(b) });
+}
+
+function buildDiffRows(a, b) {
+  const rows = [];
+  try { walkDiff(a, b, undefined, 0, rows, new Set()); } catch (e) { return []; }
+  return rows;
+}
+
+function diffKey(k) { return (k === undefined || k === null) ? "" : `${k}: `; }
+
+function diffMark(status) { return status === "added" ? "+" : status === "deleted" ? "−" : ""; }
+
 function safeEval(code) {
   try {
     return new Function(`return ${code}`)();
@@ -142,7 +243,7 @@ export default function Home() {
     return { added: count("added"), changed: count("changed"), removed: count("removed") };
   });
 
-  let activeTab = $state("overview");
+  let activeTab = $state("visual");
   let selectedPath = $state("");
   let copied = $state("");
 
@@ -249,7 +350,7 @@ export default function Home() {
         <section class="results-pane">
           <div class="result-topbar">
             <div class="tabs" role="tablist">
-              <button class={activeTab === "overview" ? "active" : ""} onclick={() => activeTab = "overview"}>Overview</button>
+              <button class={activeTab === "visual" ? "active" : ""} onclick={() => activeTab = "visual"}>Visual</button>
               <button class={activeTab === "changes" ? "active" : ""} onclick={() => activeTab = "changes"}>Changes <span>{diffResult.length}</span></button>
               <button class={activeTab === "diff" ? "active" : ""} onclick={() => activeTab = "diff"}>Raw diff</button>
               <button class={activeTab === "patch" ? "active" : ""} onclick={() => activeTab = "patch"}>Patch</button>
@@ -257,27 +358,28 @@ export default function Home() {
             <button class="copy-button" onclick={() => copy(activeTab === "patch" ? getDiffResults(patchResult) : getDiffResults(diffResult), activeTab === "patch" ? "Patch copied" : "Diff copied")}>{copied || "Copy"}</button>
           </div>
           <div class="results-content">
-            {activeTab === "overview" && (
+            {activeTab === "visual" && (
               <div class="diff-overview">
-                <div class="overview-heading"><div><span class="section-kicker">Change visualization</span><h3>{diffResult.length === 0 ? "Objects are in sync" : `${diffResult.length} operations to reach the target`}</h3></div><span class={patchVerification.valid ? "overview-proof is-valid" : "overview-proof"}>{patchVerification.valid ? "Verified patch" : "Awaiting valid input"}</span></div>
+                <div class="overview-heading"><div><span class="section-kicker">Visual diff</span><h3>{diffResult.length === 0 ? "Objects are in sync" : `${diffResult.length} operations to reach the target`}</h3></div><span class={patchVerification.valid ? "overview-proof is-valid" : "overview-proof"}>{patchVerification.valid ? "Verified patch" : "Awaiting valid input"}</span></div>
                 <div class="summary-grid">
                   <button class="summary-card added" onclick={() => activeTab = "changes"}><strong>{changeSummary.added}</strong><span>Added</span></button>
                   <button class="summary-card changed" onclick={() => activeTab = "changes"}><strong>{changeSummary.changed}</strong><span>Changed</span></button>
                   <button class="summary-card removed" onclick={() => activeTab = "changes"}><strong>{changeSummary.removed}</strong><span>Removed</span></button>
                 </div>
-                {diffResult.length > 0 ? (
-                  <div class="op-viz">
-                    <div class="op-map" aria-label="One cell per diff operation, colored by kind">
-                      {diffResult.map((item) => <button class={`op-cell kind-${opMeta(item.type).kind}`} title={`${opMeta(item.type).label}: ${formatPath(item.path)}`} onclick={() => { selectedPath = formatPath(item.path); activeTab = "changes"; }} aria-label={`${opMeta(item.type).label} at ${formatPath(item.path)}`}></button>)}
-                    </div>
-                    <div class="op-legend">
-                      <span><i class="op-swatch kind-added"></i>Added / Inserted</span>
-                      <span><i class="op-swatch kind-changed"></i>Changed</span>
-                      <span><i class="op-swatch kind-removed"></i>Removed / Deleted</span>
-                    </div>
-                    <p class="plot-caption">Each cell is one patch operation. Select a cell to inspect its path in the change list.</p>
+                {(parsedA != null && parsedB != null) ? (
+                  <div class="diff-tree" aria-label="Visual diff of the two objects">
+                    {buildDiffRows(parsedA, parsedB).map((d) => (
+                      d.kind === "change"
+                        ? <div class={`dt-row dt-${d.status}`}><span class="dt-mark">~</span><span class="dt-line">{"  ".repeat(d.depth)}{diffKey(d.key)}<span class="dt-old">{d.oldText}</span><span class="dt-arrow"> → </span><span class="dt-new">{d.newText}</span></span></div>
+                        : <div class={`dt-row dt-${d.status}`}><span class="dt-mark">{diffMark(d.status)}</span><span class="dt-line">{"  ".repeat(d.depth)}{diffKey(d.key)}{d.text}</span></div>
+                    ))}
                   </div>
-                ) : <div class="empty-state">No differences yet. Change either object to inspect its operations.</div>}
+                ) : <div class="empty-state">Fix both inputs to see the visual diff.</div>}
+                <div class="op-legend">
+                  <span><i class="op-swatch kind-added"></i>Added</span>
+                  <span><i class="op-swatch kind-changed"></i>Changed</span>
+                  <span><i class="op-swatch kind-removed"></i>Removed</span>
+                </div>
               </div>
             )}
             {activeTab === "changes" && (
