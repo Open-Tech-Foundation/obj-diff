@@ -1,6 +1,18 @@
+import { ADDED, CHANGED, DELETED, type DiffType, INSERTED, REMOVED } from "./constants";
 import diff from "./diff";
 import diffWith from "./diffWith";
 import patch from "./patch";
 import type { DiffResult } from "./types";
 
-export { type DiffResult, diff, diffWith, patch };
+export {
+  ADDED,
+  CHANGED,
+  DELETED,
+  type DiffResult,
+  type DiffType,
+  INSERTED,
+  REMOVED,
+  diff,
+  diffWith,
+  patch,
+};

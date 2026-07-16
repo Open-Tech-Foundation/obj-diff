@@ -66,21 +66,23 @@ describe("diff", () => {
   });
 
   test("array", () => {
-    expect(diff([], [1])).toEqual([{ type: 1, path: [0], value: 1 }]);
+    expect(diff([], [1])).toEqual([{ type: 3, path: [0], value: 1 }]);
     expect(diff([1], [2])).toEqual([{ type: 2, path: [0], value: 2 }]);
-    expect(diff([1], [])).toEqual([{ type: 0, path: [0] }]);
+    expect(diff([1], [])).toEqual([{ type: 4, path: [0] }]);
     expect(diff([1, 2, 3], [1, 2, 3, 4, 5])).toEqual([
       {
         path: [3],
-        type: 1,
+        type: 3,
         value: 4,
       },
       {
         path: [4],
-        type: 1,
+        type: 3,
         value: 5,
       },
     ]);
+    // Common prefix [1] and suffix [5] are trimmed; the middle window pairs
+    // 2 -> 3 and splices out the two leftover elements (application-time indexes).
     expect(diff([1, 2, 3, 4, 5], [1, 3, 5])).toEqual([
       {
         path: [1],
@@ -89,18 +91,19 @@ describe("diff", () => {
       },
       {
         path: [2],
-        type: 2,
-        value: 5,
+        type: 4,
       },
       {
-        path: [3],
-        type: 0,
-      },
-      {
-        path: [4],
-        type: 0,
+        path: [2],
+        type: 4,
       },
     ]);
+    // Single insert in the middle of a large array is a single op
+    expect(diff([1, 2, 3, 4, 5], [1, 2, 9, 3, 4, 5])).toEqual([
+      { type: 3, path: [2], value: 9 },
+    ]);
+    // Single removal from the front is a single op
+    expect(diff([1, 2, 3, 4, 5], [2, 3, 4, 5])).toEqual([{ type: 4, path: [0] }]);
   });
 
   test("array deep", () => {
@@ -127,11 +130,11 @@ describe("diff", () => {
       },
       {
         path: [2, 2, 2],
-        type: 0,
+        type: 4,
       },
       {
         path: [5],
-        type: 1,
+        type: 3,
         value: 6,
       },
     ]);
@@ -190,11 +193,11 @@ describe("diff", () => {
     expect(diff(lhs, rhs)).toEqual([
       {
         path: ["foo", "bar", "a", 1],
-        type: 0,
+        type: 4,
       },
       {
         path: ["foo", "bar", "c", 2],
-        type: 1,
+        type: 3,
         value: "z",
       },
       {
@@ -282,7 +285,7 @@ describe("diff", () => {
       },
       {
         path: ["resources", "images", "items", 4],
-        type: 0,
+        type: 4,
       },
       {
         path: ["updatedAt"],
@@ -601,12 +604,12 @@ describe("diff", () => {
     expect(diff(a, b)).toEqual([
       {
         path: ["test1", 1],
-        type: 1,
+        type: 3,
         value: 2,
       },
       {
         path: ["test2", 1],
-        type: 1,
+        type: 3,
         value: 2,
       },
     ]);

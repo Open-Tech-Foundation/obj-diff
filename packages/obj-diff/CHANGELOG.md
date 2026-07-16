@@ -23,6 +23,8 @@
 - The `DiffResult` `path` type widened from `Array<string | number>` to `Array<unknown>`: object keys are strings and array/Set indexes are numbers as before, but `Map` entries use the map key itself, which can be a value of any type.
 
 ### Added
+- **Compact array diffs**: two new array-only op types — `INSERTED` (`type: 3`, splice the value in at the index) and `REMOVED` (`type: 4`, splice the element out) — with application-time indexes. `diff()` now trims the common prefix and suffix of arrays and emits splice ops for insertion/removal runs, so inserting one element at the front of a 10k-element array produces **1 op instead of 10,001**. Existing types `0`/`1`/`2` keep their exact semantics and previously serialized patches still apply. Sparse arrays and arrays with non-index properties keep the previous key-based diff.
+- Exported the diff type constants (`DELETED`, `ADDED`, `CHANGED`, `INSERTED`, `REMOVED`) and the `DiffType` type from the package root.
 - Native diffing support for `ArrayBuffer` and `DataView`: contents are compared byte-by-byte (including `byteOffset`/`byteLength` for views) instead of always comparing as equal via the string fallback.
 - Native diffing and patching support for all JavaScript TypedArrays (`Uint8Array`, `Float32Array`, `BigInt64Array`, etc.) allowing precise element-level diffs and preserving array types during patching.
 - Added comprehensive accuracy evaluation script (`evaluate.js`) covering ES6 collections and edge cases.

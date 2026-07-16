@@ -7,7 +7,11 @@ import type { DiffType } from "./constants";
  * { type: 2, path: ["foo", "bar"], value: 42 }
  */
 export type DiffResult = {
-  /** The type of change: `0` (Deleted), `1` (Added), `2` (Changed). */
+  /**
+   * The type of change: `0` (Deleted), `1` (Added), `2` (Changed),
+   * `3` (Inserted — array-only, splice in at index), `4` (Removed —
+   * array-only, splice out at index).
+   */
   type: DiffType;
   /**
    * The path to the changed property, e.g. `["foo", "bar", 0]`.

@@ -1,5 +1,5 @@
-import { isPlainObject, isTypedArray } from "@opentf/std";
-import { ADDED, CHANGED, DELETED } from "./constants";
+import { isEql, isPlainObject, isTypedArray } from "@opentf/std";
+import { ADDED, CHANGED, DELETED, INSERTED, REMOVED } from "./constants";
 import type { DiffResult } from "./types";
 
 type Path = Array<unknown>;
@@ -130,6 +130,103 @@ function objDiff(
 }
 
 function diffArrays(
+  a: unknown[],
+  b: unknown[],
+  path: Path,
+  refsA: WeakSet<WeakKey>,
+  refsB: WeakSet<WeakKey>,
+  fn?: CompareFn,
+): DiffResult[] {
+  // Sparse arrays and arrays carrying non-index properties keep the legacy
+  // key-based diff; compact splice ops assume packed, index-only arrays.
+  if (!isPackedPlainArray(a) || !isPackedPlainArray(b)) {
+    return diffArraysByKeys(a, b, path, refsA, refsB, fn);
+  }
+  return diffArraysCompact(a, b, path, refsA, refsB, fn);
+}
+
+/**
+ * Compact array diffing: skip the longest common prefix and suffix, then
+ * resolve the remaining middle window. Pure insertion/removal runs become
+ * splice-style INSERTED/REMOVED ops (with application-time indices) instead
+ * of one op per shifted element.
+ */
+function diffArraysCompact(
+  a: unknown[],
+  b: unknown[],
+  path: Path,
+  refsA: WeakSet<WeakKey>,
+  refsB: WeakSet<WeakKey>,
+  fn?: CompareFn,
+): DiffResult[] {
+  const result: DiffResult[] = [];
+  const minLen = Math.min(a.length, b.length);
+
+  let start = 0;
+  while (start < minLen && isElemEqual(a[start], b[start])) start++;
+
+  let endA = a.length - 1;
+  let endB = b.length - 1;
+  while (endA >= start && endB >= start && isElemEqual(a[endA], b[endB])) {
+    endA--;
+    endB--;
+  }
+
+  // Arrays are equal
+  if (start > endA && start > endB) return result;
+
+  // Pure insertion run: b[start..endB] slots in between prefix and suffix
+  if (start > endA) {
+    for (let i = start; i <= endB; i++) {
+      result.push({ type: INSERTED, path: [...path, i], value: b[i] });
+    }
+    return result;
+  }
+
+  // Pure removal run: a[start..endA] is spliced out. Each removal shifts the
+  // next candidate into the same position, so the index stays `start`.
+  if (start > endB) {
+    for (let i = start; i <= endA; i++) {
+      result.push({ type: REMOVED, path: [...path, start] });
+    }
+    return result;
+  }
+
+  // Mixed middle window: align positionally and splice the length difference.
+  const aWinLen = endA - start + 1;
+  const bWinLen = endB - start + 1;
+  const winMin = Math.min(aWinLen, bWinLen);
+
+  for (let i = 0; i < winMin; i++) {
+    const sub = objDiff(a[start + i], b[start + i], [...path, start + i], refsA, refsB, fn);
+    for (const d of sub) result.push(d);
+  }
+  for (let i = winMin; i < bWinLen; i++) {
+    result.push({ type: INSERTED, path: [...path, start + i], value: b[start + i] });
+  }
+  for (let i = winMin; i < aWinLen; i++) {
+    result.push({ type: REMOVED, path: [...path, start + winMin] });
+  }
+
+  return result;
+}
+
+/** Cheap-first element equality used for prefix/suffix trimming. */
+function isElemEqual(x: unknown, y: unknown): boolean {
+  if (Object.is(x, y)) return true;
+  if (x === null || y === null || typeof x !== "object" || typeof y !== "object") return false;
+  return isEql(x, y);
+}
+
+/** A packed array has no holes and no own non-index properties. */
+function isPackedPlainArray(arr: unknown[]): boolean {
+  const keys = Object.keys(arr);
+  if (keys.length !== arr.length) return false;
+  return keys.length === 0 || keys[keys.length - 1] === String(arr.length - 1);
+}
+
+/** Legacy key-based array diff for sparse arrays and non-index properties. */
+function diffArraysByKeys(
   a: unknown[],
   b: unknown[],
   path: Path,

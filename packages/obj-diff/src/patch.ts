@@ -1,5 +1,5 @@
 import { clone, isEql, isTypedArray } from "@opentf/std";
-import { ADDED, CHANGED, DELETED } from "./constants";
+import { ADDED, CHANGED, DELETED, INSERTED, REMOVED } from "./constants";
 import type { DiffResult } from "./types";
 
 /**
@@ -65,6 +65,12 @@ export default function patch<T>(obj: T, patches: Array<DiffResult>): T {
       applyValue(current, lastKey, p.value);
     } else if (p.type === DELETED) {
       applyDelete(current, lastKey, holedArrays);
+    } else if (p.type === INSERTED) {
+      assertArrayTarget(current, p);
+      current.splice(lastKey as number, 0, p.value);
+    } else if (p.type === REMOVED) {
+      assertArrayTarget(current, p);
+      current.splice(lastKey as number, 1);
     }
   }
 
@@ -114,6 +120,15 @@ function applyDelete(
     holedArrays.add(target);
   } else {
     delete (target as Record<string | number, unknown>)[key as string];
+  }
+}
+
+/** INSERTED/REMOVED are array-only splice operations. */
+function assertArrayTarget(target: unknown, p: DiffResult): asserts target is unknown[] {
+  if (!Array.isArray(target)) {
+    throw new TypeError(
+      `patch: op type ${p.type} at path "${p.path.map(String).join(".")}" targets a non-array; INSERTED/REMOVED apply to arrays only.`,
+    );
   }
 }
 

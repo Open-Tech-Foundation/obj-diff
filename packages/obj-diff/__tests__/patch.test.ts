@@ -129,6 +129,48 @@ describe("patch", () => {
     expect(res.p.y).toBe(5);
   });
 
+  test("INSERTED and REMOVED splice ops", () => {
+    // Insert at front round-trips with a single op
+    const a = [1, 2, 3];
+    const b = [0, 1, 2, 3];
+    const d = diff(a, b);
+    expect(d).toEqual([{ type: 3, path: [0], value: 0 }]);
+    expect(patch(a, d)).toEqual(b);
+
+    // Removal run round-trips
+    const c = [1, 2, 3, 4, 5];
+    const e = [1, 5];
+    expect(patch(c, diff(c, e))).toEqual(e);
+
+    // Nested arrays
+    const f = { list: ["a", "b", "c"] };
+    const g = { list: ["a", "x", "b", "c"] };
+    expect(patch(f, diff(f, g))).toEqual(g);
+
+    // INSERTED/REMOVED are array-only
+    expect(() => patch({ o: {} }, [{ type: 3, path: ["o", "x"], value: 1 }])).toThrow(
+      "INSERTED/REMOVED apply to arrays only",
+    );
+  });
+
+  test("legacy array patches (types 0/1/2) still apply", () => {
+    // Patches produced by older versions keep their original semantics:
+    // ADDED assigns at index, DELETED leaves a hole that is truncated.
+    expect(patch([1, 2], [{ type: 1, path: [2], value: 3 }])).toEqual([1, 2, 3]);
+    expect(patch([1, 2, 3], [{ type: 0, path: [2] }])).toEqual([1, 2]);
+    expect(
+      patch(
+        [1, 2, 3, 4, 5],
+        [
+          { type: 2, path: [1], value: 3 },
+          { type: 2, path: [2], value: 5 },
+          { type: 0, path: [3] },
+          { type: 0, path: [4] },
+        ],
+      ),
+    ).toEqual([1, 3, 5]);
+  });
+
   test("invalid patch paths throw descriptive errors", () => {
     expect(() =>
       patch({ a: 1 }, [{ type: 2, path: ["missing", "deep"], value: 1 }]),
