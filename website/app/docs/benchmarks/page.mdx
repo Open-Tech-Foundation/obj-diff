@@ -1,90 +1,100 @@
 ---
 title: Benchmarks
-description: How @opentf/obj-diff performs on diff size and speed against other JavaScript diffing libraries.
+description: How @opentf/obj-diff performs on diff size, diff speed, and patch speed against modern JavaScript diffing libraries.
 ---
 
 import data from "./results.json";
 
 export const PKG = "@opentf/obj-diff";
-export const fmt = (ns) =>
-  ns >= 1e6 ? `${(ns / 1e6).toFixed(2)} ms` : ns >= 1e3 ? `${(ns / 1e3).toFixed(2)} µs` : `${Math.round(ns)} ns`;
 export const meta = data.meta;
-export const arraySize = data.opCounts[0].arraySize.toLocaleString();
+export const arraySize = data.meta.arraySize.toLocaleString();
+export const taFactor = data.meta.taFactor;
 export const opRows = data.opCounts.map((row) => ({
   label: row.label,
-  obj: row.results[PKG].toLocaleString(),
-  micro: row.results.microdiff.toLocaleString(),
+  obj: row.obj.toLocaleString(),
+  micro: row.micro.toLocaleString(),
 }));
-export const LIBS = data.meta.libraries;
-export const speedHeads = LIBS.map((lib) => (lib === PKG ? "obj-diff" : lib));
-export const speedRows = data.timings.map((row) => {
-  const best = Math.min(...LIBS.map((lib) => row.results[lib].avgNs));
-  const cells = LIBS.map((lib) => {
-    const ns = row.results[lib].avgNs;
-    return { text: fmt(ns), cls: ns === best ? "n best" : "n" };
-  });
-  return { label: row.label, cells };
-});
-export const taRow = data.timings.find((t) => t.label.includes("TypedArray"));
-export const taFactor = Math.round(taRow.results.microdiff.avgNs / taRow.results[PKG].avgNs);
+export const diffCols = data.diffTable.scenarios;
+export const diffRows = data.diffTable.rows;
+export const patchCols = data.patchTable.scenarios;
+export const patchRows = data.patchTable.rows;
 
 export function OpCountTable() {
   return (
     <table class="bench-table">
       <thead>
-        <tr>
-          <th>Edit on a {arraySize}-element array</th>
-          <th class="n">obj-diff</th>
-          <th class="n">microdiff</th>
-        </tr>
+        <tr><th>Edit on a {arraySize}-element array</th><th class="n">obj-diff</th><th class="n">microdiff</th></tr>
       </thead>
       <tbody>
         {opRows.map((row) => (
-          <tr>
-            <td>{row.label}</td>
-            <td class="n"><strong>{row.obj}</strong></td>
-            <td class="n">{row.micro}</td>
-          </tr>
+          <tr><td>{row.label}</td><td class="n"><strong>{row.obj}</strong></td><td class="n">{row.micro}</td></tr>
         ))}
       </tbody>
     </table>
   );
 }
 
-export function SpeedTable() {
+export function DiffSpeedTable() {
   return (
-    <table class="bench-table">
-      <thead>
-        <tr>
-          <th>Scenario</th>
-          <th class="n">{speedHeads[0]}</th>
-          <th class="n">{speedHeads[1]}</th>
-          <th class="n">{speedHeads[2]}</th>
-          <th class="n">{speedHeads[3]}</th>
-          <th class="n">{speedHeads[4]}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {speedRows.map((row) => (
+    <div class="table-scroll">
+      <table class="bench-table">
+        <thead>
           <tr>
-            <td>{row.label}</td>
-            <td class={row.cells[0].cls}>{row.cells[0].text}</td>
-            <td class={row.cells[1].cls}>{row.cells[1].text}</td>
-            <td class={row.cells[2].cls}>{row.cells[2].text}</td>
-            <td class={row.cells[3].cls}>{row.cells[3].text}</td>
-            <td class={row.cells[4].cls}>{row.cells[4].text}</td>
+            <th>Library</th>
+            <th class="n">{diffCols[0]}</th>
+            <th class="n">{diffCols[1]}</th>
+            <th class="n">{diffCols[2]}</th>
+            <th class="n">{diffCols[3]}</th>
+            <th class="n">{diffCols[4]}</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {diffRows.map((row) => (
+            <tr>
+              <td>{row.lib === PKG ? <strong>obj-diff</strong> : row.lib}</td>
+              <td class={row.cells[0].best ? "n best" : "n"}>{row.cells[0].text}</td>
+              <td class={row.cells[1].best ? "n best" : "n"}>{row.cells[1].text}</td>
+              <td class={row.cells[2].best ? "n best" : "n"}>{row.cells[2].text}</td>
+              <td class={row.cells[3].best ? "n best" : "n"}>{row.cells[3].text}</td>
+              <td class={row.cells[4].best ? "n best" : "n"}>{row.cells[4].text}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export function PatchTable() {
+  return (
+    <div class="table-scroll">
+      <table class="bench-table">
+        <thead>
+          <tr>
+            <th>Library (diff + patch)</th>
+            <th class="n">{patchCols[0]}</th>
+            <th class="n">{patchCols[1]}</th>
+            <th class="n">{patchCols[2]}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {patchRows.map((row) => (
+            <tr>
+              <td>{row.lib === PKG ? <strong>obj-diff</strong> : row.lib}</td>
+              <td class={row.cells[0].best ? "n best" : "n"}>{row.cells[0].text}</td>
+              <td class={row.cells[1].best ? "n best" : "n"}>{row.cells[1].text}</td>
+              <td class={row.cells[2].best ? "n best" : "n"}>{row.cells[2].text}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
 # Benchmarks
 
-`@opentf/obj-diff` is built for two things other diffing libraries trade away: **compact diffs** and **correct handling of native JavaScript values**. Every number on this page is generated by [`benchmarks/collect.mjs`](https://github.com/Open-Tech-Foundation/obj-diff/tree/main/benchmarks/collect.mjs) and rendered straight from its JSON output — nothing here is typed by hand.
-
-> Generated **{meta.generatedAt}** on {meta.cpu} under {meta.runtime}. {meta.note}
+`@opentf/obj-diff` is built for two things other diffing libraries trade away: **compact diffs** and **correct handling of native JavaScript values**. Every number on this page is generated by [`benchmarks/collect.mjs`](https://github.com/Open-Tech-Foundation/obj-diff/tree/main/benchmarks/collect.mjs) and rendered straight from its output — nothing here is typed by hand. Regenerate with `bun benchmarks/collect.mjs`.
 
 ## Diff size (fewer operations)
 
@@ -94,19 +104,27 @@ Op counts are **deterministic** — they don't depend on the machine. This is wh
 
 Smaller diffs mean smaller audit logs, smaller sync payloads, and smaller undo stacks — see [Use Cases](/docs/use-cases).
 
-## Speed
+## Diff speed
 
-Average latency per call, lowest is highlighted. `obj-diff` is competitive on ordinary objects and **far faster on native collections** like `TypedArray`, which most libraries walk element-by-element.
+Average latency per call across modern diffing libraries; the fastest cell in each column is highlighted.
 
-<SpeedTable />
+<DiffSpeedTable />
 
-On the `TypedArray` case `obj-diff` is roughly **{taFactor}× faster than microdiff** — and orders of magnitude faster than `deep-diff` — because it compares typed arrays natively instead of treating them as generic objects.
+On the `TypedArray` column `obj-diff` is roughly **{taFactor}× faster than microdiff**, because it compares typed arrays natively instead of walking them element-by-element.
+
+> **Reading the large-array columns fairly:** speed alone can mislead. A library that emits a single "the whole array changed" replacement (rather than an element-level diff) looks fast here but produces a useless diff — see the op-count table above for what a *good* array diff costs. `obj-diff` computes a minimal, element-level edit script, which is why it is not always the lowest number on the plain-array row.
+
+## Patch speed
+
+End-to-end **diff + apply** round-trip, for libraries that can reconstruct the target from their own diff.
+
+<PatchTable />
 
 ## Honest trade-offs
 
-Benchmarks are only useful when they include the cases you *don't* win. Read the speed table above both ways:
+Benchmarks are only useful when they include the cases you *don't* win:
 
-- **Small and deeply-nested objects**: `obj-diff` sits within a whisker of the fastest positional differ. The differences are nanoseconds and irrelevant at real-world scale.
-- **Large plain numeric arrays**: computing a *minimal* edit script (Myers LCS) costs more than a raw index-by-index scan, so a positional differ can diff a big plain array faster — the payoff is the far smaller diff `obj-diff` produces. When the edit distance exceeds an internal cap, `obj-diff` falls back to index-by-index comparison to keep worst-case time and memory bounded. See [Caveats](/docs/caveats).
+- **Small and deeply-nested objects**: `obj-diff` sits within a whisker of the fastest positional differ — nanoseconds apart, irrelevant at real-world scale.
+- **Large plain numeric arrays**: computing a *minimal* edit script (Myers LCS) costs more than a raw scan, so a positional differ can diff a big plain array faster — the payoff is the far smaller diff `obj-diff` produces. When the edit distance exceeds an internal cap, `obj-diff` falls back to index-by-index comparison to keep worst-case time and memory bounded. See [Caveats](/docs/caveats).
 
 The takeaway: reach for `obj-diff` when you care about **diff quality and correctness across real JS values**, not just raw nanoseconds on flat JSON.

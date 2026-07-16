@@ -1,7 +1,6 @@
 {
   "meta": {
     "generatedAt": "2026-07-16",
-    "runtime": "Bun 1.4.0",
     "categories": [
       "Nested Objects",
       "Dates",
@@ -11,7 +10,7 @@
       "TypedArrays",
       "Circular References"
     ],
-    "note": "A \"fail\" means the library returned an empty diff for two genuinely different values. Regenerate with `bun benchmarks/collect.mjs`."
+    "regenerate": "bun benchmarks/collect.mjs"
   },
   "libraries": [
     {
@@ -51,6 +50,18 @@
       }
     },
     {
+      "name": "deep-diff-ts",
+      "results": {
+        "Nested Objects": "pass",
+        "Dates": "pass",
+        "RegExps": "pass",
+        "Maps": "fail",
+        "Sets": "fail",
+        "TypedArrays": "pass",
+        "Circular References": "pass"
+      }
+    },
+    {
       "name": "deep-object-diff",
       "results": {
         "Nested Objects": "pass",
@@ -64,6 +75,42 @@
     },
     {
       "name": "just-diff",
+      "results": {
+        "Nested Objects": "pass",
+        "Dates": "pass",
+        "RegExps": "pass",
+        "Maps": "fail",
+        "Sets": "fail",
+        "TypedArrays": "pass",
+        "Circular References": "pass"
+      }
+    },
+    {
+      "name": "@adobe/optimized-diff",
+      "results": {
+        "Nested Objects": "pass",
+        "Dates": "fail",
+        "RegExps": "fail",
+        "Maps": "fail",
+        "Sets": "fail",
+        "TypedArrays": "fail",
+        "Circular References": "pass"
+      }
+    },
+    {
+      "name": "recursive-diff",
+      "results": {
+        "Nested Objects": "pass",
+        "Dates": "pass",
+        "RegExps": "pass",
+        "Maps": "fail",
+        "Sets": "fail",
+        "TypedArrays": "pass",
+        "Circular References": "pass"
+      }
+    },
+    {
+      "name": "jsondiffpatch",
       "results": {
         "Nested Objects": "pass",
         "Dates": "pass",
