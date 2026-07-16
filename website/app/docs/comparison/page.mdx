@@ -1,0 +1,44 @@
+---
+title: Comparison
+description: How @opentf/obj-diff compares to microdiff, deep-diff, deep-object-diff, just-diff, and fast-json-patch.
+---
+
+# Comparison
+
+There are many JavaScript diffing libraries. Most were designed for **JSON** — plain objects, arrays, and primitives. `@opentf/obj-diff` is designed for **real JavaScript values**: `Map`, `Set`, `Date`, `RegExp`, `TypedArray`, `ArrayBuffer`, class instances, and circular references, with a `patch()` that replays a diff back onto the original.
+
+## Correctness across native types
+
+The most important difference is not speed — it's whether a library **notices** a change at all. The table below is from the repository's accuracy benchmark ([`/benchmarks`](https://github.com/Open-Tech-Foundation/obj-diff/tree/main/benchmarks)). A cross means the library **silently reported no difference** for two values that were genuinely different — the most dangerous kind of wrong answer.
+
+| Library | Map | Set | Date | RegExp | TypedArray | Circular |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **@opentf/obj-diff** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| microdiff | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| deep-diff | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| deep-object-diff | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
+| just-diff | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+
+`Map` and `Set` are the common blind spot: change a value in a `Map` and most libraries report `[]`.
+
+## Capabilities
+
+| Capability | @opentf/obj-diff | Notes |
+| :--- | :--- | :--- |
+| Deep diffing at any depth | ✅ | |
+| `patch()` to reconstruct the target | ✅ | Round-trips: `patch(a, diff(a, b))` deep-equals `b`. |
+| Compact array diffs (Myers LCS) | ✅ | One op per real insert/remove — see [Benchmarks](/docs/benchmarks). |
+| Native `Map` / `Set` / `Date` / `TypedArray` | ✅ | No "convert to JSON first" step. |
+| Circular-reference safe | ✅ | |
+| Custom equality via `diffWith()` | ✅ | e.g. compare MongoDB `ObjectId`s by string. |
+| TypeScript-native | ✅ | Full types, no `@types` package needed. |
+| Move detection | ❌ | Reorders are expressed as remove + insert — see [Caveats](/docs/caveats). |
+| RFC 6902 (JSON Patch) wire format | ❌ | Intentional — see below. |
+
+## When to choose something else
+
+`obj-diff` is not trying to be every diffing tool. Reach for an alternative when:
+
+- **You need the interoperable RFC 6902 JSON Patch format** (to send patches to a non-JS service, or apply them with a standard library) → use [`fast-json-patch`](https://github.com/Starcounter-Jack/JSON-Patch) or `rfc6902`. `obj-diff` uses its own compact, JS-native op format instead; see the [FAQ](/docs/caveats#faqs).
+- **Your arrays are large and frequently reordered** and you need true *move* operations → a move-detecting differ will produce smaller diffs for shuffles. `obj-diff` treats a move as a remove plus an insert.
+- **You only ever touch flat JSON and want the absolute lowest nanosecond count** on tiny objects → a minimal positional differ like `microdiff` shaves a few hundred nanoseconds. For anything with native types, collections, or where diff size matters, `obj-diff` wins on the axes that count.

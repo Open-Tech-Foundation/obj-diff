@@ -5,5 +5,7 @@ export default {
   api: "API Reference",
   examples: "Examples",
   "use-cases": "Use Cases",
+  comparison: "Comparison",
+  benchmarks: "Benchmarks",
   caveats: "Caveats & FAQs",
 };
