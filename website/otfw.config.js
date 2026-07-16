@@ -2,8 +2,7 @@ import { defineDocsConfig } from "@opentf/web-docs/config";
 
 export default defineDocsConfig({
   // Canonical site origin — required for production builds.
-  // Set this to your deployed origin, e.g. "https://example.com".
-  site: { url: null },
+  site: { url: "https://obj-diff.opentechf.org" },
 
   docs: {
     title: "obj-diff",
@@ -19,7 +18,7 @@ export default defineDocsConfig({
     footer: { text: "© 2026 Open Tech Foundation" },
     // Per-page "Last updated" (from git) and "Edit this page" (GitHub). Set repoUrl to
     // your repository root; links use <repoUrl>/edit/main/<source-path>.
-    repoUrl: null, // e.g. "https://github.com/you/your-repo"
+    repoUrl: "https://github.com/Open-Tech-Foundation/obj-diff",
     lastUpdated: true,
   },
 });
