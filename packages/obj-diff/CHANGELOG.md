@@ -18,6 +18,7 @@
 - Fixed `packSparseArrays` to properly traverse and clean sparse arrays nested within `Map` values and `Set` elements.
 
 ### Changed
+- `patch()` now throws a descriptive `TypeError` naming the failing path when a patch references a path that does not exist in the object, instead of an opaque error from deep inside the traversal.
 - Objects that are the same reference now short-circuit as equal without a deep walk.
 - The `DiffResult` `path` type widened from `Array<string | number>` to `Array<unknown>`: object keys are strings and array/Set indexes are numbers as before, but `Map` entries use the map key itself, which can be a value of any type.
 

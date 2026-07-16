@@ -129,6 +129,20 @@ describe("patch", () => {
     expect(res.p.y).toBe(5);
   });
 
+  test("invalid patch paths throw descriptive errors", () => {
+    expect(() =>
+      patch({ a: 1 }, [{ type: 2, path: ["missing", "deep"], value: 1 }]),
+    ).toThrow('patch: invalid path "missing.deep" — "missing" is not an object');
+
+    expect(() => patch({ a: 1 }, [{ type: 2, path: ["a", "b"], value: 1 }])).toThrow(
+      'patch: invalid path "a.b" — "a" is not an object',
+    );
+
+    expect(() => patch(5, [{ type: 2, path: ["a"], value: 1 }])).toThrow(
+      "the patched object is not an object",
+    );
+  });
+
   test("TypedArray", () => {
     const a = { t: new Uint8Array([1, 2, 3]) };
     const b = { t: new Uint8Array([1, 4, 3]) };

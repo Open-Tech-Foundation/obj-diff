@@ -44,6 +44,8 @@ export default function patch<T>(obj: T, patches: Array<DiffResult>): T {
       unknown
     >;
 
+    assertPatchTarget(current, p.path, 0);
+
     for (let i = 0; i < p.path.length - 1; i++) {
       const key = p.path[i];
       if (current instanceof Map) {
@@ -53,6 +55,7 @@ export default function patch<T>(obj: T, patches: Array<DiffResult>): T {
       } else {
         current = (current as Record<string, unknown>)[key as string] as Record<string, unknown>;
       }
+      assertPatchTarget(current, p.path, i + 1);
     }
 
     const lastKey = p.path[p.path.length - 1];
@@ -112,6 +115,16 @@ function applyDelete(
   } else {
     delete (target as Record<string | number, unknown>)[key as string];
   }
+}
+
+/** Ensures the value a patch path resolved to can receive the next segment. */
+function assertPatchTarget(target: unknown, path: Array<unknown>, depth: number): void {
+  if (target !== null && typeof target === "object") return;
+  const fullPath = path.map(String).join(".");
+  const at = depth === 0 ? "the patched object" : `"${path.slice(0, depth).map(String).join(".")}"`;
+  throw new TypeError(
+    `patch: invalid path "${fullPath}" — ${at} is not an object, cannot resolve it.`,
+  );
 }
 
 /**
