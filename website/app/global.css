@@ -118,14 +118,14 @@ body {
 .plot-bar { width: .72rem; min-width: .72rem; border: 0; border-radius: .25rem .25rem 0 0; background: var(--lab-blue); cursor: pointer; height: 48%; }
 .plot-bar:nth-child(3n) { height: 85%; }
 .plot-bar:nth-child(2n) { height: 65%; }
-.plot-bar.type-0 { background: var(--lab-red); }
-.plot-bar.type-1 { background: var(--lab-green); }
+.plot-bar.kind-removed { background: var(--lab-red); }
+.plot-bar.kind-added { background: var(--lab-green); }
 .plot-bar:hover { filter: brightness(1.15); transform: translateY(-2px); }
 .plot-caption { margin: 0; color: var(--lab-muted); font-size: .8rem; }
 .change-list { display: grid; gap: .55rem; }
 .change-card { display: grid; grid-template-columns: 5.2rem minmax(0, 1fr) minmax(10rem, 1.4fr); align-items: center; gap: 1rem; width: 100%; border: 1px solid var(--lab-line); border-left: 3px solid var(--lab-blue); border-radius: .55rem; background: #fff; color: var(--lab-ink); padding: .8rem; text-align: left; }
-.change-card.type-0 { border-left-color: var(--lab-red); }
-.change-card.type-1 { border-left-color: var(--lab-green); }
+.change-card.kind-removed { border-left-color: var(--lab-red); }
+.change-card.kind-added { border-left-color: var(--lab-green); }
 .change-card.selected { box-shadow: 0 0 0 2px rgba(37, 99, 235, .2); }
 .change-type { color: var(--lab-muted); font-size: .72rem; font-weight: 800; text-transform: uppercase; }
 .change-card code, .change-value { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

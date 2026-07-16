@@ -81,6 +81,18 @@ function getDiffResults(diffResult) {
   return out;
 }
 
+const OP_META = {
+  0: { label: "Deleted", kind: "removed", hasValue: false },
+  1: { label: "Added", kind: "added", hasValue: true },
+  2: { label: "Changed", kind: "changed", hasValue: true },
+  3: { label: "Inserted", kind: "added", hasValue: true },
+  4: { label: "Removed", kind: "removed", hasValue: false },
+};
+
+function opMeta(type) {
+  return OP_META[type] || OP_META[2];
+}
+
 function formatValue(value) {
   if (value === undefined) return "undefined";
   if (typeof value === "bigint") return `${value}n`;
@@ -125,11 +137,10 @@ export default function Home() {
 
   let diffResult = $derived(getDiff(parsedA, parsedB));
   let patchResult = $derived(getPatch(obj1Val, diffResult));
-  let changeSummary = $derived(() => ({
-    created: diffResult.filter((item) => item.type === 1).length,
-    updated: diffResult.filter((item) => item.type === 2).length,
-    deleted: diffResult.filter((item) => item.type === 0).length,
-  }));
+  let changeSummary = $derived(() => {
+    const count = (kind) => diffResult.filter((item) => opMeta(item.type).kind === kind).length;
+    return { added: count("added"), changed: count("changed"), removed: count("removed") };
+  });
 
   let activeTab = $state("overview");
   let selectedPath = $state("");
@@ -249,21 +260,21 @@ export default function Home() {
               <div class="diff-overview">
                 <div class="overview-heading"><div><span class="section-kicker">Change visualization</span><h3>{diffResult.length === 0 ? "Objects are in sync" : `${diffResult.length} operations to reach the target`}</h3></div><span class={patchVerification.valid ? "overview-proof is-valid" : "overview-proof"}>{patchVerification.valid ? "Verified patch" : "Awaiting valid input"}</span></div>
                 <div class="summary-grid">
-                  <button class="summary-card added" onclick={() => activeTab = "changes"}><strong>{changeSummary.created}</strong><span>Added</span></button>
-                  <button class="summary-card changed" onclick={() => activeTab = "changes"}><strong>{changeSummary.updated}</strong><span>Changed</span></button>
-                  <button class="summary-card removed" onclick={() => activeTab = "changes"}><strong>{changeSummary.deleted}</strong><span>Removed</span></button>
+                  <button class="summary-card added" onclick={() => activeTab = "changes"}><strong>{changeSummary.added}</strong><span>Added</span></button>
+                  <button class="summary-card changed" onclick={() => activeTab = "changes"}><strong>{changeSummary.changed}</strong><span>Changed</span></button>
+                  <button class="summary-card removed" onclick={() => activeTab = "changes"}><strong>{changeSummary.removed}</strong><span>Removed</span></button>
                 </div>
-                {diffResult.length > 0 ? <div class="change-plot" aria-label="One bar for each diff operation">{diffResult.map((item) => <button class={`plot-bar type-${item.type}`} onclick={() => { selectedPath = formatPath(item.path); activeTab = "changes"; }} aria-label={`${formatPath(item.path)}: ${item.type === 0 ? "removed" : item.type === 1 ? "added" : "changed"}`}></button>)}</div> : <div class="empty-state">No differences yet. Change either object to inspect its operations.</div>}
+                {diffResult.length > 0 ? <div class="change-plot" aria-label="One bar for each diff operation">{diffResult.map((item) => <button class={`plot-bar kind-${opMeta(item.type).kind}`} onclick={() => { selectedPath = formatPath(item.path); activeTab = "changes"; }} aria-label={`${formatPath(item.path)}: ${opMeta(item.type).label}`}></button>)}</div> : <div class="empty-state">No differences yet. Change either object to inspect its operations.</div>}
                 {diffResult.length > 0 && <p class="plot-caption">Each marker is one patch operation. Select a marker to inspect its path in the complete change list.</p>}
               </div>
             )}
             {activeTab === "changes" && (
               <div class="change-list">
                 {diffResult.length === 0 ? <div class="empty-state">No differences yet. Change either object to inspect its operations.</div> : diffResult.map((item) => (
-                  <button class={selectedPath === formatPath(item.path) ? "change-card selected" : `change-card type-${item.type}`} onclick={() => selectedPath = formatPath(item.path)}>
-                    <span class="change-type">{item.type === 0 ? "Removed" : item.type === 1 ? "Added" : "Changed"}</span>
+                  <button class={selectedPath === formatPath(item.path) ? "change-card selected" : `change-card kind-${opMeta(item.type).kind}`} onclick={() => selectedPath = formatPath(item.path)}>
+                    <span class="change-type">{opMeta(item.type).label}</span>
                     <code>{formatPath(item.path)}</code>
-                    {item.type !== 0 ? <span class="change-value">{formatValue(item.value)}</span> : <span class="change-value">removed from target</span>}
+                    {opMeta(item.type).hasValue ? <span class="change-value">{formatValue(item.value)}</span> : <span class="change-value">removed from target</span>}
                   </button>
                 ))}
               </div>
