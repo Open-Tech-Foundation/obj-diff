@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Fixed
+- Fixed two invalid `Date`s (`NaN` timestamps) being reported as changed; they now compare as equal, consistent with `NaN === NaN` handling for primitives.
 - Fixed `Error` objects with equal messages but different custom properties (or different error classes with the same message) comparing as equal. Errors now compare by prototype, `name`, `message` and own enumerable properties, and are replaced wholesale when they differ.
 - Fixed boxed primitives (`new Number()`, `new String()`, `new Boolean()`) ignoring custom properties: equal-valued boxes now diff their own enumerable properties; different values report a replacement.
 - Fixed class instances always comparing as equal: non-plain objects fell through to a string comparison where both sides stringify to `[object Object]`. Instances sharing the same prototype are now diffed by their own enumerable properties, and instances of different classes are reported as replaced.

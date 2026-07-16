@@ -64,7 +64,8 @@ function objDiff(
       fn,
     );
   } else if (a instanceof Date && b instanceof Date) {
-    result = a.getTime() === b.getTime() ? [] : [{ type: CHANGED, path, value: b }];
+    // Object.is treats two invalid dates (NaN timestamps) as equal
+    result = Object.is(a.getTime(), b.getTime()) ? [] : [{ type: CHANGED, path, value: b }];
   } else if (a instanceof Map && b instanceof Map) {
     result = diffMaps(a, b, path, refsA, refsB, fn);
   } else if (a instanceof Set && b instanceof Set) {

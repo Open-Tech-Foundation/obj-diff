@@ -57,6 +57,12 @@ describe("diff", () => {
         value: new Date("2024-01-02"),
       },
     ]);
+
+    // Two invalid dates are equal
+    expect(diff(new Date(NaN), new Date(NaN))).toEqual([]);
+    expect(diff({ d: new Date(NaN) }, { d: new Date("2024-01-01") })).toEqual([
+      { type: 2, path: ["d"], value: new Date("2024-01-01") },
+    ]);
   });
 
   test("array", () => {
