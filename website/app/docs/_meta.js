@@ -4,5 +4,6 @@ export default {
   index: "Getting Started",
   api: "API Reference",
   examples: "Examples",
+  "use-cases": "Use Cases",
   caveats: "Caveats & FAQs",
 };

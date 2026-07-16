@@ -1,0 +1,100 @@
+---
+title: Use Cases
+description: Where @opentf/obj-diff shines — practical patterns for diffing and patching in real applications.
+---
+
+# Use Cases
+
+`@opentf/obj-diff` answers one question precisely: **given two JavaScript values, what exactly changed?** The result is structured data (`{ type, path, value }`), and `patch()` can replay it onto the original — so a diff is a complete, transportable description of a change.
+
+Because it works on real JS values — `Map`, `Set`, `Date`, `TypedArray`, `ArrayBuffer`, class instances, circular references — it fits codebases where "convert to JSON first" isn't an option.
+
+## 1. Audit Logging & Change Tracking
+
+Store `diff(before, after)` instead of two full snapshots when a record is edited. You get a compact "what changed" log — who changed `user.address.city`, and to what — the backbone of audit trails, admin activity feeds, and compliance logging.
+
+```js
+const before = { name: "Alice", address: { city: "Paris" } };
+const after = { name: "Alice", address: { city: "Berlin" } };
+
+auditLog.push({
+  user: currentUser,
+  at: Date.now(),
+  changes: diff(before, after),
+  // [{ type: 2, path: ["address", "city"], value: "Berlin" }]
+});
+```
+
+## 2. Undo / Redo & Version History
+
+Keep a stack of diffs rather than deep copies of app state. Memory stays proportional to the **size of the change**, not the size of the state. Editors, drawing apps, form builders, and CMSes all follow this pattern.
+
+```js
+history.push(diff(prevState, nextState));
+
+// Redo: replay a stored diff
+state = patch(state, history[pointer]);
+```
+
+## 3. Network Sync With Minimal Payloads
+
+Send only the diff and `patch()` it on the other side — collaborative apps, live dashboards, multiplayer game state, offline-first apps reconciling on reconnect. Diffs of JSON-safe values serialize cleanly.
+
+```js
+// Sender
+socket.send(JSON.stringify(diff(lastSynced, current)));
+
+// Receiver
+doc = patch(doc, JSON.parse(message));
+```
+
+## 4. Dirty Checking in Forms & Editors
+
+Compare the working copy against the loaded original to drive a Save button, per-field "unsaved changes" markers (the `path` tells you which input to highlight), or the minimal PATCH payload for your API.
+
+```js
+const changes = diff(original, draft);
+
+saveButton.disabled = changes.length === 0;
+for (const c of changes) markFieldDirty(c.path);
+```
+
+## 5. Testing & Debugging
+
+When a deep-equality assertion fails, a diff pinpoints *where* — far faster to read than two large object dumps. It also catches unintended mutations: diff a value against an earlier clone and assert the result is empty.
+
+```js
+const snapshot = clone(state);
+runSuspectCode(state);
+
+expect(diff(snapshot, state)).toEqual([]); // state must not be mutated
+```
+
+## 6. Change-Driven Side Effects
+
+Diff the previous and next config/state and react only to what actually changed — re-render only affected components, re-run only affected jobs, invalidate only affected cache keys, or trigger webhooks with a precise change payload.
+
+```js
+for (const c of diff(prevConfig, nextConfig)) {
+  if (c.path[0] === "theme") rerenderTheme();
+  if (c.path[0] === "db") reconnectDatabase();
+}
+```
+
+## 7. Optimistic UI & Partial Updates
+
+Apply a patch locally and roll back if the server rejects it, or compute a MongoDB-style partial update from an edited document instead of writing the whole record.
+
+```js
+const changes = diff(saved, edited);
+const $set = {};
+for (const c of changes) {
+  if (c.type !== 0) $set[c.path.join(".")] = c.value;
+}
+await collection.updateOne({ _id }, { $set });
+```
+
+## When to Reach for Something Else
+
+- You need the interoperable **RFC 6902 JSON Patch** wire format → `fast-json-patch` (strict JSON only).
+- Your arrays are large and frequently **reordered** — diffs here are positional (no move detection), so list reorders produce larger diffs than LCS-based tools. See [Caveats](/docs/caveats) for details.
