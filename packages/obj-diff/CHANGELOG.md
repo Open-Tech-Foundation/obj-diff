@@ -13,9 +13,9 @@
 - Fixed `patch()` compacting sparse arrays that no patch touched, shifting indices of unrelated data. Array cleanup is now limited to arrays that actually received deletions, and only trailing holes are truncated — so patching to a sparse target (e.g. `[1, 2, 3]` → `[1, , 3]`) now round-trips correctly.
 - Fixed `patch()` producing a wrong `Set` when shrinking it by two or more elements. `Set` deletions are now emitted in descending index order so sequential removal during patching no longer shifts pending indices.
 - Fixed asymmetrical circular reference diffing to avoid false positives and stack overflows.
-- Improved comparison of unhandled object types (e.g. `RegExp`, `Error`) by falling back to string value comparison.
+- Improved comparison of unhandled object types (e.g. `RegExp`) by falling back to string value comparison.
 - Fixed deep `patch()` traversal failing when encountering `Set` collections.
-- Fixed `packSparseArrays` to properly traverse and clean sparse arrays nested within `Map` values and `Set` elements.
+- Fixed sparse array cleanup after patching to also cover arrays nested within `Map` values and `Set` elements.
 
 ### Changed
 - `patch()` now throws a descriptive `TypeError` naming the failing path when a patch references a path that does not exist in the object, instead of an opaque error from deep inside the traversal.

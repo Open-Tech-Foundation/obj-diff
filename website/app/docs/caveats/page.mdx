@@ -27,6 +27,40 @@ console.log(res.first.x); // 2
 
 > **Tip:** If you require independent branches after patching, ensure your input objects do not share internal references that are expected to diverge.
 
+### Patched Output Shares Values With the Target
+
+For the same performance reason, added and changed values are placed into the patched result **by reference**, not cloned. After `patch(a, diff(a, b))`, any object that was newly added or replaced is the *same instance* as the one inside `b` — mutating it later affects both.
+
+```js
+const a = {};
+const b = { user: { name: "Alice" } };
+
+const res = patch(a, diff(a, b));
+console.log(res.user === b.user); // true
+```
+
+> **Tip:** If you need the result to be fully independent from `b`, deep-clone it after patching.
+
+### Symbol Keys Are Ignored
+
+Only own **enumerable string keys** are diffed. Properties keyed by `Symbol`s are invisible to `diff()` — two objects differing only in symbol-keyed properties compare as equal.
+
+### Sets Are Compared by Insertion Order
+
+`Set` elements are compared **positionally**, by insertion order. Two sets with the same members in a different order will report changes. This is intentional: insertion order is observable in JavaScript (iteration, serialization), so order changes are recorded as real changes.
+
+### Arrays Are Diffed Positionally (No Move Detection)
+
+Arrays are compared index-by-index. Inserting or removing an element in the middle shifts everything after it, producing one change per shifted element rather than a single "insert" operation. Patching is still correct — the diffs are just not minimal for splice-style edits.
+
+### `diffWith()` Comparators Only See Objects
+
+The custom comparator passed to `diffWith()` is invoked only when **both values are objects**. Primitive leaves (numbers, strings, etc.) are always compared with built-in `Object.is` semantics — so, for example, float-tolerance comparison of bare numbers cannot be intercepted.
+
+### Zero Sign Is Significant
+
+Values are compared with `Object.is` (SameValue) semantics: `0` and `-0` are reported as changed, and `NaN` equals `NaN`.
+
 ---
 
 ## FAQs

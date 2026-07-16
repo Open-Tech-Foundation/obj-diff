@@ -8,6 +8,9 @@ import type { DiffResult } from "./types";
  * Return `false` to mark them as equal (skips deep comparison).
  * Return `undefined` to fall through to the default comparison.
  *
+ * Note: the comparator is invoked only when both values are objects;
+ * primitive values are always compared with built-in `Object.is` semantics.
+ *
  * @param obj1 - The original object.
  * @param obj2 - The modified object.
  * @param fn - A custom comparator function.
