@@ -6,8 +6,6 @@
 
 ![Demo image](https://raw.githubusercontent.com/Open-Tech-Foundation/obj-diff/main/demo.png)
 
-[**Live Demo**](https://obj-diff.pages.dev/) | [**Report Bug**](https://github.com/Open-Tech-Foundation/obj-diff/issues) | [**Standard Library**](https://github.com/Open-Tech-Foundation/std)
-
 </div>
 
 ---
@@ -44,7 +42,8 @@ deno add @opentf/obj-diff
 The library natively supports the following types:
 
 - **Primitives**: `Undefined`, `Null`, `Number`, `String`, `Boolean`, `BigInt`.
-- **Built-in Objects**: `Plain Objects {}`, `Array`, `Date`, `Map`, `Set`, `TypedArray` (`Uint8Array`, `Float32Array`, etc.).
+- **Built-in Objects**: `Plain Objects {}`, `Array`, `Date`, `Map`, `Set`, `TypedArray` (`Uint8Array`, `Float32Array`, etc.), `ArrayBuffer`, `DataView`.
+- **Class Instances**: instances sharing the same prototype are diffed by their own enumerable properties; instances of different classes are reported as replaced.
 
 ## 📖 Usage
 
