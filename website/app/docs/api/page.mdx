@@ -1,50 +1,54 @@
 ---
 title: API Reference
-description: API documentation for diff, patch, and diffWith.
+description: Complete reference for diff, patch, diffWith, the DiffResult type, and the op-type constants.
 ---
 
 # API Reference
 
-## `diff(obj1, obj2)`
-
-Performs a deep comparison between two objects and generates a list of diffs.
+Everything is a named export from the package root:
 
 ```ts
-import { diff } from '@opentf/obj-diff';
-
-const result = diff(obj1, obj2);
+import {
+  diff, patch, diffWith,           // functions
+  DELETED, ADDED, CHANGED, INSERTED, REMOVED, // op-type constants
+} from "@opentf/obj-diff";
 ```
 
-### `DiffResult` Structure
-```ts
-type DiffResult = {
-  type: 0 | 1 | 2 | 3 | 4; // see the op types table below
-  path: Array<unknown>;    // path to the property; Map entries use the Map key itself
-  value?: unknown;         // the new value (for types 1, 2 and 3)
-};
-```
+| Export | Kind | Summary |
+| :--- | :--- | :--- |
+| [`diff`](#diff) | function | Deep-compare two values into a list of operations. |
+| [`patch`](#patch) | function | Apply a diff to reconstruct the target. |
+| [`diffWith`](#diffwith) | function | `diff` with a custom equality function. |
+| [`DiffResult`](#diffresult-type) | type | The shape of a single operation. |
+| [Op constants](#op-type-constants) | const | `DELETED`, `ADDED`, `CHANGED`, `INSERTED`, `REMOVED`. |
 
-### Op Types
+---
 
-| Type | Constant | Meaning | Applies to |
-| :--- | :--- | :--- | :--- |
-| `0` | `DELETED` | Key no longer exists (`delete obj.k` / `map.delete(k)`; on an array index it leaves a hole) | objects, Maps, arrays (sparse) |
-| `1` | `ADDED` | New key/value (on arrays: assign at index) | objects, Maps, Sets, arrays |
-| `2` | `CHANGED` | Value replaced at the path | all |
-| `3` | `INSERTED` | Insert the value at the index, shifting later elements right (`splice(i, 0, v)`) | arrays only |
-| `4` | `REMOVED` | Remove the element at the index, shifting later elements left (`splice(i, 1)`) | arrays only |
-
-The constants are exported from the package root:
+## `diff`
 
 ```ts
-import { DELETED, ADDED, CHANGED, INSERTED, REMOVED } from "@opentf/obj-diff";
+function diff(a: unknown, b: unknown): DiffResult[]
 ```
 
-`INSERTED`/`REMOVED` indexes are **application-time** (RFC 6902 style): apply ops in order and each index is valid at the moment it is applied.
+Performs a deep comparison and returns the list of operations that transform `a` into `b`. An empty array means the two values are deeply equal.
 
-### Compact Array Diffs
+**Parameters**
 
-`diff()` trims the common prefix and suffix of arrays and resolves the remaining middle with a bounded shortest-edit-script (Myers LCS) diff. Inserting one element at the front of a 10,000-element array produces **1 op**, not 10,001:
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| `a` | `unknown` | The source (original) value. |
+| `b` | `unknown` | The target value to compare against. |
+
+**Returns** — `DiffResult[]`, in application order.
+
+```ts
+diff({ a: 1 }, { a: 2 });
+//=> [{ type: 2, path: ["a"], value: 2 }]
+```
+
+### Compact array diffs
+
+`diff` trims the common prefix and suffix of arrays and resolves the remaining middle with a bounded shortest-edit-script (Myers LCS) pass. Inserting one element at the front of a 10,000-element array produces **1 op**, not 10,001:
 
 ```ts
 diff([1, 2, 3], [0, 1, 2, 3]);
@@ -54,37 +58,97 @@ diff([1, 2, 3, 4], [1, 4]);
 //=> [{ type: 4, path: [1] }, { type: 4, path: [1] }]
 ```
 
-When two arrays are too different (the edit-distance cap is exceeded), diffing falls back to index-by-index comparison, which bounds worst-case time and memory.
+`INSERTED` / `REMOVED` indexes are **application-time** (RFC 6902 style): apply the ops in order and each index is valid at the moment it is applied. When two arrays are too different (an internal edit-distance cap is exceeded), `diff` falls back to index-by-index comparison to bound worst-case time and memory.
 
 ---
 
-## `patch(obj, patches)`
-
-Applies an array of diff results to an object.
+## `patch`
 
 ```ts
-import { patch, diff } from "@opentf/obj-diff";
-
-const originalObj = { a: 1 };
-const targetObj = { a: 2 };
-
-const diffResults = diff(originalObj, targetObj);
-const updatedObj = patch(originalObj, diffResults);
+function patch(obj: unknown, patches: DiffResult[]): unknown
 ```
+
+Applies a diff to `obj` and returns the reconstructed value. The round-trip always holds: `patch(a, diff(a, b))` is deep-equal to `b`.
+
+**Parameters**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| `obj` | `unknown` | The source value to apply the diff to. |
+| `patches` | `DiffResult[]` | A diff produced by `diff` or `diffWith`. |
+
+**Returns** — the patched value.
+
+```ts
+const a = { a: 1 };
+const b = { a: 2 };
+
+patch(a, diff(a, b)); //=> { a: 2 }
+```
+
+> Added and changed values are placed into the result **by reference**, not cloned. See [Caveats](/docs/caveats) for aliasing details.
 
 ---
 
-## `diffWith(obj1, obj2, customEqualityFn)`
+## `diffWith`
 
-Allows you to inject a custom equality function for checking specific structures, classes, or types (e.g. MongoDB `ObjectId`).
+```ts
+function diffWith(
+  a: unknown,
+  b: unknown,
+  isChanged: (a: object, b: object) => boolean | undefined,
+): DiffResult[]
+```
+
+Like [`diff`](#diff), but you supply a comparator to override equality for specific object types (e.g. MongoDB `ObjectId`, custom classes).
+
+**Parameters**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| `a` | `unknown` | The source value. |
+| `b` | `unknown` | The target value. |
+| `isChanged` | `(a, b) => boolean \| undefined` | Return `true`/`false` to force the result, or `undefined` to fall back to the built-in comparison. Invoked **only when both values are objects**. |
+
+**Returns** — `DiffResult[]`.
 
 ```ts
 import { diffWith } from "@opentf/obj-diff";
 import { ObjectId } from "bson";
 
-const result = diffWith(record1, record2, (a, b) => {
+diffWith(recordA, recordB, (a, b) => {
   if (a instanceof ObjectId && b instanceof ObjectId) {
     return a.toString() !== b.toString();
   }
 });
 ```
+
+---
+
+## `DiffResult` type
+
+```ts
+type DiffResult = {
+  type: 0 | 1 | 2 | 3 | 4; // see the op-type table below
+  path: Array<unknown>;    // path to the property; Map entries use the Map key itself
+  value?: unknown;         // the new value (present for ADDED, CHANGED, INSERTED)
+};
+```
+
+### Op-type constants
+
+| Value | Constant | Meaning | Applies to |
+| :---: | :--- | :--- | :--- |
+| `0` | `DELETED` | Key no longer exists (`delete obj.k` / `map.delete(k)`; on an array index it leaves a hole). | objects, Maps, arrays (sparse) |
+| `1` | `ADDED` | New key/value (on arrays: assign at index). | objects, Maps, Sets, arrays |
+| `2` | `CHANGED` | Value replaced at the path. | all |
+| `3` | `INSERTED` | Insert `value` at the index, shifting later elements right (`splice(i, 0, v)`). | arrays only |
+| `4` | `REMOVED` | Remove the element at the index, shifting later elements left (`splice(i, 1)`). | arrays only |
+
+```ts
+import { DELETED, ADDED, CHANGED, INSERTED, REMOVED } from "@opentf/obj-diff";
+
+diff(a, b).filter((op) => op.type === REMOVED);
+```
+
+An empty `path` (`[]`) denotes the **root** — the entire source was replaced by the target (e.g. comparing an object to `null`).

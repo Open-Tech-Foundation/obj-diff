@@ -1,17 +1,20 @@
 ---
-title: Examples
-description: Real-world usage examples for @opentf/obj-diff.
+title: Guide
+description: A practical walkthrough of diffing, reading results, patching, and custom equality with @opentf/obj-diff.
 ---
 
-# Examples
+# Guide
 
-All snippets assume the functions are imported from the package root:
+This guide walks through the core workflow of `@opentf/obj-diff`: compute a diff, read it, apply it, and customize it. Every snippet assumes:
 
 ```js
-import { diff, patch } from "@opentf/obj-diff";
+import { diff, patch, diffWith } from "@opentf/obj-diff";
 ```
 
-## 1. Basic Objects
+## 1. Compute a diff
+
+`diff(a, b)` returns an array of operations that turn `a` into `b`. Each operation has a `type`, a `path`, and (for additions and changes) a `value`.
+
 ```js
 const a = { a: 1, b: 2 };
 const b = { a: 2, c: 3 };
@@ -19,51 +22,72 @@ const b = { a: 2, c: 3 };
 diff(a, b);
 /*
 [
-  { type: 2, path: ["a"], value: 2 },
-  { type: 0, path: ["b"] },
-  { type: 1, path: ["c"], value: 3 }
+  { type: 2, path: ["a"], value: 2 }, // CHANGED
+  { type: 0, path: ["b"] },           // DELETED
+  { type: 1, path: ["c"], value: 3 }, // ADDED
 ]
 */
 ```
 
-## 2. Nested Structures
+The `path` is an array you can walk or join. It points at exactly what changed — see the [API Reference](/docs/api) for the full op-type table.
+
+## 2. Read the result
+
+Because the result is plain data, you can filter and inspect it however you like:
+
+```js
+const changes = diff(a, b);
+
+changes.length;                         // how many operations
+changes.filter((c) => c.type === 0);    // just the deletions
+changes.map((c) => c.path.join("."));   // ["a", "b", "c"]
+```
+
+This is what makes the diff useful as an audit log, a sync payload, or a dirty-field marker — see [Use Cases](/docs/use-cases).
+
+## 3. Apply a diff (patch)
+
+`patch(obj, changes)` replays a diff onto an object and returns the result. The round-trip always holds — patching `a` with `diff(a, b)` reproduces `b`:
+
 ```js
 const a = { foo: { bar: [1, 2] } };
 const b = { foo: { bar: [1] } };
 
-const d = diff(a, b);
-const res = patch(a, d); // res is deep equal to b
+const changes = diff(a, b);
+const result = patch(a, changes); // deep-equal to b
 ```
 
-## 3. Compact Array Diffs
-Array edits produce shortest edit scripts — one op per actual insert/remove.
+## 4. Work with native collections
+
+Unlike JSON-only differs, `obj-diff` compares `Map`, `Set`, `Date`, `TypedArray`, and more directly — no conversion step.
+
+```js
+// Set — compared positionally, by insertion order
+diff(new Set([1, 2]), new Set([2, 3]));
+//=> [ { type: 2, path: [0], value: 2 }, { type: 2, path: [1], value: 3 } ]
+
+// TypedArray — compared element-wise, and fast
+diff(new Uint8Array([1, 2, 3]), new Uint8Array([1, 4, 3]));
+//=> [ { type: 2, path: [1], value: 4 } ]
+```
+
+## 5. Compact array diffs
+
+Array edits produce the shortest edit script — one operation per real insert or remove, not one per shifted element:
 
 ```js
 diff([1, 2, 3], [0, 1, 2, 3]);
-//=> [{ type: 3, path: [0], value: 0 }]   // INSERTED at index 0
+//=> [{ type: 3, path: [0], value: 0 }]        // INSERTED at index 0
 
 diff([1, 2, 3, 4], [1, 4]);
-//=> [{ type: 4, path: [1] }, { type: 4, path: [1] }]   // REMOVED (application-time indexes)
+//=> [{ type: 4, path: [1] }, { type: 4, path: [1] }] // REMOVED (application-time indexes)
 ```
 
-## 4. ES6 Map & Set Support
-Natively diff and patch modern collections.
+See the [Benchmarks](/docs/benchmarks) for how this compares to positional differs.
 
-```js
-const a = new Set([1, 2]);
-const b = new Set([2, 3]);
+## 6. Circular references are safe
 
-diff(a, b);
-/*
-[
-  { type: 2, path: [0], value: 2 },
-  { type: 2, path: [1], value: 3 }
-]
-*/
-```
-
-## 5. Circular Reference Safety
-Safe comparison of recursive objects without infinite loops.
+Recursive structures are compared without infinite loops:
 
 ```js
 const a = { id: 1 };
@@ -71,17 +95,26 @@ a.self = a;
 const b = { id: 2 };
 b.self = b;
 
-diff(a, b); 
-// Output: [{ type: 2, path: ["id"], value: 2 }]
+diff(a, b);
+//=> [{ type: 2, path: ["id"], value: 2 }]
 ```
 
-## 6. Native TypedArray Performance
-Accurately diffs large chunks of binary data incredibly fast.
+## 7. Custom equality
+
+When two values should be treated as equal by your own rule (for example MongoDB `ObjectId`s), pass a comparator to `diffWith`. It runs only when **both** values are objects:
 
 ```js
-const a = new Uint8Array([1, 2, 3]);
-const b = new Uint8Array([1, 4, 3]);
+import { ObjectId } from "bson";
 
-diff(a, b); 
-// Output: [{ type: 2, path: [1], value: 4 }]
+diffWith(recordA, recordB, (x, y) => {
+  if (x instanceof ObjectId && y instanceof ObjectId) {
+    return x.toString() !== y.toString();
+  }
+});
 ```
+
+## Next steps
+
+- [API Reference](/docs/api) — every function, type, and constant.
+- [Caveats & FAQs](/docs/caveats) — aliasing, symbol keys, move detection, and more.
+- [Use Cases](/docs/use-cases) — where a structural diff pays off.
