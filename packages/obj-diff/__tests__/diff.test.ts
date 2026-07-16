@@ -81,16 +81,11 @@ describe("diff", () => {
         value: 5,
       },
     ]);
-    // Common prefix [1] and suffix [5] are trimmed; the middle window pairs
-    // 2 -> 3 and splices out the two leftover elements (application-time indexes).
+    // The shortest edit script keeps 3 and 5: remove 2 and 4
+    // (indexes are application-time: after removing index 1, the 4 sits at index 2).
     expect(diff([1, 2, 3, 4, 5], [1, 3, 5])).toEqual([
       {
         path: [1],
-        type: 2,
-        value: 3,
-      },
-      {
-        path: [2],
         type: 4,
       },
       {
@@ -104,6 +99,40 @@ describe("diff", () => {
     ]);
     // Single removal from the front is a single op
     expect(diff([1, 2, 3, 4, 5], [2, 3, 4, 5])).toEqual([{ type: 4, path: [0] }]);
+  });
+
+  test("array mixed edits (shortest edit script)", () => {
+    // Remove near front + insert two mid + change near end: ops equal the edits
+    const a = Array.from({ length: 100 }, (_, i) => i);
+    const b = a.slice();
+    b.splice(3, 1);
+    b.splice(50, 0, -1, -2);
+    b[97] = -3;
+    const d = diff(a, b);
+    expect(d).toEqual([
+      { type: 4, path: [3] },
+      { type: 3, path: [50], value: -1 },
+      { type: 3, path: [51], value: -2 },
+      { type: 2, path: [97], value: -3 },
+    ]);
+    expect(patch(a, d)).toEqual(b);
+
+    // Adjacent delete+insert pairs zip into granular replacements
+    const e = [{ id: 1 }, { id: 2 }, { id: 3 }];
+    const f = [{ id: 0 }, { id: 1 }, { id: 2, x: 1 }, { id: 3 }];
+    const g = diff(e, f);
+    expect(g).toEqual([
+      { type: 3, path: [0], value: { id: 0 } },
+      { type: 1, path: [2, "x"], value: 1 },
+    ]);
+    expect(patch(e, g)).toEqual(f);
+
+    // Completely different same-length arrays stay one CHANGED per element
+    expect(diff([1, 2, 3], [7, 8, 9])).toEqual([
+      { type: 2, path: [0], value: 7 },
+      { type: 2, path: [1], value: 8 },
+      { type: 2, path: [2], value: 9 },
+    ]);
   });
 
   test("array deep", () => {

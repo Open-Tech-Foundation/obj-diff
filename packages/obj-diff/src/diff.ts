@@ -1,5 +1,6 @@
 import { isEql, isPlainObject, isTypedArray } from "@opentf/std";
 import { ADDED, CHANGED, DELETED, INSERTED, REMOVED } from "./constants";
+import { maxEditDistance, myersScript } from "./lcs";
 import type { DiffResult } from "./types";
 
 type Path = Array<unknown>;
@@ -192,9 +193,81 @@ function diffArraysCompact(
     return result;
   }
 
-  // Mixed middle window: align positionally and splice the length difference.
+  // Mixed middle window: find the shortest edit script (bounded Myers LCS);
+  // fall back to positional alignment when the arrays are too different.
   const aWinLen = endA - start + 1;
   const bWinLen = endB - start + 1;
+
+  const script = myersScript(
+    aWinLen,
+    bWinLen,
+    (ai, bi) => isElemEqual(a[start + ai], b[start + bi]),
+    maxEditDistance(aWinLen, bWinLen),
+  );
+
+  if (script === null) {
+    diffWindowPositional(a, b, start, aWinLen, bWinLen, path, result, refsA, refsB, fn);
+    return result;
+  }
+
+  // Convert the edit script into ops with application-time indexes. Adjacent
+  // delete+insert runs are zipped into recursive replacements so a changed
+  // element yields granular CHANGED ops instead of a remove + insert pair.
+  let outIdx = start;
+  let s = 0;
+  while (s < script.length) {
+    const op = script[s];
+    if (op.t === "eq") {
+      outIdx += op.n;
+      s++;
+      continue;
+    }
+    const dels: number[] = [];
+    const inss: number[] = [];
+    while (s < script.length && script[s].t !== "eq") {
+      const edit = script[s];
+      if (edit.t === "del") dels.push(edit.ai);
+      else if (edit.t === "ins") inss.push(edit.bi);
+      s++;
+    }
+    const pairs = Math.min(dels.length, inss.length);
+    for (let p = 0; p < pairs; p++) {
+      const sub = objDiff(
+        a[start + dels[p]],
+        b[start + inss[p]],
+        [...path, outIdx],
+        refsA,
+        refsB,
+        fn,
+      );
+      for (const d of sub) result.push(d);
+      outIdx++;
+    }
+    for (let p = pairs; p < dels.length; p++) {
+      result.push({ type: REMOVED, path: [...path, outIdx] });
+    }
+    for (let p = pairs; p < inss.length; p++) {
+      result.push({ type: INSERTED, path: [...path, outIdx], value: b[start + inss[p]] });
+      outIdx++;
+    }
+  }
+
+  return result;
+}
+
+/** Positional window alignment used when the LCS cost cap is exceeded. */
+function diffWindowPositional(
+  a: unknown[],
+  b: unknown[],
+  start: number,
+  aWinLen: number,
+  bWinLen: number,
+  path: Path,
+  result: DiffResult[],
+  refsA: WeakSet<WeakKey>,
+  refsB: WeakSet<WeakKey>,
+  fn?: CompareFn,
+): void {
   const winMin = Math.min(aWinLen, bWinLen);
 
   for (let i = 0; i < winMin; i++) {
@@ -207,8 +280,6 @@ function diffArraysCompact(
   for (let i = winMin; i < aWinLen; i++) {
     result.push({ type: REMOVED, path: [...path, start + winMin] });
   }
-
-  return result;
 }
 
 /** Cheap-first element equality used for prefix/suffix trimming. */
