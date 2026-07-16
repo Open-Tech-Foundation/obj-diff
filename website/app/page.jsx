@@ -265,8 +265,19 @@ export default function Home() {
                   <button class="summary-card changed" onclick={() => activeTab = "changes"}><strong>{changeSummary.changed}</strong><span>Changed</span></button>
                   <button class="summary-card removed" onclick={() => activeTab = "changes"}><strong>{changeSummary.removed}</strong><span>Removed</span></button>
                 </div>
-                {diffResult.length > 0 ? <div class="change-plot" aria-label="One bar for each diff operation">{diffResult.map((item) => <button class={`plot-bar kind-${opMeta(item.type).kind}`} onclick={() => { selectedPath = formatPath(item.path); activeTab = "changes"; }} aria-label={`${formatPath(item.path)}: ${opMeta(item.type).label}`}></button>)}</div> : <div class="empty-state">No differences yet. Change either object to inspect its operations.</div>}
-                {diffResult.length > 0 && <p class="plot-caption">Each marker is one patch operation. Select a marker to inspect its path in the complete change list.</p>}
+                {diffResult.length > 0 ? (
+                  <div class="op-viz">
+                    <div class="op-map" aria-label="One cell per diff operation, colored by kind">
+                      {diffResult.map((item) => <button class={`op-cell kind-${opMeta(item.type).kind}`} title={`${opMeta(item.type).label}: ${formatPath(item.path)}`} onclick={() => { selectedPath = formatPath(item.path); activeTab = "changes"; }} aria-label={`${opMeta(item.type).label} at ${formatPath(item.path)}`}></button>)}
+                    </div>
+                    <div class="op-legend">
+                      <span><i class="op-swatch kind-added"></i>Added / Inserted</span>
+                      <span><i class="op-swatch kind-changed"></i>Changed</span>
+                      <span><i class="op-swatch kind-removed"></i>Removed / Deleted</span>
+                    </div>
+                    <p class="plot-caption">Each cell is one patch operation. Select a cell to inspect its path in the change list.</p>
+                  </div>
+                ) : <div class="empty-state">No differences yet. Change either object to inspect its operations.</div>}
               </div>
             )}
             {activeTab === "changes" && (
@@ -287,7 +298,7 @@ export default function Home() {
       </section>
 
       <section class="proof-grid" aria-label="obj-diff advantages">
-        <a class="proof-card" href="/docs/examples"><span class="proof-number">01</span><h2>Readable operations</h2><p>Start with a human change list, then open the raw data only when you need it.</p><span class="proof-link">Browse examples →</span></a>
+        <a class="proof-card" href="/docs/guide"><span class="proof-number">01</span><h2>Readable operations</h2><p>Start with a human change list, then open the raw data only when you need it.</p><span class="proof-link">Read the guide →</span></a>
         <a class="proof-card" href="/docs/api"><span class="proof-number">02</span><h2>Patch proof included</h2><p>Every edit is checked by applying the generated diff back to a fresh source object.</p><span class="proof-link">Read the API →</span></a>
         <a class="proof-card" href="/docs/comparison"><span class="proof-number">03</span><h2>JavaScript-native</h2><p>Test collections, cycles, dates, BigInts, TypedArrays, and sparse arrays without flattening them into JSON.</p><span class="proof-link">Compare libraries →</span></a>
       </section>
