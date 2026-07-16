@@ -9,8 +9,13 @@ import type { DiffType } from "./constants";
 export type DiffResult = {
   /** The type of change: `0` (Deleted), `1` (Added), `2` (Changed). */
   type: DiffType;
-  /** The path to the changed property, e.g. `["foo", "bar", 0]`. */
-  path: Array<string | number>;
+  /**
+   * The path to the changed property, e.g. `["foo", "bar", 0]`.
+   *
+   * Object keys are strings, array and Set indexes are numbers, and Map
+   * entries use the Map key itself — which can be a value of any type.
+   */
+  path: Array<unknown>;
   /** The new value (present for Added and Changed types). */
   value?: unknown;
 };

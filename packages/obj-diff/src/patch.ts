@@ -1,4 +1,4 @@
-import { clone } from "@opentf/std";
+import { clone, isEql } from "@opentf/std";
 import { ADDED, CHANGED, DELETED } from "./constants";
 import type { DiffResult } from "./types";
 
@@ -47,11 +47,11 @@ export default function patch<T>(obj: T, patches: Array<DiffResult>): T {
     for (let i = 0; i < p.path.length - 1; i++) {
       const key = p.path[i];
       if (current instanceof Map) {
-        current = current.get(key) as Record<string, unknown>;
+        current = current.get(resolveMapKey(current, key)) as Record<string, unknown>;
       } else if (current instanceof Set) {
         current = [...current][key as number] as Record<string, unknown>;
       } else {
-        current = (current as Record<string, unknown>)[key] as Record<string, unknown>;
+        current = (current as Record<string, unknown>)[key as string] as Record<string, unknown>;
       }
     }
 
@@ -79,28 +79,28 @@ export default function patch<T>(obj: T, patches: Array<DiffResult>): T {
 
 function applyValue(
   target: Record<string, unknown> | Map<unknown, unknown> | Set<unknown>,
-  key: string | number,
+  key: unknown,
   value: unknown,
 ) {
   if (target instanceof Map) {
-    target.set(key, value);
+    target.set(resolveMapKey(target, key), value);
   } else if (target instanceof Set) {
     const arr = [...target];
     arr[key as number] = value;
     target.clear();
     for (const v of arr) target.add(v);
   } else {
-    (target as Record<string | number, unknown>)[key] = value;
+    (target as Record<string | number, unknown>)[key as string] = value;
   }
 }
 
 function applyDelete(
   target: Record<string, unknown> | Map<unknown, unknown> | Set<unknown>,
-  key: string | number,
+  key: unknown,
   holedArrays: Set<unknown[]>,
 ) {
   if (target instanceof Map) {
-    target.delete(key);
+    target.delete(resolveMapKey(target, key));
   } else if (target instanceof Set) {
     const arr = [...target];
     arr.splice(key as number, 1);
@@ -110,6 +110,18 @@ function applyDelete(
     delete target[key as number];
     holedArrays.add(target);
   } else {
-    delete (target as Record<string | number, unknown>)[key];
+    delete (target as Record<string | number, unknown>)[key as string];
   }
+}
+
+/**
+ * Map keys that are objects lose reference identity when the map is cloned,
+ * so fall back to locating the structurally equal key in the map.
+ */
+function resolveMapKey(map: Map<unknown, unknown>, key: unknown): unknown {
+  if (typeof key !== "object" || key === null || map.has(key)) return key;
+  for (const k of map.keys()) {
+    if (typeof k === "object" && k !== null && isEql(k, key)) return k;
+  }
+  return key;
 }

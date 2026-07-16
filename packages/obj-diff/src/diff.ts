@@ -2,7 +2,7 @@ import { isPlainObject, isTypedArray } from "@opentf/std";
 import { ADDED, CHANGED, DELETED } from "./constants";
 import type { DiffResult } from "./types";
 
-type Path = Array<string | number>;
+type Path = Array<unknown>;
 type CompareFn = (a: object, b: object) => boolean | undefined;
 
 function cleanupRefs(a: WeakKey, b: WeakKey, refsA: WeakSet<WeakKey>, refsB: WeakSet<WeakKey>) {
@@ -184,16 +184,16 @@ function diffMaps(
 
   for (const k of a.keys()) {
     if (b.has(k)) {
-      const sub = objDiff(a.get(k), b.get(k), [...path, k as string | number], refsA, refsB, fn);
+      const sub = objDiff(a.get(k), b.get(k), [...path, k], refsA, refsB, fn);
       for (const d of sub) result.push(d);
     } else {
-      result.push({ type: DELETED, path: [...path, k as string | number] });
+      result.push({ type: DELETED, path: [...path, k] });
     }
   }
 
   for (const k of b.keys()) {
     if (!a.has(k)) {
-      result.push({ type: ADDED, path: [...path, k as string | number], value: b.get(k) });
+      result.push({ type: ADDED, path: [...path, k], value: b.get(k) });
     }
   }
 

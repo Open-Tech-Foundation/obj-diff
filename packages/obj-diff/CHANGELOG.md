@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Fixed
+- Fixed `patch()` corrupting `Map`s that use object keys: cloning the map broke key reference identity, so patches missed the entry and inserted a duplicate key instead. Non-primitive patch keys are now matched against existing map keys by structural equality.
 - Fixed `patch()` mutating the target object it was diffed against: the sparse array cleanup walked the whole result, following values inserted by reference, and compacted sparse arrays belonging to the caller's objects.
 - Fixed `patch()` compacting sparse arrays that no patch touched, shifting indices of unrelated data. Array cleanup is now limited to arrays that actually received deletions, and only trailing holes are truncated — so patching to a sparse target (e.g. `[1, 2, 3]` → `[1, , 3]`) now round-trips correctly.
 - Fixed `patch()` producing a wrong `Set` when shrinking it by two or more elements. `Set` deletions are now emitted in descending index order so sequential removal during patching no longer shifts pending indices.
@@ -10,6 +11,9 @@
 - Improved comparison of unhandled object types (e.g. `RegExp`, `Error`) by falling back to string value comparison.
 - Fixed deep `patch()` traversal failing when encountering `Set` collections.
 - Fixed `packSparseArrays` to properly traverse and clean sparse arrays nested within `Map` values and `Set` elements.
+
+### Changed
+- The `DiffResult` `path` type widened from `Array<string | number>` to `Array<unknown>`: object keys are strings and array/Set indexes are numbers as before, but `Map` entries use the map key itself, which can be a value of any type.
 
 ### Added
 - Native diffing and patching support for all JavaScript TypedArrays (`Uint8Array`, `Float32Array`, `BigInt64Array`, etc.) allowing precise element-level diffs and preserving array types during patching.

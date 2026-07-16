@@ -58,6 +58,34 @@ describe("patch", () => {
     expect(patch(a, diff(a, b))).toEqual(b);
   });
 
+  test("Maps with object keys", () => {
+    const key = { id: 1 };
+
+    // Changed value under an object key
+    const a = new Map([[key, "a"]]);
+    const b = new Map([[key, "b"]]);
+    const res = patch(a, diff(a, b));
+    expect(res.size).toBe(1);
+    expect([...res.entries()]).toEqual([[{ id: 1 }, "b"]]);
+
+    // Deleted entry with an object key
+    const c = new Map<unknown, unknown>([
+      [key, "a"],
+      ["x", 1],
+    ]);
+    const d = new Map<unknown, unknown>([["x", 1]]);
+    const resDel = patch(c, diff(c, d));
+    expect(resDel.size).toBe(1);
+    expect(resDel.get("x")).toBe(1);
+
+    // Deep change below an object key
+    const e = new Map([[key, { v: 1 }]]);
+    const f = new Map([[key, { v: 2 }]]);
+    const resDeep = patch(e, diff(e, f));
+    expect(resDeep.size).toBe(1);
+    expect([...resDeep.values()]).toEqual([{ v: 2 }]);
+  });
+
   test("Sets shrinking by multiple elements", () => {
     const a = new Set([1, 2, 3, 4]);
     const b = new Set([1, 2]);
