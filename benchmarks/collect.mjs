@@ -14,6 +14,7 @@ import { diff as justDiff } from 'just-diff';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const OUT = join(here, '..', 'website', 'app', 'docs', 'benchmarks', 'results.json');
+const ACCURACY_OUT = join(here, '..', 'website', 'app', 'docs', 'comparison', 'accuracy.json');
 
 const runtime = typeof Bun !== 'undefined'
   ? `Bun ${Bun.version}`
@@ -90,6 +91,56 @@ const opCounts = opScenarios.map((sc) => ({
   },
 }));
 
+// --- Accuracy: does each library even notice a change in native types? ---
+// Mirrors benchmarks/category-d-accuracy.js: a "fail" means the library
+// returned an empty diff for two genuinely different values.
+const accuracyCases = [
+  { name: 'Nested Objects', get: () => [{ a: { b: 1 } }, { a: { b: 2 } }] },
+  { name: 'Dates', get: () => [{ d: new Date('2024-01-01') }, { d: new Date('2024-01-02') }] },
+  { name: 'RegExps', get: () => [{ regex: /foo/g }, { regex: /bar/g }] },
+  { name: 'Maps', get: () => [new Map([['key', 1]]), new Map([['key', 2], ['new', 3]])] },
+  { name: 'Sets', get: () => [new Set([1, 2]), new Set([2, 3])] },
+  { name: 'TypedArrays', get: () => [new Uint8Array([1, 2, 3]), new Uint8Array([1, 4, 3])] },
+  {
+    name: 'Circular References',
+    get: () => {
+      const a = { id: 1 };
+      a.self = a;
+      return [a, { id: 1, self: { id: 2 } }];
+    },
+  },
+];
+
+function hasChanges(result) {
+  if (!result) return false;
+  if (Array.isArray(result)) return result.length > 0;
+  if (typeof result === 'object') {
+    if (result.added || result.updated || result.deleted) {
+      return (
+        Object.keys(result.added || {}).length > 0 ||
+        Object.keys(result.updated || {}).length > 0 ||
+        Object.keys(result.deleted || {}).length > 0
+      );
+    }
+    return Object.keys(result).length > 0;
+  }
+  return false;
+}
+
+const accuracyLibs = Object.entries(libs).map(([name, fn]) => ({ name, fn }));
+const accuracy = accuracyLibs.map(({ name, fn }) => {
+  const results = {};
+  for (const tc of accuracyCases) {
+    try {
+      const [a, b] = tc.get();
+      results[tc.name] = hasChanges(fn(a, b)) ? 'pass' : 'fail';
+    } catch {
+      results[tc.name] = 'crash';
+    }
+  }
+  return { name, results };
+});
+
 const data = {
   meta: {
     generatedAt: new Date().toISOString().slice(0, 10),
@@ -104,3 +155,15 @@ const data = {
 
 writeFileSync(OUT, JSON.stringify(data, null, 2) + '\n');
 process.stderr.write(`wrote ${OUT}\n`);
+
+const accuracyData = {
+  meta: {
+    generatedAt: data.meta.generatedAt,
+    runtime,
+    categories: accuracyCases.map((c) => c.name),
+    note: 'A "fail" means the library returned an empty diff for two genuinely different values. Regenerate with `bun benchmarks/collect.mjs`.',
+  },
+  libraries: accuracy,
+};
+writeFileSync(ACCURACY_OUT, JSON.stringify(accuracyData, null, 2) + '\n');
+process.stderr.write(`wrote ${ACCURACY_OUT}\n`);

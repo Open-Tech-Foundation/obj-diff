@@ -209,6 +209,7 @@ export default function Home() {
         <p>Explore a structural diff engine built for real JavaScript—not just JSON.</p>
         <div class="hero-actions">
           <a class="button button-primary" href="/docs">Get started</a>
+          <a class="button button-secondary" href="/docs/benchmarks">See the benchmarks</a>
         </div>
         <div class="capability-row" aria-label="Supported JavaScript values">
           <span>Map</span><span>Set</span><span>Date</span><span>BigInt</span><span>TypedArray</span><span>Cycles</span><span>Sparse arrays</span>
@@ -286,9 +287,9 @@ export default function Home() {
       </section>
 
       <section class="proof-grid" aria-label="obj-diff advantages">
-        <article><span class="proof-number">01</span><h2>Readable operations</h2><p>Start with a human change list, then open the raw data only when you need it.</p></article>
-        <article><span class="proof-number">02</span><h2>Patch proof included</h2><p>Every edit is checked by applying the generated diff back to a fresh source object.</p></article>
-        <article><span class="proof-number">03</span><h2>JavaScript-native</h2><p>Test collections, cycles, dates, BigInts, TypedArrays, and sparse arrays without flattening them into JSON.</p></article>
+        <a class="proof-card" href="/docs/examples"><span class="proof-number">01</span><h2>Readable operations</h2><p>Start with a human change list, then open the raw data only when you need it.</p><span class="proof-link">Browse examples →</span></a>
+        <a class="proof-card" href="/docs/api"><span class="proof-number">02</span><h2>Patch proof included</h2><p>Every edit is checked by applying the generated diff back to a fresh source object.</p><span class="proof-link">Read the API →</span></a>
+        <a class="proof-card" href="/docs/comparison"><span class="proof-number">03</span><h2>JavaScript-native</h2><p>Test collections, cycles, dates, BigInts, TypedArrays, and sparse arrays without flattening them into JSON.</p><span class="proof-link">Compare libraries →</span></a>
       </section>
     </main>
   );
