@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Fixed
+- Fixed `patch()` producing a wrong `Set` when shrinking it by two or more elements. `Set` deletions are now emitted in descending index order so sequential removal during patching no longer shifts pending indices.
 - Fixed asymmetrical circular reference diffing to avoid false positives and stack overflows.
 - Improved comparison of unhandled object types (e.g. `RegExp`, `Error`) by falling back to string value comparison.
 - Fixed deep `patch()` traversal failing when encountering `Set` collections.

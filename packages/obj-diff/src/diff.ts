@@ -211,14 +211,17 @@ function diffSets(
   const result: DiffResult[] = [];
   const aArr = [...a];
   const bArr = [...b];
+  const minLen = Math.min(aArr.length, bArr.length);
 
-  for (let i = 0; i < aArr.length; i++) {
-    if (i < bArr.length) {
-      const sub = objDiff(aArr[i], bArr[i], [...path, i], refsA, refsB, fn);
-      for (const d of sub) result.push(d);
-    } else {
-      result.push({ type: DELETED, path: [...path, i], value: aArr[i] });
-    }
+  for (let i = 0; i < minLen; i++) {
+    const sub = objDiff(aArr[i], bArr[i], [...path, i], refsA, refsB, fn);
+    for (const d of sub) result.push(d);
+  }
+
+  // Emit deletions in descending index order so that sequential splice-based
+  // removal during patching does not shift the indices of pending deletions.
+  for (let i = aArr.length - 1; i >= bArr.length; i--) {
+    result.push({ type: DELETED, path: [...path, i], value: aArr[i] });
   }
 
   for (let i = aArr.length; i < bArr.length; i++) {

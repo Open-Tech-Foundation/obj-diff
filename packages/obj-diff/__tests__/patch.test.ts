@@ -58,6 +58,24 @@ describe("patch", () => {
     expect(patch(a, diff(a, b))).toEqual(b);
   });
 
+  test("Sets shrinking by multiple elements", () => {
+    const a = new Set([1, 2, 3, 4]);
+    const b = new Set([1, 2]);
+    expect(patch(a, diff(a, b))).toEqual(b);
+
+    const c = { s: new Set([1, 2, 3]) };
+    const d = { s: new Set([1]) };
+    expect(patch(c, diff(c, d))).toEqual(d);
+
+    const e = new Set([1, 2, 3]);
+    const f = new Set();
+    expect(patch(e, diff(e, f))).toEqual(f);
+
+    const g = new Set([{ a: 1 }, 5, 6]);
+    const h = new Set([{ a: 2 }]);
+    expect(patch(g, diff(g, h))).toEqual(h);
+  });
+
   test("TypedArray", () => {
     const a = { t: new Uint8Array([1, 2, 3]) };
     const b = { t: new Uint8Array([1, 4, 3]) };

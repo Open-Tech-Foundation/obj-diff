@@ -428,11 +428,13 @@ describe("diff", () => {
     b = clone(a);
     b.clear();
     const res = diff(a, b);
+    // Deletions are emitted in descending index order so that patching
+    // can remove elements sequentially without index shifting.
     expect(res).toEqual([
       {
-        path: [0],
+        path: [2],
         type: 0,
-        value: 1,
+        value: 3,
       },
       {
         path: [1],
@@ -440,9 +442,9 @@ describe("diff", () => {
         value: 2,
       },
       {
-        path: [2],
+        path: [0],
         type: 0,
-        value: 3,
+        value: 1,
       },
     ]);
 
@@ -464,14 +466,14 @@ describe("diff", () => {
         value: 3,
       },
       {
-        path: ["s", 3],
-        type: 0,
-        value: 2,
-      },
-      {
         path: ["s", 4],
         type: 0,
         value: 4,
+      },
+      {
+        path: ["s", 3],
+        type: 0,
+        value: 2,
       },
     ]);
   });
