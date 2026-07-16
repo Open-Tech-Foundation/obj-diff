@@ -140,6 +140,12 @@ body {
 .proof-grid h2 { margin: 2.4rem 0 .6rem; font-size: 1.15rem; letter-spacing: -.025em; }
 .proof-grid p { color: var(--lab-muted); line-height: 1.6; margin: 0; }
 
+.bench-table { width: 100%; border-collapse: collapse; }
+.bench-table th, .bench-table td { border-bottom: 1px solid var(--lab-line); padding: .5rem .7rem; }
+.bench-table th { text-align: left; }
+.bench-table .n { text-align: right; font-family: var(--otfw-mono); white-space: nowrap; }
+.bench-table .best { font-weight: 800; color: var(--lab-green); }
+
 [data-theme="dark"] .button-secondary,
 [data-theme="dark"] .capability-row span,
 [data-theme="dark"] .copy-button,

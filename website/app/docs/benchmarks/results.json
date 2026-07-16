@@ -1,0 +1,176 @@
+{
+  "meta": {
+    "generatedAt": "2026-07-16",
+    "cpu": "Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz",
+    "runtime": "Bun 1.4.0",
+    "libraries": [
+      "@opentf/obj-diff",
+      "microdiff",
+      "deep-diff",
+      "deep-object-diff",
+      "just-diff"
+    ],
+    "note": "Absolute timings vary by machine; relative gaps are stable. Regenerate with `bun benchmarks/collect.mjs`."
+  },
+  "opCounts": [
+    {
+      "label": "Insert 1 element at the front",
+      "arraySize": 10000,
+      "results": {
+        "@opentf/obj-diff": 1,
+        "microdiff": 10001
+      }
+    },
+    {
+      "label": "Insert 1 element in the middle",
+      "arraySize": 10000,
+      "results": {
+        "@opentf/obj-diff": 1,
+        "microdiff": 5001
+      }
+    },
+    {
+      "label": "Remove 1 element from the middle",
+      "arraySize": 10000,
+      "results": {
+        "@opentf/obj-diff": 1,
+        "microdiff": 5000
+      }
+    },
+    {
+      "label": "Remove a run of 10 elements",
+      "arraySize": 10000,
+      "results": {
+        "@opentf/obj-diff": 10,
+        "microdiff": 5000
+      }
+    }
+  ],
+  "timings": [
+    {
+      "label": "One property changed (small object)",
+      "results": {
+        "@opentf/obj-diff": {
+          "avgNs": 1532.4012697337357,
+          "p99Ns": 4640
+        },
+        "microdiff": {
+          "avgNs": 1858.7594656808035,
+          "p99Ns": 2130.204345703125
+        },
+        "deep-diff": {
+          "avgNs": 1399.3124440511067,
+          "p99Ns": 1751.190673828125
+        },
+        "deep-object-diff": {
+          "avgNs": 4129.928972516741,
+          "p99Ns": 4535.195068359375
+        },
+        "just-diff": {
+          "avgNs": 2587.109578450521,
+          "p99Ns": 2799.41259765625
+        }
+      }
+    },
+    {
+      "label": "Mixed object changes",
+      "results": {
+        "@opentf/obj-diff": {
+          "avgNs": 1793.0913425021702,
+          "p99Ns": 2086.24169921875
+        },
+        "microdiff": {
+          "avgNs": 1415.7926414976728,
+          "p99Ns": 1777.432861328125
+        },
+        "deep-diff": {
+          "avgNs": 2145.1251708984373,
+          "p99Ns": 2675.375732421875
+        },
+        "deep-object-diff": {
+          "avgNs": 3608.588821411133,
+          "p99Ns": 4498.600830078125
+        },
+        "just-diff": {
+          "avgNs": 2981.6625162760415,
+          "p99Ns": 3468.9599609375
+        }
+      }
+    },
+    {
+      "label": "Deep nested change (9 levels)",
+      "results": {
+        "@opentf/obj-diff": {
+          "avgNs": 2388.981951678241,
+          "p99Ns": 2453.010009765625
+        },
+        "microdiff": {
+          "avgNs": 1922.121862074908,
+          "p99Ns": 2239.90673828125
+        },
+        "deep-diff": {
+          "avgNs": 3252.1068250868057,
+          "p99Ns": 3696.76708984375
+        },
+        "deep-object-diff": {
+          "avgNs": 3969.8380998883927,
+          "p99Ns": 4336.320556640625
+        },
+        "just-diff": {
+          "avgNs": 4567.289652506511,
+          "p99Ns": 4842.545166015625
+        }
+      }
+    },
+    {
+      "label": "Large plain array (10k numbers, 1 change)",
+      "results": {
+        "@opentf/obj-diff": {
+          "avgNs": 2616833.672727273,
+          "p99Ns": 3127862
+        },
+        "microdiff": {
+          "avgNs": 3208396.5454545454,
+          "p99Ns": 4732468
+        },
+        "deep-diff": {
+          "avgNs": 561179.2196969697,
+          "p99Ns": 1236560
+        },
+        "deep-object-diff": {
+          "avgNs": 8830630.433333334,
+          "p99Ns": 10891286
+        },
+        "just-diff": {
+          "avgNs": 6164556.545454546,
+          "p99Ns": 7118573
+        }
+      }
+    },
+    {
+      "label": "Large TypedArray (10k, 1 change)",
+      "results": {
+        "@opentf/obj-diff": {
+          "avgNs": 22348.52419294714,
+          "p99Ns": 37606
+        },
+        "microdiff": {
+          "avgNs": 4324977.523076923,
+          "p99Ns": 4896507
+        },
+        "deep-diff": {
+          "avgNs": 39805150.083333336,
+          "p99Ns": 40319647
+        },
+        "deep-object-diff": {
+          "avgNs": 8353875.96875,
+          "p99Ns": 9476139
+        },
+        "just-diff": {
+          "avgNs": 6727580.6,
+          "p99Ns": 7895413
+        }
+      }
+    }
+  ]
+}
