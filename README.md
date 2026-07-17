@@ -286,12 +286,24 @@ We have rebuilt our benchmark suite using `mitata` and split it into distinct ca
 
 **Conclusion:** `@opentf/obj-diff` offers the exactness and JS-native feature set that JSON-patch libraries lack, while remaining orders of magnitude more scalable than older, heavy libraries like `jsondiffpatch`.
 
+### 5. Type-Safe Serialization (`stringify`/`parse` vs `superjson`)
+*Round-tripping real JavaScript values through a JSON boundary — the job `superjson` does.*
+
+| Axis | `@opentf/obj-diff` | `superjson` |
+| :--- | :--- | :--- |
+| **Type fidelity** (22 native types) | **22 / 22** | 14 / 22 |
+| **Speed** (stringify / round trip) | **~3× / ~2× faster** | baseline |
+| **Wire size** | smaller for leaf & native-heavy values | smaller when many special values cluster |
+
+`superjson` silently degrades `Float64Array` specials (`NaN`/`-0`/`∞` → `0`), turns `ArrayBuffer`/`DataView` into plain objects, unwraps boxed primitives, drops an `Error`'s own props, and throws on `BigInt64Array`. Full breakdown on the [comparison page](https://obj-diff.opentechf.org/docs/comparison#type-safe-serialization-vs-superjson).
+
 ### Running Benchmarks Locally
 ```sh
 bun run benchmarks/category-a-diff.js
 bun run benchmarks/category-b-patch.js
 bun run benchmarks/category-c-large.js
 bun run benchmarks/category-d-accuracy.js
+bun benchmarks/serialization.mjs   # obj-diff stringify/parse vs superjson
 ```
 
 ---

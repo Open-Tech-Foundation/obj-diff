@@ -142,7 +142,7 @@ Encodes a diff into a self-describing JSON string that survives transport. A dif
 | :--- | :--- | :--- |
 | `diff` | `DiffResult[]` | A diff produced by `diff` or `diffWith`. |
 
-**Returns** — a JSON `string`. Throws on symbols, functions, class-instance values, and circular references.
+**Returns** — a JSON `string`. Preserves native types (`Date`, `Map`, `Set`, `TypedArray`, `URL`, …) plus circular references and shared identity among plain objects/arrays. Throws on symbols, functions, class-instance values, and cycles that run through a `Map`/`Set`/`Error`.
 
 ```ts
 const wire = serialize(diff(a, b));
@@ -171,6 +171,50 @@ patch(a, deserialize(wire)); // Date / Map / Set / … restored exactly
 ```
 
 > Deserializing a `Temporal` value requires a `Temporal` implementation on `globalThis` (native or a globally-installed polyfill).
+
+---
+
+## `stringify`
+
+```ts
+function stringify(value: unknown): string
+```
+
+The general-purpose counterpart to [`serialize`](#serialize): encodes **any** JavaScript value — not just a diff — into a self-describing, type-safe JSON string. Uses the same codec, so it preserves every supported native type (`Date`, `Map`, `Set`, `TypedArray`, `ArrayBuffer`, `DataView`, `Error`, `URL`, `BigInt`, `Temporal`, `NaN`/`±Infinity`/`-0`, `undefined`, …) plus circular references and shared identity among plain objects/arrays. A type-preserving drop-in for `JSON.stringify`. See the [superjson comparison](/docs/comparison#type-safe-serialization-vs-superjson).
+
+**Parameters**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| `value` | `unknown` | Any serializable JavaScript value. |
+
+**Returns** — a JSON `string`. Throws on symbols, functions, and class-instance values.
+
+```ts
+const wire = stringify({ when: new Date(), tags: new Set([1, 2]), big: 42n });
+```
+
+---
+
+## `parse`
+
+```ts
+function parse<T = unknown>(wire: string): T
+```
+
+Decodes a string from [`stringify`](#stringify) back into the original value with its types restored — the type-preserving counterpart to `JSON.parse`.
+
+**Parameters**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| `wire` | `string` | The output of `stringify`. |
+
+**Returns** — the reconstructed value (typed as `T`).
+
+```ts
+const value = parse(wire); // Date / Set / BigInt restored
+```
 
 ---
 
