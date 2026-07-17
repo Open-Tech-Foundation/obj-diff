@@ -11,6 +11,30 @@ function cleanupRefs(a: WeakKey, b: WeakKey, refsA: WeakSet<WeakKey>, refsB: Wea
   refsB.delete(b);
 }
 
+/** The toStringTag (e.g. "[object Temporal.PlainDate]") if x is a Temporal value, else null. */
+function temporalTag(x: unknown): string | null {
+  const tag = Object.prototype.toString.call(x);
+  return tag.startsWith("[object Temporal.") ? tag : null;
+}
+
+/**
+ * Temporal equality. Uses the type's own `.equals()` where it exists (every
+ * type except Duration); Duration has no `.equals()` — deliberately, since
+ * duration value equality is ambiguous — so it is compared structurally by its
+ * canonical string. The `try/catch` falls back to strings for cross-realm
+ * instances (e.g. a polyfill value compared against a native one).
+ */
+function isSameTemporal(a: unknown, b: unknown): boolean {
+  if (temporalTag(a) !== temporalTag(b)) return false;
+  const ta = a as { equals?: (o: unknown) => boolean; toString(): string };
+  const tb = b as { toString(): string };
+  try {
+    return typeof ta.equals === "function" ? ta.equals(b) : ta.toString() === tb.toString();
+  } catch {
+    return ta.toString() === tb.toString();
+  }
+}
+
 function objDiff(
   a: unknown,
   b: unknown,
@@ -106,6 +130,11 @@ function objDiff(
           fn,
         )
       : [{ type: CHANGED, path, value: b }];
+  } else if (temporalTag(a) || temporalTag(b)) {
+    // Temporal.* values (PlainDate, Instant, Duration, …) are immutable, atomic
+    // leaves like Date: replaced wholesale when they differ. Detected by brand
+    // (toStringTag) so it works with the native global or a polyfill.
+    result = isSameTemporal(a, b) ? [] : [{ type: CHANGED, path, value: b }];
   } else if (Object.prototype.toString.call(a) !== Object.prototype.toString.call(b)) {
     result = [{ type: CHANGED, path, value: b }];
   } else if (Object.prototype.toString.call(a) === "[object Object]") {

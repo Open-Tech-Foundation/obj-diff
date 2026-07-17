@@ -44,6 +44,7 @@ The library natively supports the following types:
 
 - **Primitives**: `Undefined`, `Null`, `Number`, `String`, `Boolean`, `BigInt`.
 - **Built-in Objects**: `Plain Objects {}`, `Array`, `Date`, `Map`, `Set`, `TypedArray` (`Uint8Array`, `Float32Array`, etc.), `ArrayBuffer`, `DataView`.
+- **Temporal**: all `Temporal` types (`Instant`, `PlainDate`, `PlainTime`, `PlainDateTime`, `PlainYearMonth`, `PlainMonthDay`, `ZonedDateTime`, `Duration`) — compared as immutable values (`Duration` structurally by its canonical string, since it has no `.equals()`).
 - **Class Instances**: instances sharing the same prototype are diffed by their own enumerable properties; instances of different classes are reported as replaced.
 
 ## 📖 Usage

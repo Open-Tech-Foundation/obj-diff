@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- Native diffing support for all **Temporal** types (`Temporal.Instant`, `PlainDate`, `PlainTime`, `PlainDateTime`, `PlainYearMonth`, `PlainMonthDay`, `ZonedDateTime`, `Duration`). They are compared as immutable, atomic values — replaced wholesale via a single `CHANGED` op when they differ, and preserved by reference through `patch()`. Equality uses each type's own `.equals()`; `Duration` (which has no `.equals()`) is compared structurally by its canonical string, so two equal-length but differently-expressed durations (e.g. `PT2H` vs `PT120M`) are treated as a change and the exact value is reconstructed on patch. Detection is brand-based (`Symbol.toStringTag`), so it works with the native global or the `@js-temporal/polyfill`.
+
 ## [0.15.0] - 2026-07-17
 
 ### Fixed

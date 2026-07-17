@@ -61,6 +61,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.13",
+    "@js-temporal/polyfill": "^0.5.1",
     "bson": "^6.6.0",
     "tsup": "^8.5.1",
     "typescript": "^5.4.5"
