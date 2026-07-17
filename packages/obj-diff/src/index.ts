@@ -10,9 +10,9 @@ export {
   DELETED,
   type DiffResult,
   type DiffType,
-  INSERTED,
-  REMOVED,
   diff,
   diffWith,
+  INSERTED,
   patch,
+  REMOVED,
 };

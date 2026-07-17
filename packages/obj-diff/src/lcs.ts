@@ -7,10 +7,7 @@
  * positional diffing).
  */
 
-export type ScriptOp =
-  | { t: "eq"; n: number }
-  | { t: "del"; ai: number }
-  | { t: "ins"; bi: number };
+export type ScriptOp = { t: "eq"; n: number } | { t: "del"; ai: number } | { t: "ins"; bi: number };
 
 /** Absolute cap on the edit distance; bounds trace memory to ~D². */
 const MAX_D = 1024;
