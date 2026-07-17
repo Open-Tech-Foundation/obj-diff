@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>obj-diff Playground — Local Testing App</title>
+    <meta
+      name="description"
+      content="A structural diff and patch engine for real JavaScript values — Map, Set, Date, BigInt, TypedArray, cycles, and sparse arrays — not just JSON."
+    />
+    <script>
+      (function () {
+        try {
+          var t =
+            localStorage.getItem("theme") ||
+            (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+          document.documentElement.setAttribute("data-theme", t);
+        } catch (e) {}
+      })();
+    </script>
+    <link rel="stylesheet" href="/app/global.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>
