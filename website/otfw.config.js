@@ -15,7 +15,11 @@ export default defineDocsConfig({
     ],
     github: "https://github.com/Open-Tech-Foundation/obj-diff",
     search: { provider: "pagefind" },
-    footer: { text: "© 2026 Open Tech Foundation" },
+    footer: {
+      text: "© 2026 Open Tech Foundation",
+      textUrl: "https://opentechf.org",
+      links: [{ label: "Built with OTF Web", href: "https://web.opentechf.org" }],
+    },
     // Per-page "Last updated" (from git) and "Edit this page" (GitHub). Set repoUrl to
     // your repository root; links use <repoUrl>/edit/main/<source-path>.
     repoUrl: "https://github.com/Open-Tech-Foundation/obj-diff",
