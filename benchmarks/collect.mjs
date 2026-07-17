@@ -57,13 +57,32 @@ async function time(fn) {
   return s.avg;
 }
 
+// A "diff" that serializes to roughly the size of the data itself is not a diff
+// — it's a whole-value replacement (e.g. recursive-diff dumps the entire array
+// because it doesn't understand TypedArrays). Discard those cells so a library
+// that skips the work can't post a misleadingly fast time or win the column.
+function isRealDiff(out, sc) {
+  const dataSize = JSON.stringify(sc.b)?.length ?? 0;
+  if (dataSize <= 2000) return true; // small scenarios: any output is legitimate
+  const diffSize = JSON.stringify(out)?.length ?? 0;
+  return diffSize < dataSize * 0.5;
+}
+
 // Build a transposed table: libraries as rows, scenarios as columns, with the
-// fastest cell per column flagged. Keeps the docs rendering trivial.
-async function buildTable(libNames, runners, scenarios) {
+// fastest cell per column flagged. Keeps the docs rendering trivial. When
+// `validate` is set, a cell is discarded (—) unless the library's output passes.
+async function buildTable(libNames, runners, scenarios, validate) {
   const raw = {}; // lib -> [ns|null per scenario]
   for (const lib of libNames) {
     raw[lib] = [];
-    for (const sc of scenarios) raw[lib].push(await time(() => runners[lib](sc.a, sc.b)));
+    for (const sc of scenarios) {
+      let ns = null;
+      try {
+        const out = runners[lib](sc.a, sc.b);
+        if (!validate || validate(out, sc)) ns = await time(() => runners[lib](sc.a, sc.b));
+      } catch { /* leave null */ }
+      raw[lib].push(ns);
+    }
     process.stderr.write(`  timed ${lib}\n`);
   }
   const best = scenarios.map((_, i) => {
@@ -107,7 +126,7 @@ const diffScenarios = [
 ];
 
 process.stderr.write('diff speed:\n');
-const diffTable = await buildTable(diffLibs, diffRunners, diffScenarios);
+const diffTable = await buildTable(diffLibs, diffRunners, diffScenarios, isRealDiff);
 
 // ---------- Patch speed (diff + apply round-trip) ----------
 const patchRunners = {

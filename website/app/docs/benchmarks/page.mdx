@@ -106,13 +106,13 @@ Smaller diffs mean smaller audit logs, smaller sync payloads, and smaller undo s
 
 ## Diff speed
 
-Average latency per call across modern diffing libraries; the fastest cell in each column is highlighted.
+Average latency per call across modern diffing libraries; each column uses a single unit so the cells are directly comparable, and the fastest cell in each column is highlighted.
 
 <DiffSpeedTable />
 
 On the `TypedArray` column `obj-diff` is roughly **{taFactor}× faster than microdiff**, because it compares typed arrays natively instead of walking them element-by-element.
 
-> **Reading the large-array columns fairly:** speed alone can mislead. A library that emits a single "the whole array changed" replacement (rather than an element-level diff) looks fast here but produces a useless diff — see the op-count table above for what a *good* array diff costs. `obj-diff` computes a minimal, element-level edit script, which is why it is not always the lowest number on the plain-array row.
+> **A "diff" the size of the data isn't a diff.** Speed alone can mislead: a library that emits a single "the whole value changed" replacement (rather than an element-level diff) looks instant but produces a useless result. We discard any cell whose diff serializes to roughly the size of the data itself, showing **—** instead — that is why `recursive-diff` has no `TypedArray` time (it dumps the entire array, since it doesn't understand typed arrays). `obj-diff` computes a minimal, element-level edit script, which is why it is not always the lowest number on the plain-array row but stays honest.
 
 ## Patch speed
 
