@@ -2,7 +2,7 @@
   "meta": {
     "generatedAt": "2026-07-17",
     "arraySize": 10000,
-    "taFactor": 173,
+    "taFactor": 206,
     "regenerate": "bun benchmarks/collect.mjs"
   },
   "opCounts": [
@@ -40,19 +40,19 @@
         "lib": "@opentf/obj-diff",
         "cells": [
           {
-            "text": "1.48 µs",
+            "text": "1.46 µs",
             "best": false
           },
           {
-            "text": "1.84 µs",
+            "text": "1.96 µs",
             "best": false
           },
           {
-            "text": "2.34 µs",
+            "text": "2.39 µs",
             "best": false
           },
           {
-            "text": "2.47 ms",
+            "text": "2.53 ms",
             "best": false
           },
           {
@@ -65,23 +65,23 @@
         "lib": "microdiff",
         "cells": [
           {
-            "text": "1.89 µs",
+            "text": "1.86 µs",
             "best": false
           },
           {
-            "text": "1.59 µs",
+            "text": "2.26 µs",
             "best": false
           },
           {
-            "text": "2.05 µs",
+            "text": "2.46 µs",
             "best": false
           },
           {
-            "text": "3.03 ms",
+            "text": "3.10 ms",
             "best": false
           },
           {
-            "text": "4.34 ms",
+            "text": "4.40 ms",
             "best": false
           }
         ]
@@ -90,23 +90,23 @@
         "lib": "deep-diff",
         "cells": [
           {
-            "text": "1.41 µs",
+            "text": "1.39 µs",
             "best": false
           },
           {
-            "text": "1.96 µs",
+            "text": "1.97 µs",
             "best": false
           },
           {
-            "text": "3.20 µs",
+            "text": "3.33 µs",
             "best": false
           },
           {
-            "text": "0.553 ms",
+            "text": "0.563 ms",
             "best": false
           },
           {
-            "text": "62.7 ms",
+            "text": "63.1 ms",
             "best": false
           }
         ]
@@ -115,23 +115,23 @@
         "lib": "deep-diff-ts",
         "cells": [
           {
-            "text": "1.11 µs",
+            "text": "1.17 µs",
             "best": true
           },
           {
-            "text": "1.25 µs",
+            "text": "1.17 µs",
             "best": true
           },
           {
-            "text": "2.01 µs",
+            "text": "1.81 µs",
+            "best": true
+          },
+          {
+            "text": "0.816 ms",
             "best": false
           },
           {
-            "text": "0.742 ms",
-            "best": false
-          },
-          {
-            "text": "5.67 ms",
+            "text": "5.66 ms",
             "best": false
           }
         ]
@@ -140,23 +140,23 @@
         "lib": "deep-object-diff",
         "cells": [
           {
-            "text": "4.08 µs",
+            "text": "4.12 µs",
             "best": false
           },
           {
-            "text": "3.42 µs",
+            "text": "3.63 µs",
             "best": false
           },
           {
-            "text": "3.67 µs",
+            "text": "3.96 µs",
             "best": false
           },
           {
-            "text": "8.44 ms",
+            "text": "8.46 ms",
             "best": false
           },
           {
-            "text": "8.31 ms",
+            "text": "8.29 ms",
             "best": false
           }
         ]
@@ -165,23 +165,23 @@
         "lib": "just-diff",
         "cells": [
           {
-            "text": "2.80 µs",
+            "text": "2.68 µs",
             "best": false
           },
           {
-            "text": "2.83 µs",
+            "text": "3.03 µs",
             "best": false
           },
           {
-            "text": "4.63 µs",
+            "text": "5.00 µs",
             "best": false
           },
           {
-            "text": "6.13 ms",
+            "text": "6.24 ms",
             "best": false
           },
           {
-            "text": "6.45 ms",
+            "text": "6.61 ms",
             "best": false
           }
         ]
@@ -190,15 +190,15 @@
         "lib": "@adobe/optimized-diff",
         "cells": [
           {
-            "text": "1.29 µs",
+            "text": "1.25 µs",
             "best": false
           },
           {
-            "text": "1.73 µs",
+            "text": "1.96 µs",
             "best": false
           },
           {
-            "text": "3.34 µs",
+            "text": "3.41 µs",
             "best": false
           },
           {
@@ -206,7 +206,7 @@
             "best": true
           },
           {
-            "text": "4.90 ms",
+            "text": "5.10 ms",
             "best": false
           }
         ]
@@ -215,19 +215,19 @@
         "lib": "recursive-diff",
         "cells": [
           {
-            "text": "2.20 µs",
+            "text": "2.21 µs",
             "best": false
           },
           {
-            "text": "2.48 µs",
+            "text": "2.29 µs",
             "best": false
           },
           {
-            "text": "4.33 µs",
+            "text": "4.25 µs",
             "best": false
           },
           {
-            "text": "3.29 ms",
+            "text": "3.16 ms",
             "best": false
           },
           {
@@ -240,23 +240,23 @@
         "lib": "jsondiffpatch",
         "cells": [
           {
-            "text": "1.31 µs",
+            "text": "1.45 µs",
             "best": false
           },
           {
-            "text": "1.47 µs",
+            "text": "1.73 µs",
             "best": false
           },
           {
-            "text": "1.80 µs",
-            "best": true
-          },
-          {
-            "text": "160 ms",
+            "text": "2.20 µs",
             "best": false
           },
           {
-            "text": "5.64 ms",
+            "text": "163 ms",
+            "best": false
+          },
+          {
+            "text": "5.55 ms",
             "best": false
           }
         ]
@@ -274,15 +274,15 @@
         "lib": "@opentf/obj-diff",
         "cells": [
           {
-            "text": "2.67 µs",
-            "best": true
+            "text": "2.82 µs",
+            "best": false
           },
           {
             "text": "3.27 µs",
             "best": true
           },
           {
-            "text": "2.69 ms",
+            "text": "2.76 ms",
             "best": false
           }
         ]
@@ -291,15 +291,15 @@
         "lib": "jsondiffpatch",
         "cells": [
           {
-            "text": "3.81 µs",
+            "text": "3.94 µs",
             "best": false
           },
           {
-            "text": "7.20 µs",
+            "text": "7.75 µs",
             "best": false
           },
           {
-            "text": "161 ms",
+            "text": "164 ms",
             "best": false
           }
         ]
@@ -308,15 +308,15 @@
         "lib": "just-diff + just-diff-apply",
         "cells": [
           {
-            "text": "4.70 µs",
+            "text": "4.80 µs",
             "best": false
           },
           {
-            "text": "5.96 µs",
+            "text": "5.85 µs",
             "best": false
           },
           {
-            "text": "5.87 ms",
+            "text": "5.77 ms",
             "best": false
           }
         ]
@@ -329,11 +329,11 @@
             "best": false
           },
           {
-            "text": "5.45 µs",
+            "text": "5.22 µs",
             "best": false
           },
           {
-            "text": "1.58 ms",
+            "text": "1.34 ms",
             "best": true
           }
         ]
@@ -342,15 +342,15 @@
         "lib": "fast-json-patch",
         "cells": [
           {
-            "text": "2.71 µs",
+            "text": "2.30 µs",
+            "best": true
+          },
+          {
+            "text": "3.83 µs",
             "best": false
           },
           {
-            "text": "3.89 µs",
-            "best": false
-          },
-          {
-            "text": "2.60 ms",
+            "text": "2.79 ms",
             "best": false
           }
         ]

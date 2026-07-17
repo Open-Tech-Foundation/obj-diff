@@ -2,7 +2,9 @@
 
 # @opentf/obj-diff
 
-> # The Fast, Accurate, and Modern JavaScript Objects Diffing & Patching Library.
+> ## The Fast, Accurate, and Modern JavaScript Objects Diffing & Patching Library.
+
+### [Documentation & Playground](https://obj-diff.opentechf.org/)
 
 ![Demo image](https://raw.githubusercontent.com/Open-Tech-Foundation/obj-diff/main/demo.png)
 
@@ -15,6 +17,7 @@
 - 🔍 **Deep Objects Diffing**: Detects changes at any depth.
 - ✂️ **Compact Array Diffs**: Shortest edit scripts (Myers LCS) — inserting one element into a 10k array yields 1 op, not 10,001.
 - 🩹 **Efficient Patching**: Apply diffs to recreate target objects.
+- 🧬 **Type-Safe Serialization**: Round-trip diffs across network/process boundaries with `serialize` and `deserialize` preserving all JS native types.
 - 🛠️ **Extensible**: Support for custom object types via `diffWith()`.
 - 📦 **Modern Ecosystem**: Built for Bun, Node.js, Deno, and Browser.
 - 🟦 **TypeScript Native**: Full type safety and autocompletion.
@@ -287,5 +290,7 @@ An empty path denotes the **Root** of the object. It typically means the entire 
 ## 📄 License
 
 This project is licensed under the [MIT License](./LICENSE).
+
+---
 
 <p align="center">⚡ Powered by <a href="https://opentechf.org">Open Tech Foundation</a></p>

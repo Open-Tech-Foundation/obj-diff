@@ -39,7 +39,7 @@
     },
     "packages/obj-diff": {
       "name": "@opentf/obj-diff",
-      "version": "0.15.0",
+      "version": "0.16.0",
       "dependencies": {
         "@opentf/std": "^1.0.0-beta.3",
       },
