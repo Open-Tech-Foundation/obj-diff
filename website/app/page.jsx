@@ -220,6 +220,13 @@ function walkDiff(a, b, key, depth, out, seen) {
   if (status === "same") out.push({ depth, key, status: "same", kind: "leaf", text: leafText(b) });
   else if (status === "added") out.push({ depth, key, status: "added", kind: "leaf", text: leafText(b) });
   else if (status === "deleted") out.push({ depth, key, status: "deleted", kind: "leaf", text: leafText(a) });
+  else if (isContainer(a) || isContainer(b)) {
+    // The type changed and a container is involved (e.g. undefined → Object,
+    // Array → Object). Expand both sides fully — old struck out, new added — so
+    // the nested contents are visible at every level instead of "X → Object".
+    walkDiff(a, MISSING, key, depth, out, seen);
+    walkDiff(MISSING, b, key, depth, out, seen);
+  }
   else out.push({ depth, key, status: "changed", kind: "change", oldText: leafText(a), newText: leafText(b) });
 }
 
