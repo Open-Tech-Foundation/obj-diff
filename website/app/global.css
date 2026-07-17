@@ -119,16 +119,17 @@ body {
 .diff-tree { font-family: var(--otfw-mono); font-size: .82rem; line-height: 1.7; border: 1px solid var(--lab-line); border-radius: .6rem; padding: .6rem 0; overflow-x: auto; background: var(--lab-paper); }
 .dt-row { display: flex; gap: .5rem; padding: 0 .9rem; white-space: pre; }
 .dt-mark { width: .7rem; flex: none; color: var(--lab-muted); user-select: none; text-align: center; }
-.dt-line { white-space: pre; }
+.dt-line, .dt-pre, .dt-old, .dt-arrow, .dt-rest { white-space: pre; }
 .dt-added { background: color-mix(in srgb, var(--lab-green) 13%, transparent); }
 .dt-deleted { background: color-mix(in srgb, var(--lab-red) 13%, transparent); }
-.dt-added .dt-line { color: var(--lab-green); }
 .dt-added .dt-mark { color: var(--lab-green); }
-.dt-deleted .dt-line { color: var(--lab-red); text-decoration: line-through; }
 .dt-deleted .dt-mark { color: var(--lab-red); }
+.dt-changed .dt-mark { color: var(--lab-blue); }
+.dt-added .dt-pre, .dt-added .dt-rest { color: var(--lab-green); }
+.dt-deleted .dt-pre, .dt-deleted .dt-rest { color: var(--lab-red); text-decoration: line-through; }
+.dt-changed .dt-rest { color: var(--lab-green); }
 .dt-same { color: var(--lab-muted); }
 .dt-old { color: var(--lab-red); text-decoration: line-through; }
-.dt-new { color: var(--lab-green); }
 .dt-arrow { color: var(--lab-muted); }
 
 .op-legend { display: flex; flex-wrap: wrap; gap: 1rem; color: var(--lab-muted); font-size: .78rem; }

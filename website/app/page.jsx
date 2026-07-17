@@ -209,7 +209,7 @@ function buildDiffRows(a, b) {
 
 function diffKey(k) { return (k === undefined || k === null) ? "" : `${k}: `; }
 
-function diffMark(status) { return status === "added" ? "+" : status === "deleted" ? "−" : ""; }
+function diffMark(status) { return status === "added" ? "+" : status === "deleted" ? "−" : status === "changed" ? "~" : ""; }
 
 function safeEval(code) {
   try {
@@ -369,9 +369,10 @@ export default function Home() {
                 {(parsedA != null && parsedB != null) ? (
                   <div class="diff-tree" aria-label="Visual diff of the two objects">
                     {buildDiffRows(parsedA, parsedB).map((d) => (
-                      d.kind === "change"
-                        ? <div class={`dt-row dt-${d.status}`}><span class="dt-mark">~</span><span class="dt-line">{"  ".repeat(d.depth)}{diffKey(d.key)}<span class="dt-old">{d.oldText}</span><span class="dt-arrow"> → </span><span class="dt-new">{d.newText}</span></span></div>
-                        : <div class={`dt-row dt-${d.status}`}><span class="dt-mark">{diffMark(d.status)}</span><span class="dt-line">{"  ".repeat(d.depth)}{diffKey(d.key)}{d.text}</span></div>
+                      <div class={`dt-row dt-${d.status}`}>
+                        <span class="dt-mark">{diffMark(d.status)}</span>
+                        <span class="dt-line"><span class="dt-pre">{"  ".repeat(d.depth)}{diffKey(d.key)}</span><span class="dt-old">{d.kind === "change" ? d.oldText : ""}</span><span class="dt-arrow">{d.kind === "change" ? " → " : ""}</span><span class="dt-rest">{d.kind === "change" ? d.newText : d.text}</span></span>
+                      </div>
                     ))}
                   </div>
                 ) : <div class="empty-state">Fix both inputs to see the visual diff.</div>}
