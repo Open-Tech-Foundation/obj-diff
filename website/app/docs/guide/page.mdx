@@ -3,6 +3,8 @@ title: Guide
 description: A practical walkthrough of diffing, reading results, patching, and custom equality with @opentf/obj-diff.
 ---
 
+import { Callout } from "@opentf/web-docs";
+
 # Guide
 
 This guide walks through the core workflow of `@opentf/obj-diff`: compute a diff, read it, apply it, and customize it. Every snippet assumes:
@@ -76,7 +78,11 @@ diff({ d: Temporal.PlainDate.from("2020-01-01") },
 //=> [ { type: 2, path: ["d"], value: <Temporal.PlainDate 2021-06-15> } ]
 ```
 
-`Temporal` values are treated as atomic — a change replaces the whole value. `Duration` is compared structurally (by its canonical string), because two equal-length durations expressed differently (`PT2H` vs `PT120M`) are genuinely different values.
+<Callout type="note" title="Temporal values are atomic">
+
+A change replaces the whole value rather than diffing its fields. `Duration` is compared structurally (by its canonical string), because two equal-length durations expressed differently (`PT2H` vs `PT120M`) are genuinely different values.
+
+</Callout>
 
 ## 5. Compact array diffs
 
@@ -108,7 +114,7 @@ diff(a, b);
 
 ## 7. Custom equality
 
-When two values should be treated as equal by your own rule (for example MongoDB `ObjectId`s), pass a comparator to `diffWith`. It runs only when **both** values are objects:
+When two values should be treated as equal by your own rule (for example MongoDB `ObjectId`s), pass a comparator to `diffWith`:
 
 ```js
 import { ObjectId } from "bson";
@@ -119,6 +125,12 @@ diffWith(recordA, recordB, (x, y) => {
   }
 });
 ```
+
+<Callout type="note" title="The comparator only sees object pairs">
+
+`diffWith` calls your comparator only when **both** values are objects. For primitive pairs it falls back to built-in equality, so returning `undefined` (as above, for non-`ObjectId`s) lets the default behavior take over.
+
+</Callout>
 
 ## 8. Send a diff over the wire
 
