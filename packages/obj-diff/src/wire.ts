@@ -133,6 +133,7 @@ function createEncoder() {
         return ref("Date", Number.isNaN(obj.getTime()) ? "NaN" : obj.toISOString());
       }
       if (obj instanceof RegExp) return ref("RegExp", [obj.source, obj.flags]);
+      if (typeof URL !== "undefined" && obj instanceof URL) return ref("URL", obj.href);
       if (obj instanceof Map) {
         return ref(
           "Map",
@@ -216,6 +217,8 @@ function createDecoder(refs: Refs) {
         const [source, flags] = v as [string, string];
         return new RegExp(source, flags);
       }
+      case "URL":
+        return new URL(v as string);
       case "Map":
         return new Map((v as [unknown, unknown][]).map(([k, val]) => [node(k), node(val)]));
       case "Set":

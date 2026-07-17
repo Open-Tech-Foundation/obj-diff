@@ -34,6 +34,13 @@ describe("wire (serialize / deserialize)", () => {
     expect(survivesWire({ r: /a/ }, { r: /foo\d+/giu })).toBe(true);
   });
 
+  test("URL", () => {
+    expect(survivesWire({ u: 1 }, { u: new URL("https://a.example/x?q=1#h") })).toBe(true);
+    const restored = deserialize(serialize(diff({}, { u: new URL("https://a.example/p") })));
+    expect(restored[0].value).toBeInstanceOf(URL);
+    expect((restored[0].value as URL).href).toBe("https://a.example/p");
+  });
+
   test("Map and Set", () => {
     expect(survivesWire({ m: new Map([["k", 1]]) }, { m: new Map([["k", 2], ["j", 3]]) })).toBe(true);
     expect(survivesWire({ s: new Set([1, 2]) }, { s: new Set([1, 2, 3]) })).toBe(true);

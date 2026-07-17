@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- `serialize`/`deserialize` now support `URL` values.
+
 ## [0.16.0] - 2026-07-17
 
 ### Added

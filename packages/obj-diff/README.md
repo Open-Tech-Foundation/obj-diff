@@ -119,7 +119,7 @@ const patched = patch(a, deserialize(wire)); // Date/Map/Set/… restored exactl
 }
 ```
 
-Every supported type is preserved (`Date`, `RegExp`, `Map`, `Set`, `TypedArray`, `ArrayBuffer`, `DataView`, `Error`, `BigInt`, `Temporal`, …), nested to any depth. Symbols, functions, class instances, and circular references throw. Deserializing a `Temporal` value requires a `Temporal` implementation on `globalThis`.
+Every supported type is preserved (`Date`, `RegExp`, `Map`, `Set`, `TypedArray`, `ArrayBuffer`, `DataView`, `Error`, `URL`, `BigInt`, `Temporal`, …), nested to any depth. Symbols, functions, class instances, and circular references throw. Deserializing a `Temporal` value requires a `Temporal` implementation on `globalThis`.
 
 ---
 
