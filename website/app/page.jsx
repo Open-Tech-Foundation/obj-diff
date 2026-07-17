@@ -222,11 +222,16 @@ function walkDiff(a, b, key, depth, out, seen) {
   else if (status === "added") out.push({ depth, key, status: "added", kind: "leaf", text: leafText(b) });
   else if (status === "deleted") out.push({ depth, key, status: "deleted", kind: "leaf", text: leafText(a) });
   else if (isContainer(a) || isContainer(b)) {
-    // The type changed and a container is involved (e.g. undefined → Object,
-    // Array → Object). Expand both sides fully — old struck out, new added — so
-    // the nested contents are visible at every level instead of "X → Object".
-    walkDiff(a, MISSING, key, depth, out, seen);
-    walkDiff(MISSING, b, key, depth, out, seen);
+    // The type changed and a container is involved (e.g. null → Object,
+    // Array → Object). obj-diff reports this as a single CHANGED op, so expand
+    // both sides fully — to show the nested contents at every level instead of
+    // "X → Object" — but colour them as one change (amber, old struck out)
+    // rather than a delete + add.
+    const oldRows = [], newRows = [];
+    walkDiff(a, MISSING, key, depth, oldRows, seen);
+    walkDiff(MISSING, b, key, depth, newRows, seen);
+    oldRows.forEach((r, i) => { r.status = "cold"; if (i === 0) r.head = true; out.push(r); });
+    newRows.forEach((r) => { r.status = "cnew"; out.push(r); });
   }
   else out.push({ depth, key, status: "changed", kind: "change", oldText: leafText(a), newText: leafText(b) });
 }
@@ -421,7 +426,7 @@ export default function Home() {
                   <div class="diff-tree" aria-label="Visual diff of the two objects">
                     {buildDiffRows(parsedA, parsedB).map((d) => (
                       <div class={`dt-row dt-${d.status}`}>
-                        <span class="dt-mark">{diffMark(d.status)}</span>
+                        <span class="dt-mark">{d.head ? "*" : diffMark(d.status)}</span>
                         <span class="dt-line"><span class="dt-pre">{"  ".repeat(d.depth)}{diffKey(d.key)}</span><span class="dt-old">{d.kind === "change" ? d.oldText : ""}</span><span class="dt-arrow">{d.kind === "change" ? " → " : ""}</span><span class="dt-rest">{d.kind === "change" ? d.newText : d.text}</span></span>
                       </div>
                     ))}

@@ -130,6 +130,12 @@ body {
 .dt-added .dt-pre, .dt-added .dt-rest { color: var(--lab-green); }
 .dt-deleted .dt-pre, .dt-deleted .dt-rest { color: var(--lab-red); text-decoration: line-through; }
 .dt-changed .dt-rest { color: var(--lab-amber); }
+/* Expanded type-change (single CHANGED op): amber, old side struck through. */
+.dt-cold { background: color-mix(in srgb, var(--lab-amber) 12%, transparent); }
+.dt-cnew { background: color-mix(in srgb, var(--lab-amber) 12%, transparent); }
+.dt-cold .dt-mark, .dt-cnew .dt-mark { color: var(--lab-amber); }
+.dt-cold .dt-pre, .dt-cold .dt-rest { color: var(--lab-amber); text-decoration: line-through; }
+.dt-cnew .dt-pre, .dt-cnew .dt-rest { color: var(--lab-amber); }
 .dt-same { color: var(--lab-muted); }
 .dt-old { color: var(--lab-amber); text-decoration: line-through; }
 .dt-arrow { color: var(--lab-muted); }
