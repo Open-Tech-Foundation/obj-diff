@@ -1,0 +1,92 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write  # create tags and GitHub Releases
+  id-token: write  # npm provenance (packages/obj-diff publishConfig.provenance: true)
+
+jobs:
+  check-release:
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.check.outputs.should_release }}
+      release_opentf_obj_diff: ${{ steps.check.outputs.release_opentf_obj_diff }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install otf-release
+        if: runner.os != 'Windows'
+        shell: bash
+        run: curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/release/main/install.sh | bash
+      - name: Install otf-release
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: irm https://raw.githubusercontent.com/Open-Tech-Foundation/release/main/install.ps1 | iex
+      - id: check
+        run: |
+          echo "should_release=$(otf-release check --exclude-package @opentf/obj-diff)" >> "$GITHUB_OUTPUT"
+          echo "release_opentf_obj_diff=$(otf-release check --package @opentf/obj-diff)" >> "$GITHUB_OUTPUT"
+
+  publish-opentf-obj-diff:
+    needs: [check-release]
+    if: needs.check-release.outputs.release_opentf_obj_diff == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: bun install --frozen-lockfile
+      - name: Build @opentf/obj-diff
+        run: npm run build
+        working-directory: packages/obj-diff
+      - name: Install otf-release
+        if: runner.os != 'Windows'
+        shell: bash
+        run: curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/release/main/install.sh | bash
+      - name: Install otf-release
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: irm https://raw.githubusercontent.com/Open-Tech-Foundation/release/main/install.ps1 | iex
+      - name: Publish
+        run: otf-release publish --package @opentf/obj-diff
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    needs: [check-release]
+    if: needs.check-release.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: bun install --frozen-lockfile
+      - name: Install otf-release
+        if: runner.os != 'Windows'
+        shell: bash
+        run: curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/release/main/install.sh | bash
+      - name: Install otf-release
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: irm https://raw.githubusercontent.com/Open-Tech-Foundation/release/main/install.ps1 | iex
+      - name: Publish
+        run: otf-release publish --exclude-package @opentf/obj-diff
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
