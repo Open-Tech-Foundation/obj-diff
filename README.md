@@ -102,7 +102,21 @@ const wire = serialize(diff(a, b)); // a JSON string, type-safe
 const patched = patch(a, deserialize(wire)); // Date/Map/Set/… restored exactly
 ```
 
-Every supported type is preserved (`Date`, `RegExp`, `Map`, `Set`, `TypedArray`, `ArrayBuffer`, `DataView`, `Error`, `BigInt`, `Temporal`, …). Symbols, functions, class instances, and circular references throw. Deserializing a `Temporal` value requires a `Temporal` implementation on `globalThis`.
+`value` stays readable — each special value becomes a reference token `"@n"`, with the real types collected in a per-op `$refs` table:
+
+```json
+{
+  "type": 1,
+  "path": ["user"],
+  "value": { "id": 1, "lastSeen": "@1", "roles": "@2" },
+  "$refs": {
+    "1": { "_t": "Date", "_v": "2026-07-15T00:00:00.000Z" },
+    "2": { "_t": "Set", "_v": ["admin", "editor"] }
+  }
+}
+```
+
+Every supported type is preserved (`Date`, `RegExp`, `Map`, `Set`, `TypedArray`, `ArrayBuffer`, `DataView`, `Error`, `BigInt`, `Temporal`, …), nested to any depth. Symbols, functions, class instances, and circular references throw. Deserializing a `Temporal` value requires a `Temporal` implementation on `globalThis`.
 
 ---
 

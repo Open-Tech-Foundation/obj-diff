@@ -94,11 +94,23 @@ describe("wire (serialize / deserialize)", () => {
     expect(restored[0].value).toBe(2);
   });
 
-  test("escapes a plain object that itself owns a `_t` key", () => {
+  test("plain objects with `_t`/`_v` keys pass through untouched", () => {
+    // `_t`/`_v` only live inside $refs, so a user object using them is just data.
     expect(survivesWire({}, { data: { _t: "hello", n: 5 } })).toBe(true);
-    // A value that itself looks exactly like an envelope must survive intact.
     const restored = deserialize(serialize(diff({}, { data: { _t: "x", _v: "y" } })));
     expect(restored[0].value).toEqual({ _t: "x", _v: "y" });
+    expect(survivesWire({}, { data: { _t: "Date", _v: "not a date" } })).toBe(true);
+  });
+
+  test("escapes real strings that look like `@n` ref tokens", () => {
+    expect(survivesWire({ x: 1 }, { x: "@1" })).toBe(true);
+    expect(survivesWire({ x: 1 }, { x: "@42 hello" })).toBe(true);
+    expect(survivesWire({ x: 1 }, { x: "@@escaped" })).toBe(true);
+    // a real "@1" string sitting next to an actual Date ref must stay a string
+    const restored = deserialize(serialize(diff({}, { o: { a: "@1", b: new Date(0) } })));
+    const value = restored[0].value as { a: unknown; b: unknown };
+    expect(value.a).toBe("@1");
+    expect(value.b).toBeInstanceOf(Date);
   });
 
   test("output is JSON with no live objects", () => {
@@ -118,7 +130,18 @@ describe("wire (serialize / deserialize)", () => {
     expect(() => serialize(diff({}, { c: cyc }))).toThrow();
   });
 
-  test("deserialize throws on an unknown type tag", () => {
-    expect(() => deserialize('[{"type":2,"path":[],"value":{"_t":"Bogus","_v":1}}]')).toThrow();
+  test("deserialize throws on an unknown type tag or missing ref", () => {
+    expect(() =>
+      deserialize('[{"type":2,"path":[],"value":"@1","$refs":{"1":{"_t":"Bogus","_v":1}}}]'),
+    ).toThrow();
+    expect(() => deserialize('[{"type":2,"path":[],"value":"@9"}]')).toThrow();
+  });
+
+  test("output matches the readable ref-table shape", () => {
+    const op = JSON.parse(serialize(diff({}, { user: { d: new Date(0), s: new Set([1]) } })))[0];
+    expect(op.path).toEqual(["user"]);
+    expect(op.value).toEqual({ d: "@1", s: "@2" });
+    expect(op.$refs["1"]).toEqual({ _t: "Date", _v: "1970-01-01T00:00:00.000Z" });
+    expect(op.$refs["2"]).toEqual({ _t: "Set", _v: [1] });
   });
 });
