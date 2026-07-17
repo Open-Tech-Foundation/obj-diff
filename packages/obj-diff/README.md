@@ -121,6 +121,25 @@ const patched = patch(a, deserialize(wire)); // Date/Map/Set/… restored exactl
 
 Every supported type is preserved (`Date`, `RegExp`, `Map`, `Set`, `TypedArray`, `ArrayBuffer`, `DataView`, `Error`, `URL`, `BigInt`, `Temporal`, …), nested to any depth. **Circular references** and objects **shared by identity** are rebuilt with the same identity on the far side (plain objects and arrays are hoisted into `$refs` when referenced more than once; single-use containers stay inline). Symbols, functions, class instances, and cycles that run through a `Map`/`Set`/`Error` throw. Deserializing a `Temporal` value requires a `Temporal` implementation on `globalThis`.
 
+### `stringify(value)` / `parse(wire)`
+
+Need the same type-safe codec for **any** value, not just a diff? `stringify`/`parse` are the general-purpose counterpart — a drop-in, richer `JSON.stringify`/`JSON.parse` that keeps native types intact:
+
+```ts
+import { stringify, parse } from "@opentf/obj-diff";
+
+const wire = stringify({
+  when: new Date(),
+  tags: new Set(["a", "b"]),
+  prefs: new Map([["theme", "dark"]]),
+  big: 42n,
+});
+
+const value = parse(wire); // Date / Set / Map / BigInt all restored
+```
+
+Same coverage as above — every native type, plus circular references and shared identity. Symbols, functions, and class instances throw.
+
 ---
 
 ## 💡 Examples

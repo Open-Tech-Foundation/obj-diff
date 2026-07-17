@@ -1,5 +1,5 @@
 import { Temporal } from "@js-temporal/polyfill";
-import { deserialize, diff, patch, serialize } from "./utils";
+import { deserialize, diff, parse, patch, serialize, stringify } from "./utils";
 
 // deserialize reconstructs Temporal values via a Temporal implementation on
 // globalThis; the polyfill doesn't auto-install, so wire it up for the tests.
@@ -197,5 +197,78 @@ describe("wire (serialize / deserialize)", () => {
     expect(op.value).toEqual({ d: "@1", s: "@2" });
     expect(op.$refs["1"]).toEqual({ _t: "Date", _v: "1970-01-01T00:00:00.000Z" });
     expect(op.$refs["2"]).toEqual({ _t: "Set", _v: [1] });
+  });
+});
+
+describe("stringify / parse (generic value codec)", () => {
+  const rt = <T>(v: T): T => parse<T>(stringify(v));
+
+  test("primitives and top-level special values", () => {
+    expect(rt(42)).toBe(42);
+    expect(rt("hello")).toBe("hello");
+    expect(rt("@1")).toBe("@1"); // a real "@n" string survives escaping
+    expect(rt(true)).toBe(true);
+    expect(rt(null)).toBe(null);
+    expect(rt(undefined)).toBe(undefined);
+    expect(Number.isNaN(rt(Number.NaN))).toBe(true);
+    expect(Object.is(rt(-0), -0)).toBe(true);
+    expect(rt(Number.POSITIVE_INFINITY)).toBe(Number.POSITIVE_INFINITY);
+    expect(rt(9007199254740993n)).toBe(9007199254740993n);
+  });
+
+  test("native types round-trip with their constructors", () => {
+    expect(rt(new Date(0))).toEqual(new Date(0));
+    expect(rt(/foo\d+/giu)).toEqual(/foo\d+/giu);
+    expect(rt(new Map<string, number>([["k", 1]]))).toEqual(new Map([["k", 1]]));
+    expect(rt(new Set([1, 2, 3]))).toEqual(new Set([1, 2, 3]));
+    expect(rt(new Uint8Array([1, 2, 3]))).toEqual(new Uint8Array([1, 2, 3]));
+    const u = rt(new URL("https://a.example/p?q=1"));
+    expect(u).toBeInstanceOf(URL);
+    expect(u.href).toBe("https://a.example/p?q=1");
+  });
+
+  test("nested mix of special types", () => {
+    const value = {
+      user: {
+        joined: new Date("2020-01-01T00:00:00Z"),
+        roles: new Set(["admin"]),
+        prefs: new Map([["theme", "dark"]]),
+        scores: new Float64Array([1.5, 2.5]),
+        big: 123n,
+        seen: [new Date(0), undefined],
+      },
+    };
+    expect(rt(value)).toEqual(value);
+  });
+
+  test("top-level array and top-level Map", () => {
+    expect(rt([1, new Date(0), "x"])).toEqual([1, new Date(0), "x"]);
+    expect(rt(new Map<string, Date>([["d", new Date(0)]]))).toEqual(new Map([["d", new Date(0)]]));
+  });
+
+  test("circular references and shared identity", () => {
+    const self: Record<string, unknown> = { name: "a" };
+    self.self = self;
+    const back = rt(self);
+    expect(back.name).toBe("a");
+    expect(back.self).toBe(back);
+
+    const shared = { id: 7 };
+    const pair = rt({ a: shared, b: shared });
+    expect(pair.a).toBe(pair.b);
+  });
+
+  test("throws on symbols, functions, class instances", () => {
+    expect(() => stringify(Symbol("s"))).toThrow();
+    expect(() => stringify(() => 1)).toThrow();
+    class Widget {}
+    expect(() => stringify(new Widget())).toThrow();
+  });
+
+  test("output is a JSON envelope with no live objects", () => {
+    const parsed = JSON.parse(stringify({ d: new Date(0) }));
+    expect(parsed).toHaveProperty("v");
+    expect(parsed.v).toEqual({ d: "@1" });
+    expect(parsed.$refs["1"]).toEqual({ _t: "Date", _v: "1970-01-01T00:00:00.000Z" });
   });
 });

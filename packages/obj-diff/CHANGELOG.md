@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- `stringify(value)` / `parse(wire)` — a general-purpose, type-safe JSON codec for **any** JavaScript value (the counterpart to `serialize`/`deserialize`, which are diff-specific). Built on the same wire codec, so it preserves every supported native type (`Date`, `RegExp`, `Map`, `Set`, all `TypedArray`s, `ArrayBuffer`, `DataView`, `Error`, `URL`, boxed primitives, `BigInt`, `NaN`/`±Infinity`/`-0`, `undefined`, `Temporal`) plus circular references and shared identity among plain objects and arrays, nested to any depth. Symbols, functions, and class instances throw.
 - `serialize`/`deserialize` now support **circular references** and **shared identity** for plain objects and arrays. Any plain container reachable by more than one edge within an op is hoisted into the `$refs` table as an `obj`/`arr` entry and referenced by token, so cycles (`obj.self = obj`, mutually linked nodes, self-referential arrays) and objects shared in two places rebuild with the same identity on the far side. Single-use containers still serialize inline as readable JSON, so output for the common case is unchanged. Cycles that run through a `Map`/`Set`/`Error` still throw.
 - `serialize`/`deserialize` now support `URL` values.
 

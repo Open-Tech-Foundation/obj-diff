@@ -3,7 +3,7 @@ import diff from "./diff";
 import diffWith from "./diffWith";
 import patch from "./patch";
 import type { DiffResult } from "./types";
-import { deserialize, serialize } from "./wire";
+import { deserialize, parse, serialize, stringify } from "./wire";
 
 export {
   ADDED,
@@ -15,7 +15,9 @@ export {
   diff,
   diffWith,
   INSERTED,
+  parse,
   patch,
   REMOVED,
   serialize,
+  stringify,
 };

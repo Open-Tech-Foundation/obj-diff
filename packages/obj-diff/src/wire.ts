@@ -410,3 +410,28 @@ export function deserialize(wire: string): DiffResult[] {
     return out;
   });
 }
+
+type Envelope = { v: unknown; $refs?: Refs };
+
+/**
+ * Serialize any JavaScript value to a self-describing, type-safe JSON string —
+ * the general-purpose counterpart to `serialize` (which is diff-specific). Uses
+ * the same codec, so it preserves every supported native type (`Date`, `Map`,
+ * `Set`, `TypedArray`, `ArrayBuffer`, `DataView`, `Error`, `URL`, `BigInt`,
+ * `Temporal`, `NaN`/`±Infinity`/`-0`, `undefined`, …) plus circular references
+ * and shared identity among plain objects and arrays. Symbols, functions, and
+ * class instances throw.
+ */
+export function stringify(value: unknown): string {
+  const enc = createEncoder();
+  enc.mark(value);
+  const v = enc.node(value);
+  const out: Envelope = enc.hasRefs() ? { v, $refs: enc.refs } : { v };
+  return JSON.stringify(out);
+}
+
+/** Parse a string produced by `stringify` back into the original value with live typed values. */
+export function parse<T = unknown>(wire: string): T {
+  const { v, $refs } = JSON.parse(wire) as Envelope;
+  return createDecoder($refs ?? {}).node(v) as T;
+}
