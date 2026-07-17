@@ -119,7 +119,7 @@ const patched = patch(a, deserialize(wire)); // Date/Map/Set/… restored exactl
 }
 ```
 
-Every supported type is preserved (`Date`, `RegExp`, `Map`, `Set`, `TypedArray`, `ArrayBuffer`, `DataView`, `Error`, `URL`, `BigInt`, `Temporal`, …), nested to any depth. Symbols, functions, class instances, and circular references throw. Deserializing a `Temporal` value requires a `Temporal` implementation on `globalThis`.
+Every supported type is preserved (`Date`, `RegExp`, `Map`, `Set`, `TypedArray`, `ArrayBuffer`, `DataView`, `Error`, `URL`, `BigInt`, `Temporal`, …), nested to any depth. **Circular references** and objects **shared by identity** are rebuilt with the same identity on the far side (plain objects and arrays are hoisted into `$refs` when referenced more than once; single-use containers stay inline). Symbols, functions, class instances, and cycles that run through a `Map`/`Set`/`Error` throw. Deserializing a `Temporal` value requires a `Temporal` implementation on `globalThis`.
 
 ---
 

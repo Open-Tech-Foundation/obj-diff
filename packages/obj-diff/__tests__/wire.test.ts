@@ -34,13 +34,6 @@ describe("wire (serialize / deserialize)", () => {
     expect(survivesWire({ r: /a/ }, { r: /foo\d+/giu })).toBe(true);
   });
 
-  test("URL", () => {
-    expect(survivesWire({ u: 1 }, { u: new URL("https://a.example/x?q=1#h") })).toBe(true);
-    const restored = deserialize(serialize(diff({}, { u: new URL("https://a.example/p") })));
-    expect(restored[0].value).toBeInstanceOf(URL);
-    expect((restored[0].value as URL).href).toBe("https://a.example/p");
-  });
-
   test("Map and Set", () => {
     expect(survivesWire({ m: new Map([["k", 1]]) }, { m: new Map([["k", 2], ["j", 3]]) })).toBe(true);
     expect(survivesWire({ s: new Set([1, 2]) }, { s: new Set([1, 2, 3]) })).toBe(true);
@@ -127,14 +120,68 @@ describe("wire (serialize / deserialize)", () => {
     expect(Array.isArray(parsed)).toBe(true);
   });
 
-  test("throws on unsupported values and cycles", () => {
+  test("URL", () => {
+    expect(survivesWire({ u: 1 }, { u: new URL("https://a.example/x?q=1#h") })).toBe(true);
+    const restored = deserialize(serialize(diff({}, { u: new URL("https://a.example/p") })));
+    expect(restored[0].value).toBeInstanceOf(URL);
+    expect((restored[0].value as URL).href).toBe("https://a.example/p");
+  });
+
+  test("circular references (self, mutual, through arrays)", () => {
+    const self: Record<string, unknown> = { name: "a" };
+    self.self = self;
+    const restored = deserialize(serialize(diff({}, { c: self })));
+    const c = restored[0].value as Record<string, unknown>;
+    expect(c.name).toBe("a");
+    expect(c.self).toBe(c); // cycle rebuilt with identity
+
+    const a: Record<string, unknown> = { id: "a" };
+    const b: Record<string, unknown> = { id: "b" };
+    a.peer = b;
+    b.peer = a;
+    const r2 = deserialize(serialize(diff({}, { a })))[0].value as Record<string, unknown>;
+    expect((r2.peer as Record<string, unknown>).peer).toBe(r2);
+
+    const arr: unknown[] = [1];
+    arr.push(arr);
+    const r3 = deserialize(serialize(diff({}, { arr })))[0].value as unknown[];
+    expect(r3[1]).toBe(r3);
+
+    // a cyclic value round-trips through patch back to an equal graph
+    const cyc: Record<string, unknown> = {};
+    cyc.self = cyc;
+    expect(survivesWire({}, { c: cyc })).toBe(true);
+  });
+
+  test("shared references keep identity within an op", () => {
+    const shared = { id: 7 };
+    const value = deserialize(serialize(diff({}, { pair: { a: shared, b: shared } })))[0].value as {
+      a: unknown;
+      b: unknown;
+    };
+    expect(value.a).toBe(value.b); // same object, not two copies
+
+    // a node shared twice inside an array value is deduped too
+    const node = { tag: "x" };
+    const arr = deserialize(serialize(diff({}, { list: [node, node] })))[0].value as unknown[];
+    expect(arr[0]).toBe(arr[1]);
+  });
+
+  test("single-use containers stay inline (no hoisting overhead)", () => {
+    const op = JSON.parse(serialize(diff({}, { user: { name: "a", tags: ["x"] } })))[0];
+    expect(op.value).toEqual({ name: "a", tags: ["x"] });
+    expect(op.$refs).toBeUndefined();
+  });
+
+  test("throws on unsupported values and cycles through Map/Set/Error", () => {
     expect(() => serialize(diff({}, { s: Symbol("s") }))).toThrow();
     expect(() => serialize(diff({}, { f: () => 1 }))).toThrow();
     class Widget {}
     expect(() => serialize(diff({}, { w: new Widget() }))).toThrow();
-    const cyc: Record<string, unknown> = {};
-    cyc.self = cyc;
-    expect(() => serialize(diff({}, { c: cyc }))).toThrow();
+    // cycles that run through a special container are still rejected
+    const m = new Map<string, unknown>();
+    m.set("self", m);
+    expect(() => serialize(diff({}, { m }))).toThrow();
   });
 
   test("deserialize throws on an unknown type tag or missing ref", () => {

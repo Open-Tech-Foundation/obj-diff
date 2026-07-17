@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- `serialize`/`deserialize` now support **circular references** and **shared identity** for plain objects and arrays. Any plain container reachable by more than one edge within an op is hoisted into the `$refs` table as an `obj`/`arr` entry and referenced by token, so cycles (`obj.self = obj`, mutually linked nodes, self-referential arrays) and objects shared in two places rebuild with the same identity on the far side. Single-use containers still serialize inline as readable JSON, so output for the common case is unchanged. Cycles that run through a `Map`/`Set`/`Error` still throw.
 - `serialize`/`deserialize` now support `URL` values.
 
 ## [0.16.0] - 2026-07-17

@@ -13,9 +13,16 @@ import type { DiffResult } from "./types";
  * tokens back into live typed values so `patch` reconstructs them across a
  * process boundary.
  *
- * Unsupported values (symbols, functions, class instances) and circular
- * references throw. `Temporal` values require a `Temporal` implementation
- * (native global or a polyfill installed on `globalThis`) at deserialize time.
+ * Circular references and objects shared by identity are supported for plain
+ * objects and arrays: any plain container reachable by more than one edge is
+ * hoisted into the `$refs` table as an `obj`/`arr` entry and referenced by
+ * token, so the graph — including cycles — is rebuilt with the same identity on
+ * the far side. Containers used only once stay inline as readable JSON.
+ *
+ * Unsupported values (symbols, functions, class instances) and cycles that run
+ * through a `Map`/`Set`/`Error` throw. `Temporal` values require a `Temporal`
+ * implementation (native global or a polyfill installed on `globalThis`) at
+ * deserialize time.
  */
 
 type RefEntry = { _t: string; _v?: unknown };
@@ -72,6 +79,10 @@ const REF_TOKEN = /^@\d+$/;
 // encode
 // ---------------------------------------------------------------------------
 
+function isPlainContainer(x: object): boolean {
+  return Array.isArray(x) || isPlainObject(x);
+}
+
 function createEncoder() {
   const refs: Refs = {};
   const seen = new Set<object>();
@@ -82,6 +93,47 @@ function createEncoder() {
     refs[key] = _v === undefined ? { _t } : { _t, _v };
     return `@${key}`;
   };
+
+  // Pass 1: find plain containers reachable by more than one edge (shared or
+  // cyclic). Only those are hoisted into $refs; single-use containers stay
+  // inline so the common case keeps its readable JSON shape.
+  const walked = new Set<object>();
+  const shared = new Set<object>();
+  const mark = (x: unknown): void => {
+    if (x === null || typeof x !== "object") return;
+    const obj = x as object;
+    if (isPlainContainer(obj)) {
+      if (walked.has(obj)) {
+        shared.add(obj);
+        return;
+      }
+      walked.add(obj);
+      if (Array.isArray(obj)) {
+        for (const e of obj) mark(e);
+      } else {
+        const o = obj as Record<string, unknown>;
+        for (const k of Object.keys(o)) mark(o[k]);
+      }
+      return;
+    }
+    // Special containers: guard cycles while scanning for nested shared values.
+    if (walked.has(obj)) return;
+    walked.add(obj);
+    if (obj instanceof Map) {
+      for (const [k, v] of obj) {
+        mark(k);
+        mark(v);
+      }
+    } else if (obj instanceof Set) {
+      for (const v of obj) mark(v);
+    } else if (obj instanceof Error) {
+      const s = obj as unknown as Record<string, unknown>;
+      for (const k of Object.keys(obj)) mark(s[k]);
+    }
+  };
+
+  // Pass 2 helpers: identity table for hoisted plain containers.
+  const idOf = new Map<object, string>();
 
   // Returns a JSON-safe node: a primitive, array, plain object, or a "@n" token.
   const node = (x: unknown): unknown => {
@@ -116,19 +168,41 @@ function createEncoder() {
     }
 
     const obj = x as object;
+
+    // Plain containers: hoist into $refs when shared/cyclic (referenced by
+    // token so identity and cycles survive), otherwise inline as readable JSON.
+    if (isPlainContainer(obj)) {
+      if (shared.has(obj)) {
+        const existing = idOf.get(obj);
+        if (existing !== undefined) return `@${existing}`;
+        const key = String(++count);
+        idOf.set(obj, key);
+        let encoded: unknown;
+        if (Array.isArray(obj)) {
+          encoded = obj.map((e) => node(e));
+        } else {
+          const o = obj as Record<string, unknown>;
+          const out: Record<string, unknown> = {};
+          for (const k of Object.keys(o)) out[k] = node(o[k]);
+          encoded = out;
+        }
+        refs[key] = { _t: Array.isArray(obj) ? "arr" : "obj", _v: encoded };
+        return `@${key}`;
+      }
+      if (Array.isArray(obj)) return obj.map((e) => node(e));
+      const o = obj as Record<string, unknown>;
+      const out: Record<string, unknown> = {};
+      for (const k of Object.keys(o)) out[k] = node(o[k]);
+      return out;
+    }
+
+    // Special containers can still form cycles (a Map holding itself); guard
+    // those so serialize throws instead of recursing forever.
     if (seen.has(obj)) {
       throw new TypeError("obj-diff serialize: circular references are not serializable");
     }
     seen.add(obj);
     try {
-      if (Array.isArray(obj)) return obj.map((e) => node(e));
-      if (isPlainObject(obj)) {
-        const o = obj as Record<string, unknown>;
-        const out: Record<string, unknown> = {};
-        for (const k of Object.keys(o)) out[k] = node(o[k]);
-        return out;
-      }
-
       if (obj instanceof Date) {
         return ref("Date", Number.isNaN(obj.getTime()) ? "NaN" : obj.toISOString());
       }
@@ -185,7 +259,7 @@ function createEncoder() {
     }
   };
 
-  return { node, refs, hasRefs: () => count > 0 };
+  return { mark, node, refs, hasRefs: () => count > 0 };
 }
 
 // ---------------------------------------------------------------------------
@@ -269,6 +343,22 @@ function createDecoder(refs: Refs) {
     if (cache.has(key)) return cache.get(key);
     const entry = refs[key];
     if (!entry) throw new TypeError(`obj-diff deserialize: missing $ref "@${key}"`);
+    // Hoisted plain containers: register the empty shell before populating so a
+    // self- or cross-reference back into this key resolves to the same object.
+    if (entry._t === "arr") {
+      const arr: unknown[] = [];
+      cache.set(key, arr);
+      const src = entry._v as unknown[];
+      for (let i = 0; i < src.length; i++) arr[i] = node(src[i]);
+      return arr;
+    }
+    if (entry._t === "obj") {
+      const obj: Record<string, unknown> = {};
+      cache.set(key, obj);
+      const src = entry._v as Record<string, unknown>;
+      for (const k of Object.keys(src)) obj[k] = node(src[k]);
+      return obj;
+    }
     const built = build(entry);
     cache.set(key, built);
     return built;
@@ -298,6 +388,10 @@ function createDecoder(refs: Refs) {
 export function serialize(patches: DiffResult[]): string {
   const wire: WireOp[] = patches.map((op) => {
     const enc = createEncoder();
+    // Detect shared/cyclic containers across the whole op (path + value share
+    // one identity table) before encoding.
+    for (const k of op.path) enc.mark(k);
+    if ("value" in op) enc.mark(op.value);
     const out: WireOp = { type: op.type, path: op.path.map((k) => enc.node(k)) };
     if ("value" in op) out.value = enc.node(op.value);
     if (enc.hasRefs()) out.$refs = enc.refs;
