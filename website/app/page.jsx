@@ -1,5 +1,5 @@
 import { untracked } from "@opentf/web";
-import { diff, patch } from "@opentf/obj-diff";
+import { diff, patch, serialize } from "@opentf/obj-diff";
 import { strReplace, isTypedArray } from "@opentf/std";
 import { EditorView, basicSetup } from "codemirror";
 import { javascript } from "@codemirror/lang-javascript";
@@ -80,6 +80,17 @@ function getDiffResults(diffResult) {
   function convert(str, p1) { return `${p1}n`; }
   out = strReplace(out, test, convert, { all: true });
   return out;
+}
+
+// serialize() to the transportable wire format, pretty-printed. Falls back to a
+// note for diffs that can't be serialized (e.g. a value with a circular ref).
+function getWire(diffResult) {
+  if (!diffResult || diffResult.length === 0) return "";
+  try {
+    return JSON.stringify(JSON.parse(serialize(diffResult)), null, 2);
+  } catch (error) {
+    return `// This diff can't be serialized:\n// ${error.message}`;
+  }
 }
 
 const OP_META = {
@@ -273,6 +284,7 @@ export default function Home() {
 
   let diffResult = $derived(getDiff(parsedA, parsedB));
   let patchResult = $derived(getPatch(obj1Val, diffResult));
+  let wireResult = $derived(getWire(diffResult));
   let changeSummary = $derived(() => {
     const count = (kind) => diffResult.filter((item) => opMeta(item.type).kind === kind).length;
     return { added: count("added"), changed: count("changed"), removed: count("removed") };
@@ -409,9 +421,10 @@ export default function Home() {
               <button class={activeTab === "visual" ? "active" : ""} onclick={() => activeTab = "visual"}>Visual</button>
               <button class={activeTab === "changes" ? "active" : ""} onclick={() => activeTab = "changes"}>Changes <span>{diffResult.length}</span></button>
               <button class={activeTab === "diff" ? "active" : ""} onclick={() => activeTab = "diff"}>Raw diff</button>
+              <button class={activeTab === "wire" ? "active" : ""} onclick={() => activeTab = "wire"}>Wire</button>
               <button class={activeTab === "patch" ? "active" : ""} onclick={() => activeTab = "patch"}>Patch</button>
             </div>
-            <button class="copy-button" onclick={() => copy(activeTab === "patch" ? getDiffResults(patchResult) : getDiffResults(diffResult), activeTab === "patch" ? "Patch copied" : "Diff copied")}>{copied || "Copy"}</button>
+            <button class="copy-button" onclick={() => copy(activeTab === "patch" ? getDiffResults(patchResult) : activeTab === "wire" ? wireResult : getDiffResults(diffResult), activeTab === "patch" ? "Patch copied" : activeTab === "wire" ? "Wire copied" : "Diff copied")}>{copied || "Copy"}</button>
           </div>
           <div class="results-content">
             {activeTab === "visual" && (
@@ -451,6 +464,12 @@ export default function Home() {
               </div>
             )}
             {activeTab === "diff" && <pre class="json-viewer">{getDiffResults(diffResult)}</pre>}
+            {activeTab === "wire" && (
+              <div class="wire-view">
+                <p class="wire-note">Transport-safe JSON from <code>serialize(diff)</code> — special values (Date, Map, Set…) become <code>@n</code> tokens resolved by a <code>$refs</code> table, so the far side can <code>patch</code> the exact types. <a href="/docs/serialization">Learn more →</a></p>
+                <pre class="json-viewer">{wireResult}</pre>
+              </div>
+            )}
             {activeTab === "patch" && <pre class="json-viewer">{getDiffResults(patchResult)}</pre>}
           </div>
         </section>

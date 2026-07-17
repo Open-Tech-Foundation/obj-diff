@@ -158,6 +158,10 @@ body {
 .change-card code { color: var(--lab-violet); font-family: var(--otfw-mono); font-size: .83rem; }
 .change-value { color: var(--lab-muted); font-family: var(--otfw-mono); font-size: .78rem; }
 .json-viewer { margin: 0; color: #0f3b8d; font-family: var(--otfw-mono); font-size: .8rem; line-height: 1.6; white-space: pre-wrap; }
+.wire-view { display: flex; flex-direction: column; gap: .75rem; }
+.wire-note { margin: 0; color: var(--lab-muted); font-size: .82rem; line-height: 1.55; }
+.wire-note code { font-size: .78rem; color: var(--lab-ink); background: color-mix(in srgb, var(--lab-blue) 12%, transparent); padding: .05rem .3rem; border-radius: .25rem; }
+.wire-note a { color: var(--lab-blue); }
 .empty-state { border: 1px dashed var(--lab-line); border-radius: .65rem; color: var(--lab-muted); padding: 2.5rem 1rem; text-align: center; }
 
 .proof-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 4rem; overflow: hidden; border: 1px solid var(--lab-line); border-radius: 1rem; background: var(--lab-line); }
