@@ -27,11 +27,27 @@ const ACCURACY_OUT = join(here, '..', 'website', 'app', 'docs', 'comparison', 'a
 const clone = (o) => structuredClone(o);
 const generatedAt = new Date().toISOString().slice(0, 10);
 
-function fmt(ns) {
+// Pick ONE unit for a whole column (from its median) so every cell in the
+// column is directly comparable — otherwise a column mixes ns/µs/ms and "943 ns"
+// looks larger than "4.33 ms". Format to ~3 significant figures in that unit.
+function pickUnit(nsValues) {
+  const vals = nsValues.filter((v) => v != null).sort((a, b) => a - b);
+  const median = vals.length ? vals[Math.floor(vals.length / 2)] : 0;
+  if (median >= 1e6) return { div: 1e6, label: "ms" };
+  if (median >= 1e3) return { div: 1e3, label: "µs" };
+  return { div: 1, label: "ns" };
+}
+
+function fmtIn(ns, unit) {
   if (ns == null) return "—";
-  if (ns >= 1e6) return `${(ns / 1e6).toFixed(2)} ms`;
-  if (ns >= 1e3) return `${(ns / 1e3).toFixed(2)} µs`;
-  return `${Math.round(ns)} ns`;
+  const v = ns / unit.div;
+  let s;
+  if (v >= 100) s = v.toFixed(0);
+  else if (v >= 10) s = v.toFixed(1);
+  else if (v >= 1) s = v.toFixed(2);
+  else if (v >= 0.1) s = v.toFixed(3);
+  else s = Number(v.toPrecision(2)).toString(); // keep 2 sig figs for tiny values
+  return `${s} ${unit.label}`;
 }
 
 // Measure avg latency (ns); returns null if the library throws on this input.
@@ -54,9 +70,10 @@ async function buildTable(libNames, runners, scenarios) {
     const vals = libNames.map((l) => raw[l][i]).filter((v) => v != null);
     return vals.length ? Math.min(...vals) : null;
   });
+  const units = scenarios.map((_, i) => pickUnit(libNames.map((l) => raw[l][i])));
   const rows = libNames.map((lib) => ({
     lib,
-    cells: raw[lib].map((ns, i) => ({ text: fmt(ns), best: ns != null && ns === best[i] })),
+    cells: raw[lib].map((ns, i) => ({ text: fmtIn(ns, units[i]), best: ns != null && ns === best[i] })),
   }));
   return { scenarios: scenarios.map((s) => s.short), rows };
 }
