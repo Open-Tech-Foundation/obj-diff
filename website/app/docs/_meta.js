@@ -3,6 +3,7 @@
 export default {
   index: "Getting Started",
   guide: "Guide",
+  serialization: "Serialization",
   "use-cases": "Use Cases",
   comparison: "Comparison",
   benchmarks: "Benchmarks",

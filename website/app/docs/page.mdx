@@ -46,4 +46,5 @@ The library natively handles the following, at any depth:
 | `Set` | Compared positionally, by insertion order. |
 | `TypedArray` | `Uint8Array`, `Float32Array`, etc. — compared element-wise. |
 | `ArrayBuffer` / `DataView` | Compared by their underlying bytes. |
+| `Temporal.*` | All 8 types — compared as immutable values (`Duration` structurally, since it has no `.equals()`). |
 | Class instances | Same prototype → diffed by own enumerable properties; different classes → reported as replaced. |

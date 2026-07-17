@@ -10,6 +10,7 @@ Everything is a named export from the package root:
 ```ts
 import {
   diff, patch, diffWith,           // functions
+  serialize, deserialize,          // wire format
   DELETED, ADDED, CHANGED, INSERTED, REMOVED, // op-type constants
 } from "@opentf/obj-diff";
 ```
@@ -19,6 +20,8 @@ import {
 | [`diff`](#diff) | function | Deep-compare two values into a list of operations. |
 | [`patch`](#patch) | function | Apply a diff to reconstruct the target. |
 | [`diffWith`](#diffwith) | function | `diff` with a custom equality function. |
+| [`serialize`](#serialize) | function | Encode a diff to a self-describing JSON string. |
+| [`deserialize`](#deserialize) | function | Decode a serialized diff back into live typed values. |
 | [`DiffResult`](#diffresult-type) | type | The shape of a single operation. |
 | [Op constants](#op-type-constants) | const | `DELETED`, `ADDED`, `CHANGED`, `INSERTED`, `REMOVED`. |
 
@@ -122,6 +125,52 @@ diffWith(recordA, recordB, (a, b) => {
   }
 });
 ```
+
+---
+
+## `serialize`
+
+```ts
+function serialize(diff: DiffResult[]): string
+```
+
+Encodes a diff into a self-describing JSON string that survives transport. A diff holds live values by reference, so `JSON.stringify` loses their types; `serialize` preserves them. See [Serialization](/docs/serialization) for the format and rationale.
+
+**Parameters**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| `diff` | `DiffResult[]` | A diff produced by `diff` or `diffWith`. |
+
+**Returns** — a JSON `string`. Throws on symbols, functions, class-instance values, and circular references.
+
+```ts
+const wire = serialize(diff(a, b));
+```
+
+---
+
+## `deserialize`
+
+```ts
+function deserialize(wire: string): DiffResult[]
+```
+
+Decodes a string from [`serialize`](#serialize) back into a diff whose values are live, correctly-typed objects — ready for [`patch`](#patch).
+
+**Parameters**
+
+| Name | Type | Description |
+| :--- | :--- | :--- |
+| `wire` | `string` | The output of `serialize`. |
+
+**Returns** — `DiffResult[]` with reconstructed values.
+
+```ts
+patch(a, deserialize(wire)); // Date / Map / Set / … restored exactly
+```
+
+> Deserializing a `Temporal` value requires a `Temporal` implementation on `globalThis` (native or a globally-installed polyfill).
 
 ---
 

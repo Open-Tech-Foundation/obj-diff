@@ -1,0 +1,77 @@
+---
+title: Serialization
+description: Send a diff across a process or network boundary with serialize / deserialize, and patch it back into the exact same types.
+---
+
+# Serialization
+
+`diff()` and `patch()` are **in-process**: a diff holds the **real** values by reference, and `patch()` places them straight back. That is fast and lossless — but it only works when both sides run in the **same** JavaScript runtime.
+
+The moment a diff has to *travel* — to a server, a database, a Web Worker, another tab — you reach for `JSON.stringify`, and it quietly corrupts the special types:
+
+```js
+JSON.stringify(diff({}, { at: new Date(), tags: new Set([1, 2]) }));
+// at   -> "2026-07-15T00:00:00.000Z"   (a string, not a Date)
+// tags -> {}                            (empty — the Set's contents are gone)
+// a BigInt value would throw outright
+```
+
+`serialize` / `deserialize` are the fix: a **self-describing wire format** that survives JSON and rebuilds the exact types on the other side.
+
+## Usage
+
+```js
+import { diff, patch, serialize, deserialize } from "@opentf/obj-diff";
+
+// ── client ──────────────────────────────
+const wire = serialize(diff(a, b)); // a plain JSON string, safe to send
+send(wire);
+
+// ── server ──────────────────────────────
+const patched = patch(a, deserialize(wire)); // Date / Map / Set / … restored exactly
+```
+
+The round-trip holds: `patch(a, deserialize(serialize(diff(a, b))))` reconstructs `b` with the correct types.
+
+## The format
+
+`value` and `path` stay **readable JSON**. Each special value is replaced by a lightweight reference token `"@n"`, and the real types are collected in a per-op `$refs` table:
+
+```json
+{
+  "type": 1,
+  "path": ["user"],
+  "value": {
+    "id": 1,
+    "name": "John Doe",
+    "lastSeen": "@1",
+    "roles": "@2",
+    "preferences": "@3"
+  },
+  "$refs": {
+    "1": { "_t": "Date", "_v": "2026-07-15T00:00:00.000Z" },
+    "2": { "_t": "Set", "_v": ["admin", "editor"] },
+    "3": { "_t": "Map", "_v": [["theme", "dark"], ["notifications", true]] }
+  }
+}
+```
+
+- `@n` — a reference token standing in for a special value.
+- `$refs` — the lookup table, keyed by token number.
+- `_t` — the type; `_v` — its serialized payload.
+
+Because the type info lives in `$refs` (never inline), a user object that happens to have `_t`/`_v` keys is just data and passes through untouched. Real strings shaped like `"@1"` are escaped automatically.
+
+## What's covered
+
+`Date`, `RegExp`, `Map`, `Set`, all `TypedArray`s, `ArrayBuffer`, `DataView`, `Error` (and standard subclasses), boxed primitives, `BigInt`, `NaN` / `±Infinity` / `-0`, `undefined`, and every `Temporal` type — **nested to any depth**, including `Map`/`Set` values and object keys that appear in a `path`.
+
+## Limits (by design)
+
+- **Symbols, functions, and class instances throw.** They can't be reconstructed from JSON. (A plain-object or supported type at that path is fine — only an unsupported *value* throws.)
+- **Circular references throw.** A diff of cyclic data patches fine in-process, but a cycle can't be serialized.
+- **`Temporal` needs a `Temporal` implementation on `globalThis`** at `deserialize` time (native, or a polyfill you install globally). Encoding never needs one.
+
+## When *not* to serialize
+
+If your `diff()` and `patch()` run in the **same** process — dirty-field tracking, undo/redo, "compute then patch" — skip serialization entirely. The live diff is faster (no encoding), preserves object **references** (aliasing/shared structure survive), and can even carry values the wire format can't (class instances, symbols). Reach for `serialize` **only at the boundary** where a diff has to leave the runtime.

@@ -59,7 +59,7 @@ const result = patch(a, changes); // deep-equal to b
 
 ## 4. Work with native collections
 
-Unlike JSON-only differs, `obj-diff` compares `Map`, `Set`, `Date`, `TypedArray`, and more directly — no conversion step.
+Unlike JSON-only differs, `obj-diff` compares `Map`, `Set`, `Date`, `TypedArray`, `Temporal`, and more directly — no conversion step.
 
 ```js
 // Set — compared positionally, by insertion order
@@ -69,7 +69,14 @@ diff(new Set([1, 2]), new Set([2, 3]));
 // TypedArray — compared element-wise, and fast
 diff(new Uint8Array([1, 2, 3]), new Uint8Array([1, 4, 3]));
 //=> [ { type: 2, path: [1], value: 4 } ]
+
+// Temporal — compared as immutable values
+diff({ d: Temporal.PlainDate.from("2020-01-01") },
+     { d: Temporal.PlainDate.from("2021-06-15") });
+//=> [ { type: 2, path: ["d"], value: <Temporal.PlainDate 2021-06-15> } ]
 ```
+
+`Temporal` values are treated as atomic — a change replaces the whole value. `Duration` is compared structurally (by its canonical string), because two equal-length durations expressed differently (`PT2H` vs `PT120M`) are genuinely different values.
 
 ## 5. Compact array diffs
 
@@ -113,8 +120,22 @@ diffWith(recordA, recordB, (x, y) => {
 });
 ```
 
+## 8. Send a diff over the wire
+
+To move a diff between processes — client → server, a Web Worker, storage — `JSON.stringify` isn't enough (it turns `Date`s into strings and `Map`/`Set`s into `{}`). Use `serialize` / `deserialize`, which preserve every type:
+
+```js
+import { serialize, deserialize } from "@opentf/obj-diff";
+
+const wire = serialize(diff(a, b));     // a type-safe JSON string
+patch(a, deserialize(wire));            // Date / Map / Set / … restored exactly
+```
+
+See [Serialization](/docs/serialization) for the format and when to use it.
+
 ## Next steps
 
+- [Serialization](/docs/serialization) — move a diff across a boundary with the correct types.
 - [API Reference](/docs/api) — every function, type, and constant.
 - [Caveats & FAQs](/docs/caveats) — aliasing, symbol keys, move detection, and more.
 - [Use Cases](/docs/use-cases) — where a structural diff pays off.
