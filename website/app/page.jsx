@@ -1,3 +1,4 @@
+import { untracked } from "@opentf/web";
 import { diff, patch } from "@opentf/obj-diff";
 import { strReplace, isTypedArray } from "@opentf/std";
 import { EditorView, basicSetup } from "codemirror";
@@ -278,6 +279,8 @@ export default function Home() {
 
   let editor1 = $ref();
   let editor2 = $ref();
+  let view1 = null;
+  let view2 = null;
 
   let patchVerification = $derived(() => {
     if (!parsedA || !parsedB) return { valid: false, label: "Fix both inputs to run the patch proof" };
@@ -307,28 +310,47 @@ export default function Home() {
     }
   }
 
+  // Create each editor once. The initial doc is read here (untracked) so the
+  // effect does not subscribe to obj1Val/obj2Val — otherwise every keystroke
+  // updates the signal, re-runs the effect, and recreates the whole EditorView,
+  // dropping focus mid-type.
   $effect(() => {
     if (!editor1) return;
-    const view1 = new EditorView({
-      doc: obj1Val,
+    view1 = new EditorView({
+      doc: untracked(() => obj1Val),
       extensions: [basicSetup, javascript(), oneDark, EditorView.updateListener.of((v) => {
         if (v.docChanged) obj1Val = v.state.doc.toString();
       })],
       parent: editor1
     });
-    return () => view1.destroy();
+    return () => { view1.destroy(); view1 = null; };
   });
 
   $effect(() => {
     if (!editor2) return;
-    const view2 = new EditorView({
-      doc: obj2Val,
+    view2 = new EditorView({
+      doc: untracked(() => obj2Val),
       extensions: [basicSetup, javascript(), oneDark, EditorView.updateListener.of((v) => {
         if (v.docChanged) obj2Val = v.state.doc.toString();
       })],
       parent: editor2
     });
-    return () => view2.destroy();
+    return () => { view2.destroy(); view2 = null; };
+  });
+
+  // Push external value changes (e.g. loading a scenario) into the editors
+  // without recreating them. Guarded by a content check so echoing a keystroke
+  // back does not loop or move the cursor.
+  $effect(() => {
+    const val = obj1Val;
+    if (view1 && view1.state.doc.toString() !== val)
+      view1.dispatch({ changes: { from: 0, to: view1.state.doc.length, insert: val } });
+  });
+
+  $effect(() => {
+    const val = obj2Val;
+    if (view2 && view2.state.doc.toString() !== val)
+      view2.dispatch({ changes: { from: 0, to: view2.state.doc.length, insert: val } });
   });
 
   return (
