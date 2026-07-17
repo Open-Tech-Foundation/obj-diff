@@ -4,6 +4,7 @@ description: How @opentf/obj-diff performs on diff size, diff speed, and patch s
 ---
 
 import data from "./results.json";
+import { Callout } from "@opentf/web-docs";
 
 export const PKG = "@opentf/obj-diff";
 export const meta = data.meta;
@@ -112,7 +113,11 @@ Average latency per call across modern diffing libraries; each column uses a sin
 
 On the `TypedArray` column `obj-diff` is roughly **{taFactor}× faster than microdiff**, because it compares typed arrays natively instead of walking them element-by-element.
 
-> **A "diff" the size of the data isn't a diff.** Speed alone can mislead: a library that emits a single "the whole value changed" replacement (rather than an element-level diff) looks instant but produces a useless result. We discard any cell whose diff serializes to roughly the size of the data itself, showing **—** instead — that is why `recursive-diff` has no `TypedArray` time (it dumps the entire array, since it doesn't understand typed arrays). `obj-diff` computes a minimal, element-level edit script, which is why it is not always the lowest number on the plain-array row but stays honest.
+<Callout type="info" title={'A "diff" the size of the data isn\'t a diff'}>
+
+Speed alone can mislead: a library that emits a single "the whole value changed" replacement (rather than an element-level diff) looks instant but produces a useless result. We discard any cell whose diff serializes to roughly the size of the data itself, showing **—** instead — that is why `recursive-diff` has no `TypedArray` time (it dumps the entire array, since it doesn't understand typed arrays). `obj-diff` computes a minimal, element-level edit script, which is why it is not always the lowest number on the plain-array row but stays honest.
+
+</Callout>
 
 ## Patch speed
 

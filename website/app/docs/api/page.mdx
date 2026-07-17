@@ -94,7 +94,11 @@ const b = { a: 2 };
 patch(a, diff(a, b)); //=> { a: 2 }
 ```
 
-> Added and changed values are placed into the result **by reference**, not cloned. See [Caveats](/docs/caveats) for aliasing details.
+<Callout type="note">
+
+Added and changed values are placed into the result **by reference**, not cloned. See [Caveats](/docs/caveats) for aliasing details.
+
+</Callout>
 
 ---
 

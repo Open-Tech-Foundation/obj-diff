@@ -3,6 +3,8 @@ title: Caveats & FAQs
 description: Things to know when working with @opentf/obj-diff.
 ---
 
+import { Callout } from "@opentf/web-docs";
+
 # Caveats & FAQs
 
 ## Caveats
@@ -25,7 +27,11 @@ const res = patch(a, d);
 console.log(res.first.x); // 2
 ```
 
-> **Tip:** If you require independent branches after patching, ensure your input objects do not share internal references that are expected to diverge.
+<Callout type="tip">
+
+If you require independent branches after patching, ensure your input objects do not share internal references that are expected to diverge.
+
+</Callout>
 
 ### Patched Output Shares Values With the Target
 
@@ -39,7 +45,11 @@ const res = patch(a, diff(a, b));
 console.log(res.user === b.user); // true
 ```
 
-> **Tip:** If you need the result to be fully independent from `b`, deep-clone it after patching.
+<Callout type="tip">
+
+If you need the result to be fully independent from `b`, deep-clone it after patching.
+
+</Callout>
 
 ### Symbol Keys Are Ignored
 
