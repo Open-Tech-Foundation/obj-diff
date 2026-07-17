@@ -6,7 +6,7 @@ export default defineDocsConfig({
 
   docs: {
     title: "obj-diff",
-    version: "v0.16.0",
+    version: "v0.17.0",
     homeUrl: "/",
     dir: "docs",
     nav: [
