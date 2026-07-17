@@ -1,0 +1,187 @@
+{
+  "meta": {
+    "generatedAt": "2026-07-17",
+    "superjson": "2.2.6",
+    "package": "@opentf/obj-diff",
+    "regenerate": "bun benchmarks/serialization.mjs"
+  },
+  "accuracy": {
+    "types": [
+      "Plain nested object",
+      "Date",
+      "Invalid Date",
+      "RegExp",
+      "Map",
+      "Set",
+      "BigInt",
+      "Int8Array",
+      "Float64Array [NaN,-0,∞]",
+      "BigInt64Array",
+      "ArrayBuffer",
+      "DataView",
+      "Error + custom prop",
+      "Boxed Number",
+      "Boxed String",
+      "undefined",
+      "NaN",
+      "-0",
+      "Infinity",
+      "URL",
+      "Circular reference",
+      "Circular array"
+    ],
+    "libraries": [
+      {
+        "name": "@opentf/obj-diff",
+        "cells": [
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass"
+        ],
+        "score": "22/22"
+      },
+      {
+        "name": "superjson",
+        "cells": [
+          "pass",
+          "pass",
+          "fail",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "fail",
+          "crash",
+          "fail",
+          "fail",
+          "fail",
+          "fail",
+          "fail",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass",
+          "pass"
+        ],
+        "score": "14/22"
+      }
+    ]
+  },
+  "size": {
+    "scenarios": [
+      "Flat object",
+      "Mixed native types",
+      "Typed array (8)",
+      "Nested record",
+      "Tricky numbers",
+      "Circular graph"
+    ],
+    "rows": [
+      {
+        "lib": "@opentf/obj-diff",
+        "cells": [
+          41,
+          171,
+          71,
+          192,
+          132,
+          67
+        ]
+      },
+      {
+        "lib": "superjson",
+        "cells": [
+          44,
+          153,
+          96,
+          192,
+          115,
+          83
+        ]
+      }
+    ],
+    "best": [
+      41,
+      153,
+      71,
+      192,
+      115,
+      67
+    ]
+  },
+  "speed": {
+    "ops": [
+      "stringify",
+      "parse",
+      "round trip"
+    ],
+    "rows": [
+      {
+        "lib": "@opentf/obj-diff",
+        "cells": [
+          {
+            "text": "8.17 µs",
+            "best": true
+          },
+          {
+            "text": "4.08 µs",
+            "best": true
+          },
+          {
+            "text": "13.3 µs",
+            "best": true
+          }
+        ]
+      },
+      {
+        "lib": "superjson",
+        "cells": [
+          {
+            "text": "24.9 µs",
+            "best": false
+          },
+          {
+            "text": "5.75 µs",
+            "best": false
+          },
+          {
+            "text": "27.7 µs",
+            "best": false
+          }
+        ]
+      }
+    ],
+    "payloadBytes": [
+      {
+        "lib": "@opentf/obj-diff",
+        "bytes": 374
+      },
+      {
+        "lib": "superjson",
+        "bytes": 358
+      }
+    ]
+  }
+}
