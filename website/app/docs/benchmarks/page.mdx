@@ -116,7 +116,7 @@ On the `TypedArray` column `obj-diff` is roughly **{taFactor}× faster than micr
 
 ## Patch speed
 
-End-to-end **diff + apply** round-trip, for libraries that can reconstruct the target from their own diff.
+End-to-end **diff + apply** round-trip, for libraries that can reconstruct the target from their diff. Some need a separate apply package — `just-diff` pairs with `just-diff-apply`, `fast-json-patch` applies its own RFC 6902 ops — whereas `@opentf/obj-diff` ships `diff` and `patch` together.
 
 <PatchTable />
 

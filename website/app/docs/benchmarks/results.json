@@ -305,7 +305,7 @@
         ]
       },
       {
-        "lib": "just-diff",
+        "lib": "just-diff + just-diff-apply",
         "cells": [
           {
             "text": "4.70 µs",

@@ -132,7 +132,8 @@ const diffTable = await buildTable(diffLibs, diffRunners, diffScenarios, isRealD
 const patchRunners = {
   '@opentf/obj-diff': (a, b) => objPatch(a, objDiff(a, b)),
   jsondiffpatch: (a, b) => jsondiffpatch.patch(clone(a), jsondiffpatch.diff(a, b)),
-  'just-diff': (a, b) => justApply(clone(a), justDiff(a, b)),
+  // just-diff is diff-only; patching needs its companion package just-diff-apply.
+  'just-diff + just-diff-apply': (a, b) => justApply(clone(a), justDiff(a, b)),
   'deep-diff-ts': (a, b) => deepDiffTsApply(clone(a), deepDiffTs(a, b)),
   'fast-json-patch': (a, b) => fastJsonPatch.applyPatch(clone(a), fastJsonPatch.compare(a, b)).newDocument,
 };
