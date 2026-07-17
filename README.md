@@ -88,6 +88,22 @@ import { patch } from "@opentf/obj-diff";
 const updatedObj = patch(originalObj, diffResults);
 ```
 
+### `serialize(diff)` / `deserialize(wire)`
+
+A diff holds **live** values by reference, so `JSON.stringify` loses their types (`Date`→string, `Map`/`Set`→`{}`, `BigInt`→throws). Use `serialize`/`deserialize` to send a diff across a process or network boundary and patch it back into the **correct types** on the other side:
+
+```ts
+import { diff, patch, serialize, deserialize } from "@opentf/obj-diff";
+
+// client
+const wire = serialize(diff(a, b)); // a JSON string, type-safe
+
+// server
+const patched = patch(a, deserialize(wire)); // Date/Map/Set/… restored exactly
+```
+
+Every supported type is preserved (`Date`, `RegExp`, `Map`, `Set`, `TypedArray`, `ArrayBuffer`, `DataView`, `Error`, `BigInt`, `Temporal`, …). Symbols, functions, class instances, and circular references throw. Deserializing a `Temporal` value requires a `Temporal` implementation on `globalThis`.
+
 ---
 
 ## 💡 Examples
