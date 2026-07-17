@@ -209,7 +209,7 @@ function buildDiffRows(a, b) {
 
 function diffKey(k) { return (k === undefined || k === null) ? "" : `${k}: `; }
 
-function diffMark(status) { return status === "added" ? "+" : status === "deleted" ? "−" : status === "changed" ? "~" : ""; }
+function diffMark(status) { return status === "added" ? "+" : status === "deleted" ? "−" : status === "changed" ? "*" : ""; }
 
 function safeEval(code) {
   try {

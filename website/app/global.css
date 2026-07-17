@@ -126,10 +126,10 @@ body {
 .dt-deleted { background: color-mix(in srgb, var(--lab-red) 13%, transparent); }
 .dt-added .dt-mark { color: var(--lab-green); }
 .dt-deleted .dt-mark { color: var(--lab-red); }
-.dt-changed .dt-mark { color: var(--lab-blue); }
+.dt-changed .dt-mark { color: var(--lab-amber); }
 .dt-added .dt-pre, .dt-added .dt-rest { color: var(--lab-green); }
 .dt-deleted .dt-pre, .dt-deleted .dt-rest { color: var(--lab-red); text-decoration: line-through; }
-.dt-changed .dt-rest { color: var(--lab-green); }
+.dt-changed .dt-rest { color: var(--lab-amber); }
 .dt-same { color: var(--lab-muted); }
 .dt-old { color: var(--lab-amber); text-decoration: line-through; }
 .dt-arrow { color: var(--lab-muted); }
@@ -138,11 +138,12 @@ body {
 .op-legend span { display: inline-flex; align-items: center; gap: .4rem; }
 .op-swatch { display: inline-block; width: .8rem; height: .8rem; border-radius: .2rem; }
 .op-swatch.kind-added { background: var(--lab-green); }
-.op-swatch.kind-changed { background: var(--lab-blue); }
+.op-swatch.kind-changed { background: var(--lab-amber); }
 .op-swatch.kind-removed { background: var(--lab-red); }
 .plot-caption { margin: 0; color: var(--lab-muted); font-size: .8rem; }
 .change-list { display: grid; gap: .55rem; }
 .change-card { display: grid; grid-template-columns: 5.2rem minmax(0, 1fr) minmax(10rem, 1.4fr); align-items: center; gap: 1rem; width: 100%; border: 1px solid var(--lab-line); border-left: 3px solid var(--lab-blue); border-radius: .55rem; background: #fff; color: var(--lab-ink); padding: .8rem; text-align: left; }
+.change-card.kind-changed { border-left-color: var(--lab-amber); }
 .change-card.kind-removed { border-left-color: var(--lab-red); }
 .change-card.kind-added { border-left-color: var(--lab-green); }
 .change-card.selected { box-shadow: 0 0 0 2px rgba(37, 99, 235, .2); }
