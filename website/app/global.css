@@ -11,6 +11,7 @@
   --lab-violet: #7c3aed;
   --lab-green: #047857;
   --lab-red: #be123c;
+  --lab-amber: #b45309;
 }
 
 [data-theme="dark"] {
@@ -23,6 +24,7 @@
   --lab-violet: #b69cff;
   --lab-green: #5ee3aa;
   --lab-red: #fb7185;
+  --lab-amber: #fbbf24;
 }
 
 body {
@@ -129,7 +131,7 @@ body {
 .dt-deleted .dt-pre, .dt-deleted .dt-rest { color: var(--lab-red); text-decoration: line-through; }
 .dt-changed .dt-rest { color: var(--lab-green); }
 .dt-same { color: var(--lab-muted); }
-.dt-old { color: var(--lab-red); text-decoration: line-through; }
+.dt-old { color: var(--lab-amber); text-decoration: line-through; }
 .dt-arrow { color: var(--lab-muted); }
 
 .op-legend { display: flex; flex-wrap: wrap; gap: 1rem; color: var(--lab-muted); font-size: .78rem; }
