@@ -5,6 +5,7 @@ description: How @opentf/obj-diff compares to microdiff, deep-diff, deep-object-
 
 import acc from "./accuracy.json";
 import serde from "./serialization.json";
+import { Callout } from "@opentf/web-docs";
 
 export const PKG = "@opentf/obj-diff";
 export const ICON = { pass: "✅", fail: "❌", crash: "💥" };
@@ -163,7 +164,11 @@ Round-trip a value, then check it comes back as the **same type with the same da
 
 <SerdeAccuracyTable />
 
-obj-diff restores every native type. superjson silently degrades `Float64Array` specials (`NaN`/`-0`/`∞` → `0`), turns `ArrayBuffer`/`DataView` into plain objects, unwraps boxed primitives, drops an `Error`'s own props, and throws on `BigInt64Array` — all the types a JS-native codec exists to protect.
+<Callout type="warning" title="These failures are silent">
+
+obj-diff restores every native type. superjson degrades `Float64Array` specials (`NaN`/`-0`/`∞` → `0`), turns `ArrayBuffer`/`DataView` into plain objects, unwraps boxed primitives, and drops an `Error`'s own props — **without throwing**. Only `BigInt64Array` errors outright; the rest return a wrong value that flows straight into your app.
+
+</Callout>
 
 ### Wire size
 

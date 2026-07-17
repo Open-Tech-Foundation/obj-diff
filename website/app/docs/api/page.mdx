@@ -3,6 +3,8 @@ title: API Reference
 description: Complete reference for diff, patch, diffWith, the DiffResult type, and the op-type constants.
 ---
 
+import { Callout } from "@opentf/web-docs";
+
 # API Reference
 
 Everything is a named export from the package root:
@@ -10,7 +12,8 @@ Everything is a named export from the package root:
 ```ts
 import {
   diff, patch, diffWith,           // functions
-  serialize, deserialize,          // wire format
+  serialize, deserialize,          // diff wire format
+  stringify, parse,                // general-purpose value codec
   DELETED, ADDED, CHANGED, INSERTED, REMOVED, // op-type constants
 } from "@opentf/obj-diff";
 ```
@@ -22,6 +25,8 @@ import {
 | [`diffWith`](#diffwith) | function | `diff` with a custom equality function. |
 | [`serialize`](#serialize) | function | Encode a diff to a self-describing JSON string. |
 | [`deserialize`](#deserialize) | function | Decode a serialized diff back into live typed values. |
+| [`stringify`](#stringify) | function | Encode **any** value to a type-safe JSON string. |
+| [`parse`](#parse) | function | Decode a `stringify` string back into live typed values. |
 | [`DiffResult`](#diffresult-type) | type | The shape of a single operation. |
 | [Op constants](#op-type-constants) | const | `DELETED`, `ADDED`, `CHANGED`, `INSERTED`, `REMOVED`. |
 
@@ -170,7 +175,11 @@ Decodes a string from [`serialize`](#serialize) back into a diff whose values ar
 patch(a, deserialize(wire)); // Date / Map / Set / … restored exactly
 ```
 
-> Deserializing a `Temporal` value requires a `Temporal` implementation on `globalThis` (native or a globally-installed polyfill).
+<Callout type="note" title="Temporal at decode time">
+
+Deserializing a `Temporal` value requires a `Temporal` implementation on `globalThis` (native or a globally-installed polyfill). This applies to `parse` too. Encoding never needs one.
+
+</Callout>
 
 ---
 

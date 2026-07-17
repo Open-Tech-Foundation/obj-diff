@@ -3,6 +3,8 @@ title: Serialization
 description: Send a diff across a process or network boundary with serialize / deserialize, and patch it back into the exact same types.
 ---
 
+import { Callout } from "@opentf/web-docs";
+
 # Serialization
 
 `diff()` and `patch()` are **in-process**: a diff holds the **real** values by reference, and `patch()` places them straight back. That is fast and lossless — but it only works when both sides run in the **same** JavaScript runtime.
@@ -93,6 +95,12 @@ const value = parse(wire); // Date / Set / Map / BigInt all restored
 ```
 
 It shares the exact codec above, so the coverage is identical — every native type, plus circular references and shared identity. Symbols, functions, and class instances throw. This is the same job as [superjson](https://github.com/blitz-js/superjson); see the [comparison](/docs/comparison#type-safe-serialization-vs-superjson) for a fidelity, size, and speed breakdown.
+
+<Callout type="tip" title="Which one do I use?">
+
+`serialize` / `deserialize` for a **diff** (`DiffResult[]`); `stringify` / `parse` for **any other value**. Same codec and the same guarantees — they differ only in the shape they expect.
+
+</Callout>
 
 ## When *not* to serialize
 
