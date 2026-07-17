@@ -126,37 +126,59 @@ function eqNodes(a, b) {
 
 function leafText(v) { return formatValue(v); }
 
-// Align two arrays by LCS (matching by deep equality), then merge an adjacent
-// delete+add into a single "change" so replacements recurse and inserts show
-// cleanly — the way jsondiffpatch renders arrays. Falls back to positional
-// pairing for very large arrays to bound cost.
+// Align two arrays the way obj-diff itself does, so the tree never contradicts
+// the ops shown in the other tabs: trim the common prefix/suffix, then pair the
+// middle positionally when both sides are the same length (element-wise changes)
+// and only fall back to LCS for genuine inserts/removes. A pure independent LCS
+// disagrees with obj-diff on arrays with duplicate/similar elements — it would
+// split a nested change into a stray delete + add (a change shown as a deletion).
 function arrayPairs(a, b) {
   const n = a.length, m = b.length;
-  if (n * m > 4000) {
-    const out = [], k = Math.max(n, m);
-    for (let i = 0; i < k; i++) out.push([i < n ? a[i] : MISSING, i < m ? b[i] : MISSING]);
-    return out;
+  let lo = 0;
+  while (lo < n && lo < m && eqNodes(a[lo], b[lo])) lo++;
+  let hiA = n, hiB = m;
+  while (hiA > lo && hiB > lo && eqNodes(a[hiA - 1], b[hiB - 1])) { hiA--; hiB--; }
+
+  const pairs = [];
+  for (let i = 0; i < lo; i++) pairs.push([a[i], b[i]]); // common prefix (same)
+
+  const midA = a.slice(lo, hiA), midB = b.slice(lo, hiB);
+  const p = midA.length, q = midB.length;
+  if (p === q) {
+    for (let i = 0; i < p; i++) pairs.push([midA[i], midB[i]]); // positional: same/changed
+  } else if (p === 0) {
+    for (let i = 0; i < q; i++) pairs.push([MISSING, midB[i]]); // pure insert
+  } else if (q === 0) {
+    for (let i = 0; i < p; i++) pairs.push([midA[i], MISSING]); // pure remove
+  } else if (p * q > 4000) {
+    const k = Math.max(p, q); // bound cost on huge divergent middles
+    for (let i = 0; i < k; i++) pairs.push([i < p ? midA[i] : MISSING, i < q ? midB[i] : MISSING]);
+  } else {
+    const dp = Array.from({ length: p + 1 }, () => new Array(q + 1).fill(0));
+    for (let i = p - 1; i >= 0; i--)
+      for (let j = q - 1; j >= 0; j--)
+        dp[i][j] = eqNodes(midA[i], midB[j]) ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+    const raw = [];
+    let i = 0, j = 0;
+    while (i < p && j < q) {
+      if (eqNodes(midA[i], midB[j])) { raw.push([midA[i], midB[j]]); i++; j++; }
+      else if (dp[i + 1][j] >= dp[i][j + 1]) { raw.push([midA[i], MISSING]); i++; }
+      else { raw.push([MISSING, midB[j]]); j++; }
+    }
+    while (i < p) { raw.push([midA[i], MISSING]); i++; }
+    while (j < q) { raw.push([MISSING, midB[j]]); j++; }
+    // Merge an adjacent delete+add (in either order) into one change.
+    for (let k = 0; k < raw.length; k++) {
+      const cur = raw[k], nxt = raw[k + 1];
+      if (nxt && cur[1] === MISSING && nxt[0] === MISSING) { pairs.push([cur[0], nxt[1]]); k++; }
+      else if (nxt && cur[0] === MISSING && nxt[1] === MISSING) { pairs.push([nxt[0], cur[1]]); k++; }
+      else pairs.push(cur);
+    }
   }
-  const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
-  for (let i = n - 1; i >= 0; i--)
-    for (let j = m - 1; j >= 0; j--)
-      dp[i][j] = eqNodes(a[i], b[j]) ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
-  const raw = [];
-  let i = 0, j = 0;
-  while (i < n && j < m) {
-    if (eqNodes(a[i], b[j])) { raw.push([a[i], b[j]]); i++; j++; }
-    else if (dp[i + 1][j] >= dp[i][j + 1]) { raw.push([a[i], MISSING]); i++; }
-    else { raw.push([MISSING, b[j]]); j++; }
-  }
-  while (i < n) { raw.push([a[i], MISSING]); i++; }
-  while (j < m) { raw.push([MISSING, b[j]]); j++; }
-  const merged = [];
-  for (let k = 0; k < raw.length; k++) {
-    const cur = raw[k], nxt = raw[k + 1];
-    if (cur[1] === MISSING && nxt && nxt[0] === MISSING) { merged.push([cur[0], nxt[1]]); k++; }
-    else merged.push(cur);
-  }
-  return merged;
+
+  const s = n - hiA; // common suffix (same); n - hiA === m - hiB
+  for (let k = 0; k < s; k++) pairs.push([a[hiA + k], b[hiB + k]]);
+  return pairs;
 }
 
 function walkDiff(a, b, key, depth, out, seen) {
