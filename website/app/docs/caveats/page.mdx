@@ -58,6 +58,19 @@ Arrays are diffed with prefix/suffix trimming plus a bounded shortest-edit-scrip
 
 Sparse arrays and arrays with own non-index properties always use the index-by-index comparison.
 
+### Strings Are Replaced Whole — No Text Diffing
+
+Strings (and all primitives) are treated as **atomic leaf values**, compared with `Object.is`. When a string changes, the `CHANGED` op carries the **entire new string** as its `value` — there is no character-, word-, or line-level text diff.
+
+```js
+diff({ bio: "The quick brown fox jumps over the lazy dog." },
+     { bio: "The quick brown fox leaps over the lazy dog." });
+//=> [{ type: 2, path: ["bio"], value: "The quick brown fox leaps over the lazy dog." }]
+//   one word changed, but the whole string is sent
+```
+
+This is by design: it keeps the engine small and fast, and the patch is a single assignment. If you edit long strings (documents, source code, logs) and need sub-string patches, run a dedicated text-diff at that leaf yourself — e.g. [`diff`](https://github.com/kpdecker/jsdiff) / [diff-match-patch](https://github.com/google/diff-match-patch) — and store its output under that path. obj-diff intentionally does not bundle one, since it would add a large dependency and a second patch format that most object diffs never need.
+
 ### `diffWith()` Comparators Only See Objects
 
 The custom comparator passed to `diffWith()` is invoked only when **both values are objects**. Primitive leaves (numbers, strings, etc.) are always compared with built-in `Object.is` semantics — so, for example, float-tolerance comparison of bare numbers cannot be intercepted.
@@ -75,3 +88,18 @@ The JSON Patch protocol is quite heavy and complex. We've optimized `@opentf/obj
 
 ### 2. What does an empty path `path: []` mean?
 An empty path denotes the **Root** of the object. It typically means the entire source was replaced by the target value (e.g., comparing an object to `null`).
+
+### 3. Can I reverse (invert) a diff? Is there an `unpatch()`?
+There is no `unpatch()`, and a diff is **not invertible on its own**. To keep diffs compact, an op stores only what's needed to apply it forward — `DELETED` and `REMOVED` carry no old value, and `CHANGED` carries only the *new* value. That's exactly the information an inverse would need, so it cannot be reconstructed from the diff alone.
+
+To go from `b` back to `a`, compute the diff in the other direction:
+
+```js
+const forward = diff(a, b);
+const backward = diff(b, a); // the reverse patch
+
+patch(a, forward);  // => b
+patch(b, backward); // => a
+```
+
+For undo/redo, store `diff(b, a)` alongside the forward diff when you record the change — you then have both directions without keeping full snapshots of `a` and `b`.
