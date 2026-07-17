@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-07-17
+
 ### Fixed
 - Fixed `patch()` losing `null` prototypes of nested objects; previously only the root object's `null` prototype was preserved.
 - Fixed two invalid `Date`s (`NaN` timestamps) being reported as changed; they now compare as equal, consistent with `NaN === NaN` handling for primitives.
