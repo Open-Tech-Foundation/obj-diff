@@ -1,0 +1,10 @@
+{
+  // Cloudflare Workers static-assets deploy for the obj-diff docs site.
+  // Only the built site (./dist) is uploaded — NOT the whole folder, so
+  // node_modules (workerd's 122 MiB binary) is never sent to the 25 MiB cap.
+  "name": "obj-diff",
+  "compatibility_date": "2024-11-01",
+  "assets": {
+    "directory": "./dist"
+  }
+}
