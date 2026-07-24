@@ -67,6 +67,6 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@opentf/std": "^1.0.0-beta.3"
+    "@opentf/std": "^0.14.1"
   }
 }

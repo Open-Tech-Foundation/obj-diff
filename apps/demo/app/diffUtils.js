@@ -94,11 +94,23 @@ export function formatValue(value) {
   if (value === undefined) return "undefined";
   if (typeof value === "bigint") return `${value}n`;
   if (value instanceof Date) return `Date(${value.toISOString()})`;
-  if (value instanceof Map) return `Map(${value.size})`;
-  if (value instanceof Set) return `Set(${value.size})`;
-  if (isTypedArray(value)) return `${value.constructor.name}(${value.length})`;
+  if (value && typeof value === "object") {
+    const tag = Object.prototype.toString.call(value);
+    if (tag === "[object Map]" || value instanceof Map) return `Map(${value.size})`;
+    if (tag === "[object Set]" || value instanceof Set) return `Set(${value.size})`;
+    if (tag.startsWith("[object Temporal.")) {
+      return `${tag.slice(8, -1)}(${value.toString()})`;
+    }
+    if (isTypedArray(value)) return `${value.constructor.name}(${value.length})`;
+    if (Array.isArray(value)) return `Array(${value.length})`;
+
+    const proto = Object.getPrototypeOf(value);
+    if (proto && proto.constructor && proto.constructor.name !== "Object") {
+      return `${proto.constructor.name}`;
+    }
+    return "Object";
+  }
   if (typeof value === "string") return `“${value}”`;
-  if (value && typeof value === "object") return Array.isArray(value) ? `Array(${value.length})` : "Object";
   return String(value);
 }
 
@@ -112,6 +124,8 @@ export const MISSING = Symbol("missing");
 export function isContainer(v) {
   if (v === null || typeof v !== "object") return false;
   if (Array.isArray(v)) return true;
+  const tag = Object.prototype.toString.call(v);
+  if (tag === "[object Map]" || tag === "[object Set]" || v instanceof Map || v instanceof Set) return true;
   const p = Object.getPrototypeOf(v);
   return p === Object.prototype || p === null;
 }
@@ -174,7 +188,9 @@ export function walkDiff(a, b, key, depth, out, seen) {
   const aMiss = a === MISSING, bMiss = b === MISSING;
   const status = aMiss ? "added" : bMiss ? "deleted" : (eqNodes(a, b) ? "same" : "changed");
   const present = bMiss ? a : b;
-  const bothSameKind = !aMiss && !bMiss && isContainer(a) && isContainer(b) && Array.isArray(a) === Array.isArray(b);
+  const aKind = Array.isArray(a) ? "array" : ((a instanceof Map || Object.prototype.toString.call(a) === "[object Map]") ? "map" : ((a instanceof Set || Object.prototype.toString.call(a) === "[object Set]") ? "set" : "object"));
+  const bKind = Array.isArray(b) ? "array" : ((b instanceof Map || Object.prototype.toString.call(b) === "[object Map]") ? "map" : ((b instanceof Set || Object.prototype.toString.call(b) === "[object Set]") ? "set" : "object"));
+  const bothSameKind = !aMiss && !bMiss && isContainer(a) && isContainer(b) && aKind === bKind;
   const container = ((status === "added" || status === "deleted") && isContainer(present)) || ((status === "same" || status === "changed") && bothSameKind);
 
   if (container) {
@@ -184,12 +200,71 @@ export function walkDiff(a, b, key, depth, out, seen) {
     }
     if (!aMiss) seen.add(a);
     if (!bMiss) seen.add(b);
-    const arr = Array.isArray(present);
+
+    const kind = aMiss ? bKind : aKind;
     const braceStatus = status === "changed" ? "same" : status;
-    out.push({ depth, key, status: braceStatus, kind: "open", text: arr ? "[" : "{" });
-    if (arr) {
-      const pairs = arrayPairs(aMiss ? [] : a, bMiss ? [] : b);
+
+    let openText = "{";
+    if (kind === "array") openText = "[";
+    else if (kind === "map") openText = "Map {";
+    else if (kind === "set") openText = "Set {";
+
+    let closeText = "}";
+    if (kind === "array") closeText = "]";
+
+    out.push({ depth, key, status: braceStatus, kind: "open", text: openText });
+
+    if (kind === "array" || kind === "set") {
+      const arrA = kind === "array" ? (aMiss ? [] : a) : (aMiss ? [] : Array.from(a));
+      const arrB = kind === "array" ? (bMiss ? [] : b) : (bMiss ? [] : Array.from(b));
+      const pairs = arrayPairs(arrA, arrB);
       for (const [av, bv] of pairs) walkDiff(av, bv, null, depth + 1, out, seen);
+    } else if (kind === "map") {
+      const keys = [], seenK = new Set();
+      if (!bMiss) {
+        for (const k of b.keys()) {
+          keys.push(k);
+          seenK.add(k);
+        }
+      }
+      if (!aMiss) {
+        for (const k of a.keys()) {
+          let hasKey = false;
+          for (const sk of seenK) {
+            if (eqNodes(sk, k)) {
+              hasKey = true;
+              break;
+            }
+          }
+          if (!hasKey) {
+            keys.push(k);
+            seenK.add(k);
+          }
+        }
+      }
+      for (const k of keys) {
+        let keyInA = k;
+        let keyInB = k;
+        if (!aMiss) {
+          for (const ak of a.keys()) {
+            if (eqNodes(ak, k)) {
+              keyInA = ak;
+              break;
+            }
+          }
+        }
+        if (!bMiss) {
+          for (const bk of b.keys()) {
+            if (eqNodes(bk, k)) {
+              keyInB = bk;
+              break;
+            }
+          }
+        }
+        const av = (aMiss || !a.has(keyInA)) ? MISSING : a.get(keyInA);
+        const bv = (bMiss || !b.has(keyInB)) ? MISSING : b.get(keyInB);
+        walkDiff(av, bv, { mapKey: k }, depth + 1, out, seen);
+      }
     } else {
       const keys = [], seenK = new Set();
       if (!bMiss) for (const k of Object.keys(b)) { keys.push(k); seenK.add(k); }
@@ -200,7 +275,8 @@ export function walkDiff(a, b, key, depth, out, seen) {
         walkDiff(av, bv, k, depth + 1, out, seen);
       }
     }
-    out.push({ depth, status: braceStatus, kind: "close", text: arr ? "]" : "}" });
+
+    out.push({ depth, status: braceStatus, kind: "close", text: closeText });
     if (!aMiss) seen.delete(a);
     if (!bMiss) seen.delete(b);
     return;
@@ -225,7 +301,13 @@ export function buildDiffRows(a, b) {
   return rows;
 }
 
-export function diffKey(k) { return (k === undefined || k === null) ? "" : `${k}: `; }
+export function diffKey(k) {
+  if (k === undefined || k === null) return "";
+  if (typeof k === "object" && k !== null && "mapKey" in k) {
+    return `[${formatValue(k.mapKey)}] => `;
+  }
+  return `${k}: `;
+}
 
 export function diffMark(status) { return status === "added" ? "+" : status === "deleted" ? "−" : status === "changed" ? "*" : ""; }
 

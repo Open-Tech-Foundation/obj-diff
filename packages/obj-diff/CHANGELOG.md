@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+- Updated `@opentf/std` dependency to `0.14.1`.
+
+
 ## [0.17.0] - 2026-07-17
 
 ### Added
