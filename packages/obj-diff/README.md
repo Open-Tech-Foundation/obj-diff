@@ -2,6 +2,8 @@
 
 # @opentf/obj-diff
 
+An [Open Tech Foundation](https://opentechf.org/) project.
+
 > ## The Fast, Accurate, and Modern JavaScript Objects Diffing & Patching Library.
 
 ### [Documentation & Playground](https://obj-diff.opentechf.org/)
@@ -334,5 +336,3 @@ An empty path denotes the **Root** of the object. It typically means the entire 
 This project is licensed under the [MIT License](./LICENSE).
 
 ---
-
-<p align="center">⚡ Powered by <a href="https://opentechf.org">Open Tech Foundation</a></p>
