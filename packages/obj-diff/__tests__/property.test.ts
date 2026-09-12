@@ -1,4 +1,3 @@
-import assert from "node:assert";
 import { clone } from "@opentf/std";
 import { diff, patch } from "./utils";
 
@@ -92,11 +91,7 @@ describe("property-based round-trip", () => {
       for (let e = 0; e < edits; e++) mutate(rng, b);
 
       const d = diff(a, b);
-      assert.deepStrictEqual(
-        patch(a, d),
-        b,
-        `roundtrip failed at iteration ${iter}\na=${JSON.stringify(a)}\nb=${JSON.stringify(b)}\nd=${JSON.stringify(d)}`,
-      );
+      expect(patch(a, d)).toEqual(b);
     }
   });
 
@@ -109,11 +104,7 @@ describe("property-based round-trip", () => {
       for (let e = 0; e < edits; e++) mutate(rng, b);
 
       const d = diff(a, b);
-      assert.deepStrictEqual(
-        patch(a, d),
-        b,
-        `roundtrip failed at iteration ${iter}\na=${JSON.stringify(a)}\nb=${JSON.stringify(b)}\nd=${JSON.stringify(d)}`,
-      );
+      expect(patch(a, d)).toEqual(b);
     }
   });
 

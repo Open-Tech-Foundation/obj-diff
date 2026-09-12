@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "library": {
+      "entry": "src",
+      "lib": true,
+      "outdir": "dist",
+      "format": ["esm", "cjs"],
+      "assets": ["README.md"]
+    }
+  }
+}

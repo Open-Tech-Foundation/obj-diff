@@ -1,0 +1,52 @@
+# Repository-wide task entry point.
+
+[workspace]
+members = ["apps/*", "packages/*", "website"]
+
+[tasks."website:dev"]
+run = "otfw dev"
+dir = "website"
+
+[tasks.test]
+# Run the existing library suite with the project's ES development runtime.
+run = "esdev test packages/obj-diff --setup=./setup.ts"
+
+[tasks."library:build"]
+run = "esdev build --target=library"
+dir = "packages/obj-diff"
+
+[tasks."library:type-check"]
+run = "tsc --noEmit"
+dir = "packages/obj-diff"
+
+[tasks.lint]
+run = "biome lint src/"
+dir = "packages/obj-diff"
+
+[tasks.fmt]
+run = "biome format --write src/"
+dir = "packages/obj-diff"
+
+[tasks."fmt:check"]
+run = "biome check src/"
+dir = "packages/obj-diff"
+
+[tasks."library:test:dist"]
+run = "esdev test packages/obj-diff --setup=./setup.ts"
+env = { TEST_DIST = "true" }
+deps = ["library:build"]
+
+[tasks."demo:dev"]
+run = "otfw dev"
+dir = "apps/demo"
+
+[tasks."demo:build"]
+run = "otfw build"
+dir = "apps/demo"
+
+[tasks."website:build"]
+run = "otfw build --ssg"
+dir = "website"
+
+[tasks.ci]
+deps = ["library:build", "test", "library:type-check", "lint", "fmt:check", "website:build"]

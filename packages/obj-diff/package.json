@@ -43,15 +43,6 @@
   "engines": {
     "node": ">=16.20.2"
   },
-  "scripts": {
-    "build": "tsup && cp ../../README.md ./README.md",
-    "test": "bun test",
-    "test:dist": "TEST_DIST=true bun test",
-    "test:cjs": "TEST_CJS=true bun test",
-    "lint": "biome check src/",
-    "type-check": "tsc --noEmit",
-    "ci": "bun run build && bun run test && bun run type-check && bun run lint"
-  },
   "files": [
     "dist"
   ],
@@ -62,8 +53,6 @@
   "devDependencies": {
     "@biomejs/biome": "^2.4.13",
     "@js-temporal/polyfill": "^0.5.1",
-    "bson": "^6.6.0",
-    "tsup": "^8.5.1",
     "typescript": "^5.4.5"
   },
   "dependencies": {

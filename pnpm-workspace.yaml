@@ -1,0 +1,8 @@
+packages:
+  - apps/*
+  - packages/*
+  - website
+
+allowBuilds:
+  '@opentf/web-compiler': true
+  esbuild: set this to true or false

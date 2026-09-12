@@ -2,10 +2,6 @@
   "name": "demo",
   "private": true,
   "type": "module",
-  "scripts": {
-    "dev": "otfw dev",
-    "build": "otfw build"
-  },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.5",
     "@codemirror/theme-one-dark": "^6.1.3",

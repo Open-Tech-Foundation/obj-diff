@@ -1,6 +1,6 @@
 import { untracked } from "@opentf/web";
 import { diff, patch, serialize } from "@opentf/obj-diff";
-import { strReplace, isTypedArray } from "@opentf/std";
+import { stringReplace, isTypedArray } from "@opentf/std";
 import { EditorView, basicSetup } from "codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -75,10 +75,10 @@ function replacer(key, value) {
 function getDiffResults(diffResult) {
   if (!diffResult) return "";
   let out = JSON.stringify(diffResult, replacer, 4);
-  out = strReplace(out, `"__INTERNAL__UNDEFINED"`, "undefined", { all: true });
+  out = stringReplace(out, `"__INTERNAL__UNDEFINED"`, "undefined", { all: true });
   const test = /"__INTERNAL__BIGINT__(\d+)n"/;
   function convert(str, p1) { return `${p1}n`; }
-  out = strReplace(out, test, convert, { all: true });
+  out = stringReplace(out, test, convert, { all: true });
   return out;
 }
 

@@ -1,4 +1,3 @@
-import { ObjectId } from "bson";
 import { diffWith } from "./utils";
 
 describe("diffWith", () => {
@@ -35,7 +34,15 @@ describe("diffWith", () => {
     expect(result[0].path).toEqual(["person"]);
   });
 
-  test("bson ObjectId", () => {
+  test("ObjectId-like values", () => {
+    class ObjectId {
+      constructor(readonly value = crypto.randomUUID()) {}
+
+      toString() {
+        return this.value;
+      }
+    }
+
     const _id = new ObjectId();
     const record1 = {
       _id: _id,

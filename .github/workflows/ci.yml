@@ -10,21 +10,29 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  test:
-    name: Test & Build
+  ci:
+    name: Build, Lint and Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.21.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-
-      - name: Install dependencies
-        run: bun install
-
-      - name: Run Tests
-        run: bun run ci
-        
-      - name: Verify Build
-        run: bun run build
+      - run: pnpm install --frozen-lockfile
+      - name: Install esdev
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/ES-Runtime/main/install.sh | bash -s -- --only=esdev
+          echo "$HOME/.es-runtime/bin" >> "$GITHUB_PATH"
+      - name: Install TSR
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/tsr/main/install.sh | bash
+          echo "$HOME/.tsr/bin" >> "$GITHUB_PATH"
+      - name: Run CI via TSR
+        run: tsr ci

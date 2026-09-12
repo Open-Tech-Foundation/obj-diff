@@ -16,7 +16,9 @@ let deserialize: typeof deserializeType;
 let stringify: typeof stringifyType;
 let parse: typeof parseType;
 
-if (process.env.TEST_CJS) {
+const testEnv = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {};
+
+if (testEnv.TEST_CJS) {
   const dist = require("../dist/index.cjs");
   diff = dist.diff;
   diffWith = dist.diffWith;
@@ -25,7 +27,7 @@ if (process.env.TEST_CJS) {
   deserialize = dist.deserialize;
   stringify = dist.stringify;
   parse = dist.parse;
-} else if (process.env.TEST_DIST) {
+} else if (testEnv.TEST_DIST) {
   const dist = await import("../dist/index.js");
   diff = dist.diff;
   diffWith = dist.diffWith;
