@@ -1,7 +1,6 @@
 import { run, bench, group } from 'mitata';
 import { diff as objDiff, patch as objPatch } from '../packages/obj-diff/dist/index.js';
 import mdiff from 'microdiff';
-import deepDiff from 'deep-diff';
 import { diff as justDiff } from 'just-diff';
 
 // Array edit patterns where positional diffing historically produced
@@ -43,21 +42,18 @@ console.log('');
 group('Insert at front (10k numbers)', () => {
   bench('@opentf/obj-diff', () => objDiff(base, insertFront));
   bench('microdiff', () => mdiff(base, insertFront));
-  bench('deep-diff', () => deepDiff(base, insertFront));
   bench('just-diff', () => justDiff(base, insertFront));
 });
 
 group('Remove from middle (10k numbers)', () => {
   bench('@opentf/obj-diff', () => objDiff(base, removeMiddle));
   bench('microdiff', () => mdiff(base, removeMiddle));
-  bench('deep-diff', () => deepDiff(base, removeMiddle));
   bench('just-diff', () => justDiff(base, removeMiddle));
 });
 
 group('Mixed edits (10k numbers)', () => {
   bench('@opentf/obj-diff', () => objDiff(base, mixedEdit));
   bench('microdiff', () => mdiff(base, mixedEdit));
-  bench('deep-diff', () => deepDiff(base, mixedEdit));
   bench('just-diff', () => justDiff(base, mixedEdit));
 });
 

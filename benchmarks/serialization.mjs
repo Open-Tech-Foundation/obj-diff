@@ -1,7 +1,7 @@
 // Compares @opentf/obj-diff's general-purpose value codec (stringify / parse)
 // against superjson on the three things that decide a type-safe JSON format:
 // type fidelity, wire size, and speed. Run from the repo root:
-//   bun benchmarks/serialization.mjs
+//   tsr benchmarks:serialization
 //
 // Output:
 //   website/app/docs/comparison/serialization.json
@@ -223,7 +223,7 @@ const data = {
     generatedAt,
     superjson: sjVersion,
     package: PKG,
-    regenerate: 'bun benchmarks/serialization.mjs',
+    regenerate: 'tsr benchmarks:serialization',
   },
   accuracy: {
     types: accCases.map(([t]) => t),

@@ -48,5 +48,13 @@ dir = "apps/demo"
 run = "otfw build --ssg"
 dir = "website"
 
+[tasks."benchmarks:collect"]
+run = "bun benchmarks/collect.mjs"
+deps = ["library:build"]
+
+[tasks."benchmarks:serialization"]
+run = "bun benchmarks/serialization.mjs"
+deps = ["library:build"]
+
 [tasks.ci]
 deps = ["library:build", "test", "library:type-check", "lint", "fmt:check", "website:build"]

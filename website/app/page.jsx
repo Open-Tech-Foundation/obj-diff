@@ -63,6 +63,8 @@ const scenarios = [
   },
 ];
 
+const INVALID_INPUT = Symbol("invalid input");
+
 function replacer(key, value) {
   if (typeof value === "bigint") return `__INTERNAL__BIGINT__${value}n`;
   if (value === undefined) return `__INTERNAL__UNDEFINED`;
@@ -82,8 +84,8 @@ function getDiffResults(diffResult) {
   return out;
 }
 
-// serialize() to the transportable wire format, pretty-printed. Falls back to a
-// note for diffs that can't be serialized (e.g. a value with a circular ref).
+// Serialize to the transportable wire format, pretty-printed. Unsupported
+// values (such as functions or class instances) are explained in-place.
 function getWire(diffResult) {
   if (!diffResult || diffResult.length === 0) return "";
   try {
@@ -261,18 +263,20 @@ function safeEval(code) {
   try {
     return new Function(`return ${code}`)();
   } catch (e) {
-    return null;
+    return INVALID_INPUT;
   }
 }
 
 function getDiff(a, b) {
-  if (!a || !b) return [];
+  if (a === INVALID_INPUT || b === INVALID_INPUT) return [];
   try { return diff(a, b); } catch (e) { return []; }
 }
 
 function getPatch(code, d) {
-  if (!code || !d || d.length === 0) return null;
-  try { return patch(safeEval(code), d); } catch (e) { return null; }
+  if (!d) return null;
+  const source = safeEval(code);
+  if (source === INVALID_INPUT) return null;
+  try { return patch(source, d); } catch (e) { return null; }
 }
 
 export default function Home() {
@@ -300,7 +304,8 @@ export default function Home() {
   let view2 = null;
 
   let patchVerification = $derived(() => {
-    if (!parsedA || !parsedB) return { valid: false, label: "Fix both inputs to run the patch proof" };
+    if (parsedA === INVALID_INPUT || parsedB === INVALID_INPUT)
+      return { valid: false, label: "Fix both inputs to run the patch proof" };
     try {
       const patched = patch(safeEval(obj1Val), diffResult);
       return diff(patched, parsedB).length === 0
@@ -435,7 +440,7 @@ export default function Home() {
                   <button class="summary-card changed" onclick={() => activeTab = "changes"}><strong>{changeSummary.changed}</strong><span>Changed</span></button>
                   <button class="summary-card removed" onclick={() => activeTab = "changes"}><strong>{changeSummary.removed}</strong><span>Removed</span></button>
                 </div>
-                {(parsedA != null && parsedB != null) ? (
+                {(parsedA !== INVALID_INPUT && parsedB !== INVALID_INPUT) ? (
                   <div class="diff-tree" aria-label="Visual diff of the two objects">
                     {buildDiffRows(parsedA, parsedB).map((d) => (
                       <div class={`dt-row dt-${d.status}`}>

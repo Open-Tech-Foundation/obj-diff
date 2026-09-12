@@ -2,7 +2,6 @@ import mdiff from "microdiff";
 import { diff as opentfDiff, patch as opentfPatch } from "../packages/obj-diff/dist/index.js";
 import { detailedDiff as adobeDiff } from "@adobe/optimized-diff";
 import { diff as justDiff } from "just-diff";
-import deepDiff from "deep-diff";
 import { getDiff as recursiveDiff } from "recursive-diff";
 import * as jsondiffpatch from "jsondiffpatch";
 import { diff as deepDiffTs } from "deep-diff-ts";
@@ -64,7 +63,6 @@ const libraries = [
   { name: "microdiff", run: (a, b) => mdiff(a, b) },
   { name: "jsondiffpatch", run: (a, b) => jsondiffpatch.diff(a, b) },
   { name: "deep-diff-ts", run: (a, b) => deepDiffTs(a, b) },
-  { name: "deep-diff", run: (a, b) => deepDiff(a, b) },
   { name: "recursive-diff", run: (a, b) => recursiveDiff(a, b) },
   { name: "@adobe/optimized-diff", run: (a, b) => adobeDiff(a, b) },
   { name: "deep-object-diff", run: (a, b) => deepObjectDiff(a, b) },

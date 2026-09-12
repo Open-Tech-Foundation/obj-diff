@@ -1,7 +1,6 @@
 import { run, bench, group } from 'mitata';
 import { diff as objDiff } from '../packages/obj-diff/dist/index.js';
 import mdiff from 'microdiff';
-import deepDiff from 'deep-diff';
 import { detailedDiff as deepObjectDiff } from 'deep-object-diff';
 import { diff as justDiff } from 'just-diff';
 
@@ -23,7 +22,6 @@ const mixed2 = { str: "world", num: 42, arr: [1, 3], obj: { a: 2, b: 3 } };
 group('No changes', () => {
   bench('@opentf/obj-diff', () => objDiff(noChanges1, noChanges2));
   bench('microdiff', () => mdiff(noChanges1, noChanges2));
-  bench('deep-diff', () => deepDiff(noChanges1, noChanges2));
   bench('deep-object-diff', () => deepObjectDiff(noChanges1, noChanges2));
   bench('just-diff', () => justDiff(noChanges1, noChanges2));
 });
@@ -31,7 +29,6 @@ group('No changes', () => {
 group('One property changed', () => {
   bench('@opentf/obj-diff', () => objDiff(oneProp1, oneProp2));
   bench('microdiff', () => mdiff(oneProp1, oneProp2));
-  bench('deep-diff', () => deepDiff(oneProp1, oneProp2));
   bench('deep-object-diff', () => deepObjectDiff(oneProp1, oneProp2));
   bench('just-diff', () => justDiff(oneProp1, oneProp2));
 });
@@ -39,7 +36,6 @@ group('One property changed', () => {
 group('Deep nested change', () => {
   bench('@opentf/obj-diff', () => objDiff(deep1, deep2));
   bench('microdiff', () => mdiff(deep1, deep2));
-  bench('deep-diff', () => deepDiff(deep1, deep2));
   bench('deep-object-diff', () => deepObjectDiff(deep1, deep2));
   bench('just-diff', () => justDiff(deep1, deep2));
 });
@@ -47,7 +43,6 @@ group('Deep nested change', () => {
 group('Large array (10k elements, 1 change)', () => {
   bench('@opentf/obj-diff', () => objDiff(largeArray1, largeArray2));
   bench('microdiff', () => mdiff(largeArray1, largeArray2));
-  bench('deep-diff', () => deepDiff(largeArray1, largeArray2));
   bench('deep-object-diff', () => deepObjectDiff(largeArray1, largeArray2));
   bench('just-diff', () => justDiff(largeArray1, largeArray2));
 });
@@ -55,7 +50,6 @@ group('Large array (10k elements, 1 change)', () => {
 group('Mixed object changes', () => {
   bench('@opentf/obj-diff', () => objDiff(mixed1, mixed2));
   bench('microdiff', () => mdiff(mixed1, mixed2));
-  bench('deep-diff', () => deepDiff(mixed1, mixed2));
   bench('deep-object-diff', () => deepObjectDiff(mixed1, mixed2));
   bench('just-diff', () => justDiff(mixed1, mixed2));
 });
@@ -67,7 +61,6 @@ group('Large TypedArray (10k elements, 1 change)', () => {
   
   bench('@opentf/obj-diff', () => objDiff({ arr: ta1 }, { arr: ta2 }));
   bench('microdiff', () => mdiff({ arr: ta1 }, { arr: ta2 }));
-  bench('deep-diff', () => deepDiff({ arr: ta1 }, { arr: ta2 }));
   bench('deep-object-diff', () => deepObjectDiff({ arr: ta1 }, { arr: ta2 }));
   bench('just-diff', () => justDiff({ arr: ta1 }, { arr: ta2 }));
 });

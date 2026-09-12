@@ -27,25 +27,33 @@ auditLog.push({
 
 ## 2. Undo / Redo & Version History
 
-Keep a stack of diffs rather than deep copies of app state. Memory stays proportional to the **size of the change**, not the size of the state. Editors, drawing apps, form builders, and CMSes all follow this pattern.
+Keep forward **and reverse** diffs rather than deep copies of app state. A diff is not invertible on its own, so calculate both while you still have both versions. Memory stays proportional to the **size of the change**, not the size of the state.
 
 ```js
-history.push(diff(prevState, nextState));
+history.push({
+  redo: diff(prevState, nextState),
+  undo: diff(nextState, prevState),
+});
 
-// Redo: replay a stored diff
-state = patch(state, history[pointer]);
+// Redo and undo: replay the matching stored diff
+state = patch(state, history[pointer].redo);
+state = patch(state, history[pointer].undo);
 ```
 
 ## 3. Network Sync With Minimal Payloads
 
-Send only the diff and `patch()` it on the other side — collaborative apps, live dashboards, multiplayer game state, offline-first apps reconciling on reconnect. Diffs of JSON-safe values serialize cleanly.
+Send only the diff and `patch()` it on the other side — collaborative apps, live dashboards, multiplayer game state, offline-first apps reconciling on reconnect. Use `serialize` / `deserialize` at the boundary so native JS values survive transport.
 
 ```js
+import { deserialize, diff, patch, serialize } from "@opentf/obj-diff";
+
 // Sender
-socket.send(JSON.stringify(diff(lastSynced, current)));
+socket.send(serialize(diff(lastSynced, current)));
 
 // Receiver
-doc = patch(doc, JSON.parse(message));
+socket.onmessage = ({ data }) => {
+  doc = patch(doc, deserialize(data));
+};
 ```
 
 ## 4. Dirty Checking in Forms & Editors
@@ -83,7 +91,7 @@ for (const c of diff(prevConfig, nextConfig)) {
 
 ## 7. Optimistic UI & Partial Updates
 
-Apply a patch locally and roll back if the server rejects it, or compute a MongoDB-style partial update from an edited document instead of writing the whole record.
+Apply a patch locally and roll back if the server rejects it (store the reverse diff before applying), or compute a MongoDB-style partial update from an edited document instead of writing the whole record.
 
 ```js
 const changes = diff(saved, edited);

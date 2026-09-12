@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-07-17",
+    "generatedAt": "2026-09-12",
     "categories": [
       "Nested Objects",
       "Dates",
@@ -10,7 +10,7 @@
       "TypedArrays",
       "Circular References"
     ],
-    "regenerate": "bun benchmarks/collect.mjs"
+    "regenerate": "tsr benchmarks:collect"
   },
   "libraries": [
     {
@@ -27,18 +27,6 @@
     },
     {
       "name": "microdiff",
-      "results": {
-        "Nested Objects": "pass",
-        "Dates": "pass",
-        "RegExps": "pass",
-        "Maps": "fail",
-        "Sets": "fail",
-        "TypedArrays": "pass",
-        "Circular References": "pass"
-      }
-    },
-    {
-      "name": "deep-diff",
       "results": {
         "Nested Objects": "pass",
         "Dates": "pass",

@@ -1,5 +1,5 @@
 // Runs the diff/patch benchmarks and writes table-ready JSON that the docs
-// render directly. Run from the repo root:  bun benchmarks/collect.mjs
+// render directly. Run from the repo root: tsr benchmarks:collect
 //
 // Outputs:
 //   website/app/docs/benchmarks/results.json   (op counts, diff speed, patch speed)
@@ -10,7 +10,6 @@ import { dirname, join } from 'node:path';
 import { measure } from 'mitata';
 import { diff as objDiff, patch as objPatch } from '../packages/obj-diff/dist/index.js';
 import mdiff from 'microdiff';
-import deepDiff from 'deep-diff';
 import { diff as deepDiffTs, applyDiff as deepDiffTsApply } from 'deep-diff-ts';
 import { detailedDiff as deepObjectDiff } from 'deep-object-diff';
 import { diff as justDiff } from 'just-diff';
@@ -107,7 +106,6 @@ ta2[5000] = 9999;
 const diffRunners = {
   '@opentf/obj-diff': (a, b) => objDiff(a, b),
   microdiff: (a, b) => mdiff(a, b),
-  'deep-diff': (a, b) => deepDiff(a, b),
   'deep-diff-ts': (a, b) => deepDiffTs(a, b),
   'deep-object-diff': (a, b) => deepObjectDiff(a, b),
   'just-diff': (a, b) => justDiff(a, b),
@@ -168,7 +166,7 @@ const microTaNs = await time(() => mdiff({ arr: ta1 }, { arr: ta2 }));
 const taFactor = objTaNs && microTaNs ? Math.round(microTaNs / objTaNs) : null;
 
 const data = {
-  meta: { generatedAt, arraySize: N, taFactor, regenerate: 'bun benchmarks/collect.mjs' },
+  meta: { generatedAt, arraySize: N, taFactor, regenerate: 'tsr benchmarks:collect' },
   opCounts,
   diffTable,
   patchTable,
@@ -217,7 +215,7 @@ const accuracy = diffLibs.map((name) => {
 });
 
 const accuracyData = {
-  meta: { generatedAt, categories: accuracyCases.map((c) => c.name), regenerate: 'bun benchmarks/collect.mjs' },
+  meta: { generatedAt, categories: accuracyCases.map((c) => c.name), regenerate: 'tsr benchmarks:collect' },
   libraries: accuracy,
 };
 writeFileSync(ACCURACY_OUT, JSON.stringify(accuracyData, null, 2) + '\n');

@@ -91,6 +91,20 @@ import { patch } from "@opentf/obj-diff";
 const updatedObj = patch(originalObj, diffResults);
 ```
 
+### Undo / redo
+
+A diff is forward-only: it does not contain the old values needed to derive an inverse later. Store both directions while both states are available:
+
+```ts
+const change = {
+  redo: diff(previous, next),
+  undo: diff(next, previous),
+};
+
+state = patch(state, change.redo);
+state = patch(state, change.undo);
+```
+
 ### `serialize(diff)` / `deserialize(wire)`
 
 A diff holds **live** values by reference, so `JSON.stringify` loses their types (`Date`→string, `Map`/`Set`→`{}`, `BigInt`→throws). Use `serialize`/`deserialize` to send a diff across a process or network boundary and patch it back into the **correct types** on the other side:
@@ -245,12 +259,12 @@ We have rebuilt our benchmark suite using `mitata` and split it into distinct ca
 ### 1. Diff Generation (Speed)
 *Testing how quickly libraries can detect differences between two structures.*
 
-| Scenario | `@opentf/obj-diff` | `microdiff` | `deep-diff` | `just-diff` | `deep-object-diff` |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **No changes** | `1.89 µs` | `1.85 µs` | **`1.66 µs`** | `2.83 µs` | `4.37 µs` |
-| **One property** | `1.93 µs` | **`1.46 µs`** | `1.24 µs` | `2.48 µs` | `3.86 µs` |
-| **Deep nested** (9 lvls) | **`1.81 µs`** | `1.93 µs` | `3.18 µs` | `4.51 µs` | `3.47 µs` |
-| **Mixed types** (JS native)| **`1.81 µs`** | `2.21 µs` | `2.30 µs` | `2.96 µs` | `3.70 µs` |
+| Scenario | `@opentf/obj-diff` | `microdiff` | `just-diff` | `deep-object-diff` |
+| :--- | :--- | :--- | :--- | :--- |
+| **No changes** | `1.89 µs` | `1.85 µs` | `2.83 µs` | `4.37 µs` |
+| **One property** | `1.93 µs` | **`1.46 µs`** | `2.48 µs` | `3.86 µs` |
+| **Deep nested** (9 lvls) | **`1.81 µs`** | `1.93 µs` | `4.51 µs` | `3.47 µs` |
+| **Mixed types** (JS native)| **`1.81 µs`** | `2.21 µs` | `2.96 µs` | `3.70 µs` |
 
 ### 2. Diff + Patch (Complete Solution)
 *Testing the full lifecycle: Generating a diff and applying it to reconstruct the target.*
@@ -299,11 +313,8 @@ We have rebuilt our benchmark suite using `mitata` and split it into distinct ca
 
 ### Running Benchmarks Locally
 ```sh
-bun run benchmarks/category-a-diff.js
-bun run benchmarks/category-b-patch.js
-bun run benchmarks/category-c-large.js
-bun run benchmarks/category-d-accuracy.js
-bun benchmarks/serialization.mjs   # obj-diff stringify/parse vs superjson
+tsr benchmarks:collect        # diff, patch, and native-type accuracy tables
+tsr benchmarks:serialization  # stringify/parse vs superjson
 ```
 
 ---

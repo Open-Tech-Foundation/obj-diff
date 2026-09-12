@@ -1,9 +1,9 @@
 {
   "meta": {
-    "generatedAt": "2026-07-17",
+    "generatedAt": "2026-09-12",
     "superjson": "2.2.6",
     "package": "@opentf/obj-diff",
-    "regenerate": "bun benchmarks/serialization.mjs"
+    "regenerate": "tsr benchmarks:serialization"
   },
   "accuracy": {
     "types": [
@@ -142,15 +142,15 @@
         "lib": "@opentf/obj-diff",
         "cells": [
           {
-            "text": "8.17 µs",
+            "text": "7.67 µs",
             "best": true
           },
           {
-            "text": "4.08 µs",
+            "text": "3.55 µs",
             "best": true
           },
           {
-            "text": "13.3 µs",
+            "text": "12.4 µs",
             "best": true
           }
         ]
@@ -159,15 +159,15 @@
         "lib": "superjson",
         "cells": [
           {
-            "text": "24.9 µs",
+            "text": "20.0 µs",
             "best": false
           },
           {
-            "text": "5.75 µs",
+            "text": "4.99 µs",
             "best": false
           },
           {
-            "text": "27.7 µs",
+            "text": "26.1 µs",
             "best": false
           }
         ]
