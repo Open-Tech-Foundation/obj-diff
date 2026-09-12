@@ -4,15 +4,15 @@
 
 An [Open Tech Foundation](https://opentechf.org/) project.
 
-> ## The Fast, Accurate, and Modern JavaScript Objects Diffing & Patching Library.
-
-### [Documentation & Playground](https://obj-diff.opentechf.org/)
+[🌐 Website](https://obj-diff.opentechf.org/) | [Docs](https://obj-diff.opentechf.org/docs) | [API](https://obj-diff.opentechf.org/docs/api)
 
 ![Demo image](https://raw.githubusercontent.com/Open-Tech-Foundation/obj-diff/main/demo.png)
 
 </div>
 
 ---
+
+> The Fast, Accurate, and Modern JavaScript Objects Diffing & Patching Library.
 
 ## 🚀 Features
 
