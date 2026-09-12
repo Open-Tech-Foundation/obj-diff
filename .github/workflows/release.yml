@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write  # create tags and GitHub Releases
+  id-token: write
 
 concurrency:
   group: release
@@ -60,6 +61,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   publish:
     needs: [check-release, publish-opentf-obj-diff]
     if: >-
@@ -90,3 +92,4 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

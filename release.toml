@@ -19,3 +19,4 @@ matrix = false
 command = "npm run build"
 artifacts = ""
 manifest = "packages/obj-diff/package.json"
+provenance = true
