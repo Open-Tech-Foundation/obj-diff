@@ -6,7 +6,10 @@ on:
 
 permissions:
   contents: write  # create tags and GitHub Releases
-  id-token: write  # npm provenance (packages/obj-diff publishConfig.provenance: true)
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
   check-release:
@@ -19,13 +22,10 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install otf-release
-        if: runner.os != 'Windows'
         shell: bash
-        run: curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/release/main/install.sh | bash
-      - name: Install otf-release
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: irm https://raw.githubusercontent.com/Open-Tech-Foundation/release/main/install.ps1 | iex
+        env:
+          OTF_RELEASE_VERSION: v0.38.0
+        run: curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/release/v0.38.0/install.sh | bash
       - id: check
         run: |
           echo "should_release=$(otf-release check --exclude-package @opentf/obj-diff)" >> "$GITHUB_OUTPUT"
@@ -41,38 +41,32 @@ jobs:
           fetch-depth: 0
       - uses: pnpm/action-setup@v4
         with:
-          version: 11.21.0
+          version: latest
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
-          cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Install esdev and TSR
-        run: |
-          curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/ES-Runtime/main/install.sh | bash -s -- --only=esdev
-          echo "$HOME/.es-runtime/bin" >> "$GITHUB_PATH"
-          curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/tsr/main/install.sh | bash
-          echo "$HOME/.tsr/bin" >> "$GITHUB_PATH"
       - name: Build @opentf/obj-diff
-        run: tsr library:build
+        run: npm run build
+        working-directory: packages/obj-diff
       - name: Install otf-release
-        if: runner.os != 'Windows'
         shell: bash
-        run: curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/release/main/install.sh | bash
-      - name: Install otf-release
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: irm https://raw.githubusercontent.com/Open-Tech-Foundation/release/main/install.ps1 | iex
+        env:
+          OTF_RELEASE_VERSION: v0.38.0
+        run: curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/release/v0.38.0/install.sh | bash
       - name: Publish
         run: otf-release publish --package @opentf/obj-diff
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   publish:
-    needs: [check-release]
-    if: needs.check-release.outputs.should_release == 'true'
+    needs: [check-release, publish-opentf-obj-diff]
+    if: >-
+      always() &&
+      needs.check-release.outputs.should_release == 'true' &&
+      needs.publish-opentf-obj-diff.result != 'failure' &&
+      needs.publish-opentf-obj-diff.result != 'cancelled'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -80,21 +74,17 @@ jobs:
           fetch-depth: 0
       - uses: pnpm/action-setup@v4
         with:
-          version: 11.21.0
+          version: latest
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
-          cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Install otf-release
-        if: runner.os != 'Windows'
         shell: bash
-        run: curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/release/main/install.sh | bash
-      - name: Install otf-release
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: irm https://raw.githubusercontent.com/Open-Tech-Foundation/release/main/install.ps1 | iex
+        env:
+          OTF_RELEASE_VERSION: v0.38.0
+        run: curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/release/v0.38.0/install.sh | bash
       - name: Publish
         run: otf-release publish --exclude-package @opentf/obj-diff
         env:
