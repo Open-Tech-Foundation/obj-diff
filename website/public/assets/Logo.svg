@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="160" height="160" viewBox="0 0 640 640" xml:space="preserve">
+  <desc>Open Tech Foundation logo</desc>
+  <g transform="matrix(3.6 0 0 3.6 320.75 320.61)">
+    <path style="stroke:rgb(255,255,255);stroke-width:0;fill:rgb(17,17,17);fill-opacity:.85;fill-rule:nonzero" transform="translate(0,0)" d="M 0 -82.17195 C 45.35892 -82.17195 82.17195 -45.35892 82.17195 0 C 82.17195 45.35892 45.35892 82.17195 0 82.17195 C -45.35892 82.17195 -82.17195 45.35892 -82.17195 0 C -82.17195 -45.35892 -45.35892 -82.17195 0 -82.17195 z" />
+  </g>
+  <g transform="matrix(6.65 0 0 1.28 317.22 176.78)">
+    <path style="stroke-width:0;fill:rgb(255,133,27);fill-rule:nonzero" transform="translate(0,0)" d="M -25.33937 -25.33937 L 25.33936 -25.33937 L 25.33936 25.33936 L -25.33937 25.33936 z" />
+  </g>
+  <g transform="matrix(2.69 0 0 1.55 368.74 297.93)">
+    <path style="stroke-width:0;fill:rgb(255,133,27);fill-rule:nonzero" transform="translate(0,0)" d="M -20.99547 -20.99547 L 20.99548 -20.99547 L 20.99548 20.99548 L -20.99547 20.99548 z" />
+  </g>
+  <g transform="matrix(.45 0 0 2.63 312.29 333.7)">
+    <path style="stroke-width:0;fill:rgb(255,133,27);fill-rule:nonzero" transform="translate(0,0)" d="M -72.0362 -72.0362 L 72.0362 -72.0362 L 72.0362 72.0362 L -72.0362 72.0362 z" />
+  </g>
+</svg>
