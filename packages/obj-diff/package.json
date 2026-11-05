@@ -56,6 +56,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "@opentf/serialize": "^0.1.0",
     "@opentf/std": "^0.14.1"
   }
 }

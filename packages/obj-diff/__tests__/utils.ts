@@ -8,6 +8,8 @@ import type {
   stringify as stringifyType,
 } from "../src/index";
 
+type SerializeErrorCtor = typeof import("../src/index").SerializeError;
+
 let diff: typeof diffType;
 let diffWith: typeof diffWithType;
 let patch: typeof patchType;
@@ -15,6 +17,7 @@ let serialize: typeof serializeType;
 let deserialize: typeof deserializeType;
 let stringify: typeof stringifyType;
 let parse: typeof parseType;
+let SerializeError: SerializeErrorCtor;
 
 const testEnv = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {};
 
@@ -27,6 +30,7 @@ if (testEnv.TEST_CJS) {
   deserialize = dist.deserialize;
   stringify = dist.stringify;
   parse = dist.parse;
+  SerializeError = dist.SerializeError;
 } else if (testEnv.TEST_DIST) {
   const dist = await import("../dist/index.js");
   diff = dist.diff;
@@ -36,6 +40,7 @@ if (testEnv.TEST_CJS) {
   deserialize = dist.deserialize;
   stringify = dist.stringify;
   parse = dist.parse;
+  SerializeError = dist.SerializeError;
 } else {
   const src = await import("../src/index");
   diff = src.diff;
@@ -45,6 +50,7 @@ if (testEnv.TEST_CJS) {
   deserialize = src.deserialize;
   stringify = src.stringify;
   parse = src.parse;
+  SerializeError = src.SerializeError;
 }
 
-export { diff, diffWith, patch, serialize, deserialize, stringify, parse };
+export { diff, diffWith, patch, serialize, deserialize, stringify, parse, SerializeError };

@@ -1,5 +1,5 @@
 import { Temporal } from "@js-temporal/polyfill";
-import { deserialize, diff, parse, patch, serialize, stringify } from "./utils";
+import { deserialize, diff, parse, patch, SerializeError, serialize, stringify } from "./utils";
 
 // deserialize reconstructs Temporal values via a Temporal implementation on
 // globalThis; the polyfill doesn't auto-install, so wire it up for the tests.
@@ -173,15 +173,30 @@ describe("wire (serialize / deserialize)", () => {
     expect(op.$refs).toBeUndefined();
   });
 
-  test("throws on unsupported values and cycles through Map/Set/Error", () => {
-    expect(() => serialize(diff({}, { s: Symbol("s") }))).toThrow();
-    expect(() => serialize(diff({}, { f: () => 1 }))).toThrow();
+  test("throws on unsupported values; cycles through Map/Set survive the wire", () => {
+    const throwsSerializeError = (fn: () => unknown): void => {
+      let err: unknown;
+      try {
+        fn();
+      } catch (e) {
+        err = e;
+      }
+      expect(err).toBeInstanceOf(SerializeError);
+      expect((err as SerializeError).code).toBe("UNSUPPORTED_VALUE");
+    };
+    throwsSerializeError(() => serialize(diff({}, { s: Symbol("s") })));
+    throwsSerializeError(() => serialize(diff({}, { f: () => 1 })));
     class Widget {}
-    expect(() => serialize(diff({}, { w: new Widget() }))).toThrow();
-    // cycles that run through a special container are still rejected
+    throwsSerializeError(() => serialize(diff({}, { w: new Widget() })));
+    // cycles that run through a special container round-trip with identity
     const m = new Map<string, unknown>();
     m.set("self", m);
-    expect(() => serialize(diff({}, { m }))).toThrow();
+    const restoredM = deserialize(serialize(diff({}, { m })))[0].value as Map<string, unknown>;
+    expect(restoredM.get("self")).toBe(restoredM);
+    const st = new Set<unknown>();
+    st.add(st);
+    const restoredS = deserialize(serialize(diff({}, { st })))[0].value as Set<unknown>;
+    expect([...restoredS][0]).toBe(restoredS);
   });
 
   test("deserialize throws on an unknown type tag or missing ref", () => {

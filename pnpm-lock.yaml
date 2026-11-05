@@ -50,9 +50,6 @@ importers:
       rfc6902:
         specifier: ^5.3.0
         version: 5.3.0
-      superjson:
-        specifier: ^2.2.6
-        version: 2.2.6
 
   apps/demo:
     dependencies:
@@ -87,6 +84,9 @@ importers:
 
   packages/obj-diff:
     dependencies:
+      '@opentf/serialize':
+        specifier: ^0.1.0
+        version: 0.1.0
       '@opentf/std':
         specifier: ^0.14.1
         version: 0.14.1
@@ -278,6 +278,9 @@ packages:
   '@opentf/obj-diff@0.18.0':
     resolution: {integrity: sha512-mi00/ikz3M41u3D8IO9kcfwaYMhy+2DDaU5BCrBKfAhsa+4kmUzudtyD50woKM3rPrueIK5mC0mwXqrg9TTkZw==}
     engines: {node: '>=16.20.2'}
+
+  '@opentf/serialize@0.1.0':
+    resolution: {integrity: sha512-kRyYKuQHahHpVMfX1QtxohJuEd/iUkp9VYYUT3w/Oo64K+ONmvx3JB/nFJALHwfDsWKfmDIBMHBUULBWdltaog==}
 
   '@opentf/std@0.14.1':
     resolution: {integrity: sha512-QjQgrXpUpt8wjy+dXLmtx9YpYZyyb/T5kn2lDN7jWAMNXnJFDUHh5cWYkxj4knJM8+CKmWDPwPJM/pxSr57ihg==}
@@ -553,10 +556,6 @@ packages:
   codemirror@6.0.2:
     resolution: {integrity: sha512-VhydHotNW5w1UGK0Qj96BwSk/Zqbp9WbnyK2W/eVMv4QyF41INRGpjUhFJY7/uDNuudSc33a/PKr4iDqRduvHw==}
 
-  copy-anything@4.1.0:
-    resolution: {integrity: sha512-ufbM3smX/Jbnpk5wcQjzd1MgBpzmqfNETUAyZNrGwU9foRlyHoGzMMBBCRzEhQLBjZfFDE1W2ufPXX2vdWkV8Q==}
-    engines: {node: '>=18'}
-
   crelt@1.0.7:
     resolution: {integrity: sha512-aK6BbWfhf4U/wCcLHKPJl/xa6VkVstRaPywWtMKGwuOLc/wZTyQYuoxgvZnNsBvv7Kg3YTBQYYBCggcviQczuA==}
 
@@ -706,10 +705,6 @@ packages:
 
   style-mod@4.1.3:
     resolution: {integrity: sha512-i/n8VsZydrugj3Iuzll8+x/00GH2vnYsk1eomD8QiRrSAeW6ItbCQDtfXCeJHd0iwiNagqjQkvpvREEPtW3IoQ==}
-
-  superjson@2.2.6:
-    resolution: {integrity: sha512-H+ue8Zo4vJmV2nRjpx86P35lzwDT3nItnIsocgumgr0hHMQ+ZGq5vrERg9kJBo5AWGmxZDhzDo+WVIJqkB0cGA==}
-    engines: {node: '>=16'}
 
   tailwindcss@4.2.2:
     resolution: {integrity: sha512-KWBIxs1Xb6NoLdMVqhbhgwZf2PGBpPEiwOqgI4pFIYbNTfBXiKYyWoTsXgBQ9WFg/OlhnvHaY+AEpW7wSmFo2Q==}
@@ -906,6 +901,8 @@ snapshots:
   '@opentf/obj-diff@0.18.0':
     dependencies:
       '@opentf/std': 0.14.1
+
+  '@opentf/serialize@0.1.0': {}
 
   '@opentf/std@0.14.1': {}
 
@@ -1107,8 +1104,6 @@ snapshots:
       '@codemirror/state': 6.7.4
       '@codemirror/view': 6.43.11
 
-  copy-anything@4.1.0: {}
-
   crelt@1.0.7: {}
 
   deep-diff-ts@1.0.1: {}
@@ -1235,10 +1230,6 @@ snapshots:
   source-map-js@1.2.1: {}
 
   style-mod@4.1.3: {}
-
-  superjson@2.2.6:
-    dependencies:
-      copy-anything: 4.1.0
 
   tailwindcss@4.2.2: {}
 

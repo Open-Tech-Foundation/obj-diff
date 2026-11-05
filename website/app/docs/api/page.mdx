@@ -151,7 +151,7 @@ Encodes a diff into a self-describing JSON string that survives transport. A dif
 | :--- | :--- | :--- |
 | `diff` | `DiffResult[]` | A diff produced by `diff` or `diffWith`. |
 
-**Returns** — a JSON `string`. Preserves native types (`Date`, `Map`, `Set`, `TypedArray`, `URL`, …) plus circular references and shared identity among plain objects/arrays. Throws on symbols, functions, class-instance values, and cycles that run through a `Map`/`Set`/`Error`.
+**Returns** — a JSON `string`. Preserves native types (`Date`, `Map`, `Set`, `TypedArray`, `URL`, …) plus circular references and shared identity — including cycles that run through a `Map`/`Set`/`Error`. Throws on symbols, functions and class-instance values (a `SerializeError` from [`@opentf/serialize`](https://github.com/Open-Tech-Foundation/js-serialize), which provides the codec).
 
 ```ts
 const wire = serialize(diff(a, b));
@@ -190,16 +190,17 @@ Deserializing a `Temporal` value requires a `Temporal` implementation on `global
 ## `stringify`
 
 ```ts
-function stringify(value: unknown): string
+function stringify(value: unknown, options?: { maxDepth?: number }): string
 ```
 
-The general-purpose counterpart to [`serialize`](#serialize): encodes **any** JavaScript value — not just a diff — into a self-describing, type-safe JSON string. Uses the same codec, so it preserves every supported native type (`Date`, `Map`, `Set`, `TypedArray`, `ArrayBuffer`, `DataView`, `Error`, `URL`, `BigInt`, `Temporal`, `NaN`/`±Infinity`/`-0`, `undefined`, …) plus circular references and shared identity among plain objects/arrays. A type-preserving drop-in for `JSON.stringify`. See the [superjson comparison](/docs/comparison#type-safe-serialization-vs-superjson).
+The general-purpose counterpart to [`serialize`](#serialize): encodes **any** JavaScript value — not just a diff — into a self-describing, type-safe JSON string. Re-exported unchanged from [`@opentf/serialize`](https://github.com/Open-Tech-Foundation/js-serialize), which provides the codec for this package. It preserves every supported native type (`Date`, `Map`, `Set`, `TypedArray`, `ArrayBuffer`, `DataView`, `Error`, `URL`, `BigInt`, `Temporal`, `NaN`/`±Infinity`/`-0`, `undefined`, …) plus circular references and shared identity. A type-preserving drop-in for `JSON.stringify`.
 
 **Parameters**
 
 | Name | Type | Description |
 | :--- | :--- | :--- |
 | `value` | `unknown` | Any serializable JavaScript value. |
+| `options.maxDepth` | `number` | Maximum container nesting depth. Default: unlimited. |
 
 **Returns** — a JSON `string`. Throws on symbols, functions, and class-instance values.
 
@@ -212,16 +213,18 @@ const wire = stringify({ when: new Date(), tags: new Set([1, 2]), big: 42n });
 ## `parse`
 
 ```ts
-function parse<T = unknown>(wire: string): T
+function parse<T = unknown>(wire: string, options?: { maxLength?: number; maxDepth?: number }): T
 ```
 
-Decodes a string from [`stringify`](#stringify) back into the original value with its types restored — the type-preserving counterpart to `JSON.parse`.
+Decodes a string from [`stringify`](#stringify) back into the original value with its types restored — the type-preserving counterpart to `JSON.parse`. Safe for untrusted input: malformed payloads throw a `SerializeError` instead of yielding half-built values.
 
 **Parameters**
 
 | Name | Type | Description |
 | :--- | :--- | :--- |
 | `wire` | `string` | The output of `stringify`. |
+| `options.maxLength` | `number` | Maximum input length in code units, checked before parsing. Default: unlimited. |
+| `options.maxDepth` | `number` | Maximum container nesting depth of the decoded value. Default: unlimited. |
 
 **Returns** — the reconstructed value (typed as `T`).
 

@@ -21,7 +21,6 @@
     "microdiff": "^1.6.0",
     "mitata": "^1.0.34",
     "recursive-diff": "^1.0.9",
-    "rfc6902": "^5.3.0",
-    "superjson": "^2.2.6"
+    "rfc6902": "^5.3.0"
   }
 }

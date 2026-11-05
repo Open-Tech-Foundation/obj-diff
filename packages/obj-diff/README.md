@@ -135,7 +135,9 @@ const patched = patch(a, deserialize(wire)); // Date/Map/Set/… restored exactl
 }
 ```
 
-Every supported type is preserved (`Date`, `RegExp`, `Map`, `Set`, `TypedArray`, `ArrayBuffer`, `DataView`, `Error`, `URL`, `BigInt`, `Temporal`, …), nested to any depth. **Circular references** and objects **shared by identity** are rebuilt with the same identity on the far side (plain objects and arrays are hoisted into `$refs` when referenced more than once; single-use containers stay inline). Symbols, functions, class instances, and cycles that run through a `Map`/`Set`/`Error` throw. Deserializing a `Temporal` value requires a `Temporal` implementation on `globalThis`.
+Every supported type is preserved (`Date`, `RegExp`, `Map`, `Set`, `TypedArray`, `ArrayBuffer`, `DataView`, `Error`, `URL`, `BigInt`, `Temporal`, …), nested to any depth. **Circular references** and objects **shared by identity** are rebuilt with the same identity on the far side — including cycles through a `Map`/`Set`/`Error`; single-use plain containers stay inline. Symbols, functions and class instances throw (a `SerializeError`). Deserializing a `Temporal` value requires a `Temporal` implementation on `globalThis`.
+
+The codec itself is [`@opentf/serialize`](https://github.com/Open-Tech-Foundation/js-serialize): `serialize`/`deserialize` shape its low-level `encode`/`decode` into the per-op diff format above, and `stringify`/`parse` are re-exported unchanged.
 
 ### `stringify(value)` / `parse(wire)`
 
@@ -302,21 +304,9 @@ We have rebuilt our benchmark suite using `mitata` and split it into distinct ca
 
 **Conclusion:** `@opentf/obj-diff` offers the exactness and JS-native feature set that JSON-patch libraries lack, while remaining orders of magnitude more scalable than older, heavy libraries like `jsondiffpatch`.
 
-### 5. Type-Safe Serialization (`stringify`/`parse` vs `superjson`)
-*Round-tripping real JavaScript values through a JSON boundary — the job `superjson` does.*
-
-| Axis | `@opentf/obj-diff` | `superjson` |
-| :--- | :--- | :--- |
-| **Type fidelity** (22 native types) | **22 / 22** | 14 / 22 |
-| **Speed** (stringify / round trip) | **~3× / ~2× faster** | baseline |
-| **Wire size** | smaller for leaf & native-heavy values | smaller when many special values cluster |
-
-`superjson` silently degrades `Float64Array` specials (`NaN`/`-0`/`∞` → `0`), turns `ArrayBuffer`/`DataView` into plain objects, unwraps boxed primitives, drops an `Error`'s own props, and throws on `BigInt64Array`. Full breakdown on the [comparison page](https://obj-diff.opentechf.org/docs/comparison#type-safe-serialization-vs-superjson).
-
 ### Running Benchmarks Locally
 ```sh
 tsr benchmarks:collect        # diff, patch, and native-type accuracy tables
-tsr benchmarks:serialization  # stringify/parse vs superjson
 ```
 
 ---

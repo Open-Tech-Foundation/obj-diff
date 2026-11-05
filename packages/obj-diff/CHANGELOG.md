@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+### Added
+- `SerializeError` (from [`@opentf/serialize`](https://github.com/Open-Tech-Foundation/js-serialize)) is re-exported, so callers can branch on the machine-readable `code` carried by every serialization failure.
+
+### Changed
+- Serialization is now an **explicit feature** backed by a new runtime dependency,
+  [`@opentf/serialize`](https://github.com/Open-Tech-Foundation/js-serialize), instead of an
+  in-tree codec. The API and wire format are unchanged: `serialize`, `deserialize`,
+  `stringify` and `parse` are still exported from `@opentf/obj-diff` and produce the same
+  JSON for everything 0.18.0 could encode. `stringify`/`parse` are re-exported unchanged
+  (gaining the package's `maxDepth` / `maxLength` options for untrusted input), while
+  `serialize`/`deserialize` are thin wrappers over its low-level `encode`/`decode` that
+  keep the per-op `{ type, path, value, $refs }` shape.
+- Cycles that run through a `Map`/`Set`/`Error` now round-trip with identity preserved
+  instead of throwing. Symbols, functions and class instances still throw, now as a
+  `SerializeError` rather than a `TypeError`.
+- Sparse array holes are preserved across the wire (previously they decoded as `null`).
+
 ### Fixed
 - Fixed `patch()` corrupting a `Map` that holds several **structurally-equal** object keys:
   added entries were resolved against an existing key instead of being created new, and
