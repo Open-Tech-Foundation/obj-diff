@@ -1,4 +1,4 @@
-import { isEql, isPlainObject, isTypedArray } from "@opentf/std";
+import { isEql, isPlainObject } from "@opentf/std";
 import { ADDED, CHANGED, DELETED, INSERTED, REMOVED } from "./constants";
 import { maxEditDistance, myersScript } from "./lcs";
 import type { DiffResult } from "./types";
@@ -77,9 +77,9 @@ function objDiff(
 
   if (Array.isArray(a) && Array.isArray(b)) {
     result = diffArrays(a, b, path, refsA, refsB, fn);
-  } else if (isTypedArray(a) && isTypedArray(b)) {
-    result = diffTypedArrays(a, b, path);
   } else if (isPlainObject(a) && isPlainObject(b)) {
+    // Plain objects are the most common container, so this branch is checked
+    // right after Array to keep the common path cheap.
     result = diffObjects(
       a as Record<string, unknown>,
       b as Record<string, unknown>,
@@ -88,6 +88,8 @@ function objDiff(
       refsB,
       fn,
     );
+  } else if (isTypedArrayView(a) && isTypedArrayView(b)) {
+    result = diffTypedArrays(a, b, path);
   } else if (a instanceof Date && b instanceof Date) {
     // Object.is treats two invalid dates (NaN timestamps) as equal
     result = Object.is(a.getTime(), b.getTime()) ? [] : [{ type: CHANGED, path, value: b }];
@@ -378,6 +380,14 @@ type TypedArray =
   | Float64Array
   | BigInt64Array
   | BigUint64Array;
+
+/**
+ * True for TypedArrays, excluding DataView (which stays in its own branch).
+ * O(1) native check; @opentf/std's isTypedArray does an 11-string includes scan.
+ */
+function isTypedArrayView(x: unknown): x is TypedArray {
+  return ArrayBuffer.isView(x) && !(x instanceof DataView);
+}
 
 function diffTypedArrays(a: TypedArray, b: TypedArray, path: Path): DiffResult[] {
   if (
