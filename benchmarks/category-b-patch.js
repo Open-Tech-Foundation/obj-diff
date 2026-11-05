@@ -1,7 +1,9 @@
 import { run, bench, group } from 'mitata';
 import { diff as objDiff, patch as objPatch } from '../packages/obj-diff/dist/index.js';
 import * as jsondiffpatch from 'jsondiffpatch';
-import * as fastJsonPatch from 'fast-json-patch';
+import * as fastJsonPatchRaw from 'fast-json-patch';
+// v3 exposes helpers on the default export in ESM; use whichever surface exists.
+const fastJsonPatch = fastJsonPatchRaw.default ?? fastJsonPatchRaw;
 import { createPatch as rfc6902Patch, applyPatch as rfc6902Apply } from 'rfc6902';
 import { diff as justDiff } from 'just-diff';
 import { diffApply as justApply } from 'just-diff-apply';

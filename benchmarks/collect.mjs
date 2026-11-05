@@ -17,7 +17,9 @@ import { diffApply as justApply } from 'just-diff-apply';
 import { detailedDiff as adobeDiff } from '@adobe/optimized-diff';
 import { getDiff as recursiveDiff } from 'recursive-diff';
 import * as jsondiffpatch from 'jsondiffpatch';
-import * as fastJsonPatch from 'fast-json-patch';
+import * as fastJsonPatchRaw from 'fast-json-patch';
+// v3 exposes helpers on the default export in ESM; use whichever surface exists.
+const fastJsonPatch = fastJsonPatchRaw.default ?? fastJsonPatchRaw;
 
 const here = dirname(fileURLToPath(import.meta.url));
 const OUT = join(here, '..', 'website', 'app', 'docs', 'benchmarks', 'results.json');

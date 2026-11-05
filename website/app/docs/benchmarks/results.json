@@ -1,8 +1,8 @@
 {
   "meta": {
-    "generatedAt": "2026-09-12",
+    "generatedAt": "2026-10-25",
     "arraySize": 10000,
-    "taFactor": 315,
+    "taFactor": 66,
     "regenerate": "tsr benchmarks:collect"
   },
   "opCounts": [
@@ -40,19 +40,19 @@
         "lib": "@opentf/obj-diff",
         "cells": [
           {
-            "text": "1.08 µs",
-            "best": true
-          },
-          {
-            "text": "1.53 µs",
+            "text": "1.31 µs",
             "best": false
           },
           {
-            "text": "1.71 µs",
+            "text": "1.91 µs",
             "best": false
           },
           {
-            "text": "2.73 ms",
+            "text": "3.52 µs",
+            "best": false
+          },
+          {
+            "text": "0.264 ms",
             "best": false
           },
           {
@@ -65,23 +65,23 @@
         "lib": "microdiff",
         "cells": [
           {
-            "text": "1.85 µs",
+            "text": "3.21 µs",
             "best": false
           },
           {
-            "text": "1.49 µs",
+            "text": "3.61 µs",
             "best": false
           },
           {
-            "text": "1.37 µs",
-            "best": true
-          },
-          {
-            "text": "2.88 ms",
+            "text": "5.34 µs",
             "best": false
           },
           {
-            "text": "4.05 ms",
+            "text": "0.875 ms",
+            "best": false
+          },
+          {
+            "text": "1.40 ms",
             "best": false
           }
         ]
@@ -90,23 +90,23 @@
         "lib": "deep-diff-ts",
         "cells": [
           {
-            "text": "1.19 µs",
+            "text": "1.16 µs",
             "best": false
           },
           {
-            "text": "1.21 µs",
+            "text": "1.65 µs",
             "best": true
           },
           {
-            "text": "2.04 µs",
+            "text": "3.01 µs",
+            "best": true
+          },
+          {
+            "text": "0.535 ms",
             "best": false
           },
           {
-            "text": "0.834 ms",
-            "best": false
-          },
-          {
-            "text": "6.37 ms",
+            "text": "2.16 ms",
             "best": false
           }
         ]
@@ -115,23 +115,23 @@
         "lib": "deep-object-diff",
         "cells": [
           {
-            "text": "4.10 µs",
+            "text": "2.55 µs",
             "best": false
           },
           {
-            "text": "3.39 µs",
+            "text": "2.79 µs",
             "best": false
           },
           {
-            "text": "3.64 µs",
+            "text": "4.07 µs",
             "best": false
           },
           {
-            "text": "8.29 ms",
+            "text": "1.75 ms",
             "best": false
           },
           {
-            "text": "8.01 ms",
+            "text": "2.29 ms",
             "best": false
           }
         ]
@@ -140,23 +140,23 @@
         "lib": "just-diff",
         "cells": [
           {
-            "text": "2.74 µs",
+            "text": "4.61 µs",
             "best": false
           },
           {
-            "text": "2.71 µs",
+            "text": "5.40 µs",
             "best": false
           },
           {
-            "text": "4.10 µs",
+            "text": "7.05 µs",
             "best": false
           },
           {
-            "text": "6.53 ms",
+            "text": "4.29 ms",
             "best": false
           },
           {
-            "text": "6.73 ms",
+            "text": "4.47 ms",
             "best": false
           }
         ]
@@ -165,23 +165,23 @@
         "lib": "@adobe/optimized-diff",
         "cells": [
           {
-            "text": "1.15 µs",
-            "best": false
-          },
-          {
-            "text": "2.00 µs",
-            "best": false
-          },
-          {
-            "text": "3.71 µs",
-            "best": false
-          },
-          {
-            "text": "0.036 ms",
+            "text": "1.11 µs",
             "best": true
           },
           {
-            "text": "5.14 ms",
+            "text": "2.17 µs",
+            "best": false
+          },
+          {
+            "text": "3.80 µs",
+            "best": false
+          },
+          {
+            "text": "0.02 ms",
+            "best": true
+          },
+          {
+            "text": "3.26 ms",
             "best": false
           }
         ]
@@ -190,19 +190,19 @@
         "lib": "recursive-diff",
         "cells": [
           {
-            "text": "2.17 µs",
+            "text": "4.99 µs",
             "best": false
           },
           {
-            "text": "2.18 µs",
+            "text": "5.74 µs",
             "best": false
           },
           {
-            "text": "4.03 µs",
+            "text": "10.6 µs",
             "best": false
           },
           {
-            "text": "2.89 ms",
+            "text": "3.94 ms",
             "best": false
           },
           {
@@ -215,23 +215,23 @@
         "lib": "jsondiffpatch",
         "cells": [
           {
-            "text": "1.38 µs",
+            "text": "2.76 µs",
             "best": false
           },
           {
-            "text": "1.52 µs",
+            "text": "5.91 µs",
             "best": false
           },
           {
-            "text": "1.85 µs",
+            "text": "6.92 µs",
             "best": false
           },
           {
-            "text": "164 ms",
+            "text": "201 ms",
             "best": false
           },
           {
-            "text": "5.54 ms",
+            "text": "2.89 ms",
             "best": false
           }
         ]
@@ -249,16 +249,16 @@
         "lib": "@opentf/obj-diff",
         "cells": [
           {
-            "text": "1.98 µs",
+            "text": "2.59 µs",
             "best": true
           },
           {
-            "text": "2.85 µs",
+            "text": "3.40 µs",
             "best": true
           },
           {
-            "text": "2.88 ms",
-            "best": false
+            "text": "0.428 ms",
+            "best": true
           }
         ]
       },
@@ -266,15 +266,15 @@
         "lib": "jsondiffpatch",
         "cells": [
           {
-            "text": "3.95 µs",
+            "text": "8.66 µs",
             "best": false
           },
           {
-            "text": "7.68 µs",
+            "text": "12.9 µs",
             "best": false
           },
           {
-            "text": "160 ms",
+            "text": "56.5 ms",
             "best": false
           }
         ]
@@ -283,15 +283,15 @@
         "lib": "just-diff + just-diff-apply",
         "cells": [
           {
-            "text": "4.32 µs",
+            "text": "6.13 µs",
             "best": false
           },
           {
-            "text": "5.45 µs",
+            "text": "7.81 µs",
             "best": false
           },
           {
-            "text": "5.81 ms",
+            "text": "4.58 ms",
             "best": false
           }
         ]
@@ -300,16 +300,16 @@
         "lib": "deep-diff-ts",
         "cells": [
           {
-            "text": "3.82 µs",
+            "text": "5.19 µs",
             "best": false
           },
           {
-            "text": "4.93 µs",
+            "text": "6.53 µs",
             "best": false
           },
           {
-            "text": "1.17 ms",
-            "best": true
+            "text": "1.85 ms",
+            "best": false
           }
         ]
       },
@@ -317,15 +317,15 @@
         "lib": "fast-json-patch",
         "cells": [
           {
-            "text": "2.10 µs",
+            "text": "3.05 µs",
             "best": false
           },
           {
-            "text": "4.27 µs",
+            "text": "5.11 µs",
             "best": false
           },
           {
-            "text": "2.26 ms",
+            "text": "0.627 ms",
             "best": false
           }
         ]
