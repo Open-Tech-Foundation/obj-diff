@@ -35,6 +35,55 @@ describe("bug fixes", () => {
     expect([...patched][0]).toEqual({ id: 2 });
   });
 
+  test("Map delete picks the exact cloned key, not the first structural match", () => {
+    const K1 = { n: 1 };
+    const K0 = { n: 1 };
+    const a = new Map([[K1, "x"], [K0, "p"]]);
+    const b = new Map([[K1, "x"]]);
+
+    const d = diff(a, b);
+    const patched = patch(a, d);
+    expect(patched.size).toBe(1);
+    expect([...patched.values()]).toEqual(["x"]);
+  });
+
+  test("Map change updates the exact cloned key with ambiguous siblings", () => {
+    const K1 = { n: 1 };
+    const K0 = { n: 1 };
+    const K0b = { n: 1 };
+    const a = new Map([[K1, "x"], [K0, "p"]]);
+    const b = new Map([[K1, "x"], [K0b, "q"]]);
+
+    const d = diff(a, b);
+    const patched = patch(a, d);
+    expect(patched.size).toBe(2);
+    expect([...patched.values()].sort()).toEqual(["q", "x"]);
+  });
+
+  test("Map add creates a new entry for each structurally-equal key", () => {
+    const O1 = { n: 1 };
+    const O2 = { n: 1 };
+    const a = new Map();
+    const b = new Map([[O1, "x"], [O2, "y"]]);
+
+    const d = diff(a, b);
+    const patched = patch(a, d);
+    expect(patched.size).toBe(2);
+    expect([...patched.values()].sort()).toEqual(["x", "y"]);
+  });
+
+  test("Map add under a nested path keeps structurally-equal keys distinct", () => {
+    const O1 = { n: 1 };
+    const O2 = { n: 1 };
+    const a = { m: new Map() };
+    const b = { m: new Map([[O1, "x"], [O2, "y"]]) };
+
+    const d = diff(a, b);
+    const patched = patch(a, d);
+    expect(patched.m.size).toBe(2);
+    expect([...patched.m.values()].sort()).toEqual(["x", "y"]);
+  });
+
   test("packSparseArrays inside Map and Set", () => {
     const aMap = new Map();
     aMap.set("arr", [1, 2, 3]);

@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Fixed
+- Fixed `patch()` corrupting a `Map` that holds several **structurally-equal** object keys:
+  added entries were resolved against an existing key instead of being created new, and
+  deletes/changes could hit the first structural match rather than the exact entry. Object
+  keys are now tracked by identity through `clone()`, so every op lands on the precise entry
+  — nested paths included.
+
 ## [0.18.0] - 2026-07-24
 
 ### Changed
