@@ -105,6 +105,8 @@ body {
 .tabs button span { display: inline-grid; place-items: center; min-width: 1.2rem; border-radius: 100px; background: rgba(37, 99, 235, .12); font-size: .68rem; padding: .08rem .25rem; }
 .copy-button { border: 1px solid var(--lab-line); background: #fff; color: var(--lab-ink); }
 .results-content { min-height: 17rem; max-height: 26rem; overflow: auto; padding: 1rem; }
+/* Pinned above the scroll area: heading + counts stay put, only the diff tree scrolls. */
+.results-summary { display: grid; gap: 1.25rem; padding: 1rem; border-bottom: 1px solid var(--lab-line); }
 .diff-overview { display: grid; gap: 1.25rem; }
 .overview-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
 .overview-heading h3 { margin: .3rem 0 0; font-size: 1.15rem; letter-spacing: -.025em; }

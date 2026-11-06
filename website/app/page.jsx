@@ -437,15 +437,19 @@ export default function Home() {
             </div>
             <button class="copy-button" onclick={() => copy(activeTab === "patch" ? getDiffResults(patchResult) : activeTab === "wire" ? wireResult : getDiffResults(diffResult), activeTab === "patch" ? "Patch copied" : activeTab === "wire" ? "Wire copied" : "Diff copied")}>{copied || "Copy"}</button>
           </div>
+          {activeTab === "visual" && (
+            <div class="results-summary">
+              <div class="overview-heading"><div><span class="section-kicker">Visual diff</span><h3>{diffResult.length === 0 ? "Objects are in sync" : `${diffResult.length} operations to reach the target`}</h3></div><span class={patchVerification.valid ? "overview-proof is-valid" : "overview-proof"}>{patchVerification.valid ? "Verified patch" : "Awaiting valid input"}</span></div>
+              <div class="summary-grid">
+                <button class="summary-card added" onclick={() => activeTab = "changes"}><strong>{changeSummary.added}</strong><span>Added</span></button>
+                <button class="summary-card changed" onclick={() => activeTab = "changes"}><strong>{changeSummary.changed}</strong><span>Changed</span></button>
+                <button class="summary-card removed" onclick={() => activeTab = "changes"}><strong>{changeSummary.removed}</strong><span>Removed</span></button>
+              </div>
+            </div>
+          )}
           <div class="results-content">
             {activeTab === "visual" && (
               <div class="diff-overview">
-                <div class="overview-heading"><div><span class="section-kicker">Visual diff</span><h3>{diffResult.length === 0 ? "Objects are in sync" : `${diffResult.length} operations to reach the target`}</h3></div><span class={patchVerification.valid ? "overview-proof is-valid" : "overview-proof"}>{patchVerification.valid ? "Verified patch" : "Awaiting valid input"}</span></div>
-                <div class="summary-grid">
-                  <button class="summary-card added" onclick={() => activeTab = "changes"}><strong>{changeSummary.added}</strong><span>Added</span></button>
-                  <button class="summary-card changed" onclick={() => activeTab = "changes"}><strong>{changeSummary.changed}</strong><span>Changed</span></button>
-                  <button class="summary-card removed" onclick={() => activeTab = "changes"}><strong>{changeSummary.removed}</strong><span>Removed</span></button>
-                </div>
                 {(parsedA !== INVALID_INPUT && parsedB !== INVALID_INPUT) ? (
                   <div class="diff-tree" aria-label="Visual diff of the two objects">
                     {buildDiffRows(parsedA, parsedB).map((d) => (
