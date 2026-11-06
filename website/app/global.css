@@ -67,6 +67,23 @@ body {
   text-transform: uppercase;
 }
 
+/* Project status badge, ported from opentechf.org/projects (sky "beta" chip). */
+.status-pill {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  padding: .125rem .5rem;
+  border: 1px solid rgb(14 165 233 / .25);
+  border-radius: 9999px;
+  background: rgb(14 165 233 / .1);
+  color: #0369a1;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+[data-theme="dark"] .status-pill { color: #7dd3fc; }
+
 .lab-hero h1 {
   max-width: 44rem;
   margin: .8rem 0 1.1rem;

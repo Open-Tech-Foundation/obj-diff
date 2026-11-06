@@ -402,7 +402,7 @@ export default function Home() {
     <main class="diff-lab">
       <section class="lab-hero">
         <div class="hero-copy">
-          <div class="eyebrow">JavaScript object diff</div>
+          <div class="status-pill">Beta</div>
           <h1>See every change. <span>Prove every patch.</span></h1>
           <p>Explore a structural diff engine built for real JavaScript—not just JSON.</p>
           <div class="hero-actions">
