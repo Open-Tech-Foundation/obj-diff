@@ -217,34 +217,28 @@ body {
 .afwd-footer {
   background: #09090b;
   border-top: 1px solid #27272a;
-  margin-top: 96px;
-  padding: 32px 0;
   color: #a1a1aa;
-  font-size: 14px;
 }
-.afwd-footer-inner {
-  max-width: 1140px;
-  margin: 0 auto;
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-.afwd-footer-org { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
-.afwd-footer-org-link { display: inline-flex; align-items: center; gap: .55rem; color: #d4d4d8; text-decoration: none; transition: color .2s ease; }
-.afwd-footer-org-link:hover { color: #fff; }
-.afwd-footer-org-link:focus-visible, .afwd-footer-badge:focus-visible { outline: 2px solid var(--afw-accent); outline-offset: 3px; border-radius: .375rem; }
-.afwd-footer-org-logo { display: block; width: 1.5rem; height: 1.5rem; flex-shrink: 0; }
-.afwd-footer-license { color: #71717a; }
-.afwd-footer-badge { display: inline-flex; align-items: center; gap: .65rem; flex-shrink: 0; padding: .45rem .95rem .45rem .55rem; border: 1px solid #3f3f46; border-radius: 9999px; background: #fff; text-decoration: none; box-shadow: 0 1px 3px rgba(0, 0, 0, .3); transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
-.afwd-footer-badge:hover { border-color: var(--afw-accent); box-shadow: 0 2px 8px rgba(0, 0, 0, .4); transform: translateY(-1px); }
-.afwd-footer-badge-mark { display: block; flex-shrink: 0; }
-.afwd-footer-badge-copy { display: flex; flex-direction: column; gap: .05rem; line-height: 1.1; }
-.afwd-footer-badge-muted { font-size: .5625rem; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: #52525b; }
-.afwd-footer-badge-brand { font-size: .9375rem; font-weight: 700; letter-spacing: -.02em; }
-.afwd-footer-badge-brand-afw { color: var(--afw-accent); }
+.site-footer-inner { position: relative; }
+.site-footer-org { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
+.site-footer-org-link { display: inline-flex; align-items: center; gap: .55rem; color: #e4e4e7; text-decoration: none; transition: color .2s ease; }
+.site-footer-org-link:hover { color: #f4f4f5; }
+.site-footer-org-link:focus-visible { outline: 2px solid var(--afw-accent); outline-offset: 3px; border-radius: .375rem; }
+.site-footer-org-logo { display: block; width: 1.5rem; height: 1.5rem; flex-shrink: 0; }
+.site-footer-license { color: #a1a1aa; }
+.site-footer-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: .2rem; white-space: nowrap; }
+.site-footer-policy-link { color: #d4d4d8; font-size: .875rem; font-weight: 600; text-decoration: underline; text-underline-offset: .2em; transition: color .2s ease; }
+.site-footer-policy-link:hover { color: #fff; }
+.site-footer-policy-link:focus-visible { outline: 2px solid var(--afw-accent); outline-offset: 3px; border-radius: .25rem; }
+.site-footer-bottomline { color: #a1a1aa; font-size: .75rem; line-height: 1.25rem; padding: 0 1rem .75rem; text-align: right; }
+.site-footer-badge { display: inline-flex; align-items: center; gap: .65rem; flex-shrink: 0; padding: .45rem .95rem .45rem .55rem; border: 1px solid #e4e4e7; border-radius: 9999px; background: #fff; text-decoration: none; box-shadow: 0 1px 2px rgba(0, 0, 0, .05); transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+.site-footer-badge:hover { border-color: #d4d4d8; box-shadow: 0 2px 8px rgba(0, 0, 0, .1); transform: translateY(-1px); }
+.site-footer-badge:focus-visible { outline: 2px solid var(--afw-accent); outline-offset: 3px; }
+.site-footer-badge-mark { display: block; flex-shrink: 0; }
+.site-footer-badge-copy { display: flex; flex-direction: column; gap: .05rem; line-height: 1.1; }
+.site-footer-badge-muted { font-size: .5625rem; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: #52525b; }
+.site-footer-badge-brand { font-size: .9375rem; font-weight: 700; letter-spacing: -.02em; color: #000; }
+.site-footer-badge-accent { color: var(--afw-accent); }
 
 @media (max-width: 760px) {
   .diff-lab { padding: 2rem 1rem 4rem; }
