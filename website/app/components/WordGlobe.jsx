@@ -30,7 +30,10 @@ export default function WordGlobe() {
     ];
 
     const points = labels.map((name, i) => {
-      const y = 1 - (i / (labels.length - 1)) * 2;
+      // (2i+1)/n keeps the rows off the exact poles — with i/(n-1) the first
+      // and last labels sit at ±1, where a rotateY spin cannot move them, so
+      // they hung frozen at the top/bottom of the sphere.
+      const y = 1 - (2 * i + 1) / labels.length;
       const radius = Math.sqrt(1 - y * y);
       const angle = i * Math.PI * (3 - Math.sqrt(5));
 
