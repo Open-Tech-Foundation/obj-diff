@@ -407,7 +407,6 @@ export default function Home() {
           <p>Explore a structural diff engine built for real JavaScript—not just JSON.</p>
           <div class="hero-actions">
             <a class="button button-primary" href="/docs">Get started</a>
-            <a class="button button-secondary" href="/docs/benchmarks">See the benchmarks</a>
           </div>
         </div>
         <div class="hero-globe">
