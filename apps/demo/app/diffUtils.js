@@ -1,5 +1,5 @@
 import { diff, patch } from "@opentf/obj-diff";
-import { strReplace, isTypedArray } from "@opentf/std";
+import { stringReplace, isTypedArray } from "@opentf/std";
 
 export const scenarios = [
   {
@@ -71,10 +71,10 @@ export function replacer(key, value) {
 export function getDiffResults(diffResult) {
   if (!diffResult) return "";
   let out = JSON.stringify(diffResult, replacer, 4);
-  out = strReplace(out, `"__INTERNAL__UNDEFINED"`, "undefined", { all: true });
+  out = stringReplace(out, `"__INTERNAL__UNDEFINED"`, "undefined", { all: true });
   const test = /"__INTERNAL__BIGINT__(\d+)n"/;
   function convert(str, p1) { return `${p1}n`; }
-  out = strReplace(out, test, convert, { all: true });
+  out = stringReplace(out, test, convert, { all: true });
   return out;
 }
 

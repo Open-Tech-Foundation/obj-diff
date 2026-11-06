@@ -1,0 +1,5 @@
+# Standalone pnpm project (not a member of the repository workspace):
+# esdev loads plugins only from inside the project root, and a workspace
+# install keeps them in the repository's node_modules/.pnpm, outside this folder.
+packages:
+  - "."

@@ -1,4 +1,4 @@
-import { untracked } from "@opentf/web";
+import { untracked } from "@opentf/afw";
 import { diff, patch, serialize } from "@opentf/obj-diff";
 import { stringReplace, isTypedArray } from "@opentf/std";
 import { EditorView, basicSetup } from "codemirror";
@@ -278,6 +278,12 @@ function getPatch(code, d) {
   if (source === INVALID_INPUT) return null;
   try { return patch(source, d); } catch (e) { return null; }
 }
+
+// The homepage keeps its own title rather than inheriting a site template, and
+// the layout's site-wide description covers it.
+export const metadata = {
+  title: "obj-diff — Fast, accurate JavaScript object diffing & patching",
+};
 
 export default function Home() {
   let obj1Val = $state(scenarios[0].before);

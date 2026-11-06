@@ -1,0 +1,8 @@
+{
+  "plugins": ["@opentf/esdev-plugin-afw"],
+  "build": {
+    "targets": {
+      "web": { "entry": "index.html", "outdir": "dist" }
+    }
+  }
+}

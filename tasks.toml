@@ -4,7 +4,7 @@
 members = ["apps/*", "packages/*", "website"]
 
 [tasks."website:dev"]
-run = "otfw dev"
+run = "esdev start"
 dir = "website"
 
 [tasks.test]
@@ -36,16 +36,12 @@ run = "esdev test packages/obj-diff --setup=./setup.ts"
 env = { TEST_DIST = "true" }
 deps = ["library:build"]
 
-[tasks."demo:dev"]
-run = "otfw dev"
-dir = "apps/demo"
-
-[tasks."demo:build"]
-run = "otfw build"
+[tasks.demo]
+run = "esdev start"
 dir = "apps/demo"
 
 [tasks."website:build"]
-run = "otfw build --ssg"
+run = "esdev build --minify"
 dir = "website"
 
 [tasks."benchmarks:collect"]

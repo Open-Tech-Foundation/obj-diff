@@ -1,4 +1,4 @@
-import { defineDocsConfig } from "@opentf/web-docs/config";
+import { defineDocsConfig } from "@opentf/afw-docs/config";
 
 export default defineDocsConfig({
   // Canonical site origin — required for production builds.
@@ -15,11 +15,9 @@ export default defineDocsConfig({
       { label: "Docs", href: "/docs" },
     ],
     github: "https://github.com/Open-Tech-Foundation/obj-diff",
-    search: { provider: "pagefind" },
-    footer: {
-      text: "MIT 2026 © Open Tech Foundation",
-      links: [{ label: "Open Tech Foundation", href: "https://opentechf.org", external: true }],
-    },
+    search: { provider: "afw" },
+    // Footer chrome is rendered by components/SiteFooter.jsx.
+    footer: {},
     // Per-page "Last updated" (from git) and "Edit this page" (GitHub). Set repoUrl to
     // your repository root; links use <repoUrl>/edit/main/<source-path>.
     repoUrl: "https://github.com/Open-Tech-Foundation/obj-diff",

@@ -9,7 +9,8 @@
       name="description"
       content="A structural diff and patch engine for real JavaScript values — Map, Set, Date, BigInt, TypedArray, cycles, and sparse arrays — not just JSON."
     />
-    <!-- Apply the saved/system theme before first paint to avoid a flash. -->
+    <!-- Apply the saved/system theme before first paint to avoid a flash
+         (the afw-docs theme keys dark mode off `data-theme` on <html>). -->
     <script>
       (function () {
         try {
@@ -20,9 +21,10 @@
         } catch (e) {}
       })();
     </script>
-    <link rel="stylesheet" href="/app/global.css" />
+    <link rel="stylesheet" href="./app/global.css" />
   </head>
   <body>
     <div id="app"></div>
+    <script type="module" src="./entry.js"></script>
   </body>
 </html>

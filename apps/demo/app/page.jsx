@@ -1,4 +1,4 @@
-import { untracked } from "@opentf/web";
+import { untracked } from "@opentf/afw";
 import { diff, patch, serialize, deserialize } from "@opentf/obj-diff";
 import { EditorView, basicSetup } from "codemirror";
 import { javascript } from "@codemirror/lang-javascript";

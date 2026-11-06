@@ -4,12 +4,9 @@ node_modules
 # build output
 dist
 
-# toolchain working dirs (dev server + temp build dirs)
+# toolchain working dirs (dev server + prerender bundle)
 .dev
-.otfw
-.otfw-ssg
-.otfw-api
-.otfw-api-build
+.ssg
 
 # environment files
 .env

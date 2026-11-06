@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
     "jsx": "preserve",
-    "jsxImportSource": "@opentf/web"
+    "jsxImportSource": "@opentf/afw"
   }
 }
