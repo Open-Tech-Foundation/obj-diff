@@ -12,7 +12,14 @@ export const metadata = {
   openGraph: {
     siteName: "obj-diff",
     type: "website",
+    image: "/assets/og.png",
   },
+  // Share-card extras renderHead doesn't model natively (og:image:width/height/alt).
+  meta: [
+    { property: "og:image:width", content: "1200" },
+    { property: "og:image:height", content: "630" },
+    { property: "og:image:alt", content: "obj-diff — Fast, accurate JavaScript object diffing & patching" },
+  ],
 };
 
 export default function Layout(props) {

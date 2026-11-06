@@ -280,9 +280,25 @@ function getPatch(code, d) {
 }
 
 // The homepage keeps its own title rather than inheriting a site template, and
-// the layout's site-wide description covers it.
+// the layout's site-wide description covers it. jsonLd targets rich results for
+// the site as a whole (docs pages get BreadcrumbList from afw-docs).
 export const metadata = {
-  title: "obj-diff — Fast, accurate JavaScript object diffing & patching",
+  title: "obj-diff — Fast JavaScript object diffing & patching",
+  jsonLd: {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "obj-diff",
+    url: "https://obj-diff.opentechf.org/",
+    description:
+      "A structural diff and patch engine for real JavaScript values — not just JSON.",
+    inLanguage: "en",
+    license: "https://opensource.org/license/mit",
+    publisher: {
+      "@type": "Organization",
+      name: "Open Tech Foundation",
+      url: "https://opentechf.org",
+    },
+  },
 };
 
 export default function Home() {
