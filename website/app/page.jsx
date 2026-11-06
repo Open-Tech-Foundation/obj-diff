@@ -392,7 +392,7 @@ export default function Home() {
           <a class="button button-secondary" href="/docs/benchmarks">See the benchmarks</a>
         </div>
         <div class="capability-row" aria-label="Supported JavaScript values">
-          <span>Map</span><span>Set</span><span>Date</span><span>BigInt</span><span>TypedArray</span><span>Cycles</span><span>Sparse arrays</span>
+          <span>Map</span><span>Set</span><span>Date</span><span>BigInt</span><span>TypedArray</span><span>Cycles</span><span>Sparse arrays</span><span>Temporal</span>
         </div>
       </section>
 
@@ -450,6 +450,11 @@ export default function Home() {
           <div class="results-content">
             {activeTab === "visual" && (
               <div class="diff-overview">
+                <div class="op-legend">
+                  <span><i class="op-swatch kind-added"></i>Added</span>
+                  <span><i class="op-swatch kind-changed"></i>Changed</span>
+                  <span><i class="op-swatch kind-removed"></i>Removed</span>
+                </div>
                 {(parsedA !== INVALID_INPUT && parsedB !== INVALID_INPUT) ? (
                   <div class="diff-tree" aria-label="Visual diff of the two objects">
                     {buildDiffRows(parsedA, parsedB).map((d) => (
@@ -460,11 +465,6 @@ export default function Home() {
                     ))}
                   </div>
                 ) : <div class="empty-state">Fix both inputs to see the visual diff.</div>}
-                <div class="op-legend">
-                  <span><i class="op-swatch kind-added"></i>Added</span>
-                  <span><i class="op-swatch kind-changed"></i>Changed</span>
-                  <span><i class="op-swatch kind-removed"></i>Removed</span>
-                </div>
               </div>
             )}
             {activeTab === "changes" && (
