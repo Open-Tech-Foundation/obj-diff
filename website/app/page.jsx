@@ -4,6 +4,7 @@ import { stringReplace, isTypedArray } from "@opentf/std";
 import { EditorView, basicSetup } from "codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { oneDark } from "@codemirror/theme-one-dark";
+import WordGlobe from "./components/WordGlobe.jsx";
 
 const scenarios = [
   {
@@ -400,15 +401,17 @@ export default function Home() {
   return (
     <main class="diff-lab">
       <section class="lab-hero">
-        <div class="eyebrow">JavaScript object diff</div>
-        <h1>See every change. <span>Prove every patch.</span></h1>
-        <p>Explore a structural diff engine built for real JavaScript—not just JSON.</p>
-        <div class="hero-actions">
-          <a class="button button-primary" href="/docs">Get started</a>
-          <a class="button button-secondary" href="/docs/benchmarks">See the benchmarks</a>
+        <div class="hero-copy">
+          <div class="eyebrow">JavaScript object diff</div>
+          <h1>See every change. <span>Prove every patch.</span></h1>
+          <p>Explore a structural diff engine built for real JavaScript—not just JSON.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="/docs">Get started</a>
+            <a class="button button-secondary" href="/docs/benchmarks">See the benchmarks</a>
+          </div>
         </div>
-        <div class="capability-row" aria-label="Supported JavaScript values">
-          <span>Map</span><span>Set</span><span>Date</span><span>BigInt</span><span>TypedArray</span><span>Cycles</span><span>Sparse arrays</span><span>Temporal</span>
+        <div class="hero-globe">
+          <WordGlobe />
         </div>
       </section>
 

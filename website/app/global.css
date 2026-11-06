@@ -50,9 +50,14 @@ body {
 }
 
 .lab-hero {
-  max-width: 48rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2rem 3rem;
+  align-items: center;
   padding: 3rem 0 5.5rem;
 }
+.hero-copy { max-width: 44rem; container-type: inline-size; }
+.hero-globe { justify-self: center; }
 
 .eyebrow, .section-kicker {
   color: var(--lab-blue);
@@ -65,7 +70,7 @@ body {
 .lab-hero h1 {
   max-width: 44rem;
   margin: .8rem 0 1.1rem;
-  font-size: clamp(2.65rem, 7vw, 5.5rem);
+  font-size: clamp(2.5rem, 12.5cqw, 5.5rem);
   letter-spacing: -.065em;
   line-height: .95;
 }
@@ -78,8 +83,14 @@ body {
 .button-primary:hover { opacity: .9; }
 .button-secondary { border: 1px solid var(--lab-line); background: var(--lab-panel); color: var(--lab-ink); }
 .button-secondary:hover { border-color: var(--lab-blue); }
-.capability-row { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: 2.4rem; }
-.capability-row span { border: 1px solid var(--lab-line); border-radius: 100px; background: #fff; color: var(--lab-muted); font-family: var(--afw-mono); font-size: .75rem; padding: .35rem .65rem; }
+/* Word globe — the ball, wireframe, and tags are drawn on the canvas by
+   WordGlobe.jsx; this wrapper only handles layout and pointer feel. The host
+   must not be inline (AFW components measure 0×0 as inline boxes). */
+.afw-word-globe { display: block; }
+.word-globe-block { display: grid; justify-items: center; gap: .55rem; }
+.word-globe { position: relative; width: min(100%, 30rem); aspect-ratio: 1; cursor: grab; touch-action: none; user-select: none; }
+.word-globe:active { cursor: grabbing; }
+.word-globe canvas { width: 100%; height: 100%; display: block; }
 
 .scenario-section { display: grid; grid-template-columns: 17rem 1fr; gap: 2rem; align-items: start; margin-bottom: 2rem; }
 .scenario-section h2, .workspace-heading h2 { margin: .35rem 0 0; font-size: 1.55rem; letter-spacing: -.035em; }
@@ -194,7 +205,6 @@ body {
 .table-scroll { overflow-x: auto; }
 
 [data-theme="dark"] .button-secondary,
-[data-theme="dark"] .capability-row span,
 [data-theme="dark"] .copy-button,
 [data-theme="dark"] .change-card {
   background: var(--lab-panel);
@@ -239,6 +249,11 @@ body {
 .site-footer-badge-muted { font-size: .5625rem; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: #52525b; }
 .site-footer-badge-brand { font-size: .9375rem; font-weight: 700; letter-spacing: -.02em; color: #000; }
 .site-footer-badge-accent { color: var(--afw-accent); }
+
+@media (max-width: 960px) {
+  .lab-hero { grid-template-columns: 1fr; }
+  .hero-globe { justify-self: center; }
+}
 
 @media (max-width: 760px) {
   .diff-lab { padding: 2rem 1rem 4rem; }
