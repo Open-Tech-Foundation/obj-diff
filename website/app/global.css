@@ -2,6 +2,12 @@
 @import "@opentf/afw-docs/theme";
 
 :root {
+  /* Site theme primary = the hero accent ("Prove every patch."). */
+  --afw-accent: #7c3aed;
+  --afw-accent-soft: rgba(124, 58, 237, 0.12);
+  --afw-selection: rgba(124, 58, 237, 0.22);
+  --afw-code-text: #7c3aed;
+
   --lab-ink: #111827;
   --lab-muted: #64748b;
   --lab-line: #dbe4ef;
@@ -15,6 +21,11 @@
 }
 
 [data-theme="dark"] {
+  --afw-accent: #b69cff;
+  --afw-accent-soft: rgba(182, 156, 255, 0.16);
+  --afw-selection: rgba(182, 156, 255, 0.3);
+  --afw-code-text: #b69cff;
+
   --lab-ink: #e5edf8;
   --lab-muted: #9aa9bd;
   --lab-line: #263548;

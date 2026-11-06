@@ -7,7 +7,6 @@ export default defineDocsConfig({
   docs: {
     title: "obj-diff",
     version: "v0.18.0",
-    logo: "/assets/Logo.svg",
     homeUrl: "/",
     dir: "docs",
     nav: [
