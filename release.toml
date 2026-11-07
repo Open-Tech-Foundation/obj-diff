@@ -11,12 +11,20 @@ github_release_notes = "curated-changelog"
 [publish.ignore_paths]
 "@opentf/obj-diff" = []
 
+# esdev builds the package; the publish job needs it before `command` runs.
+[[setup]]
+jobs = ["publish"]
+run = [
+    "curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/ES-Runtime/main/install.sh | bash -s -- --only=esdev",
+    'echo "$HOME/.es-runtime/bin" >> "$GITHUB_PATH"',
+]
+
 [[package]]
 name = "@opentf/obj-diff"
 adapter = "npm"
 mode = "publish"
 matrix = false
-command = "npm run build"
+command = "esdev build --target=library"
 artifacts = ""
 manifest = "packages/obj-diff/package.json"
 provenance = true

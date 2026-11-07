@@ -1,4 +1,4 @@
-# Generated from release.toml by `release` · sha256:6e4b52acafba5aec65f6fbffdc55ecf86be0726879daf833ad9b30b8a0bd3927
+# Generated from release.toml by `release` · sha256:26f699712a0976b1755f3e09dc81992843841cb4b53a5305dccb56b0dc2729bd
 name: Release
 
 on:
@@ -55,8 +55,13 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
       - run: pnpm install --frozen-lockfile
+      - name: Setup
+        shell: bash
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/ES-Runtime/main/install.sh | bash -s -- --only=esdev
+          echo "$HOME/.es-runtime/bin" >> "$GITHUB_PATH"
       - name: Build @opentf/obj-diff
-        run: npm run build
+        run: esdev build --target=library
         working-directory: packages/obj-diff
       - name: Install release
         shell: bash
@@ -108,6 +113,11 @@ jobs:
             cp "$(command -v otf-release)" "$RUNNER_TEMP/release-cli/release"
             echo "$RUNNER_TEMP/release-cli" >> "$GITHUB_PATH"
           fi
+      - name: Setup
+        shell: bash
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/ES-Runtime/main/install.sh | bash -s -- --only=esdev
+          echo "$HOME/.es-runtime/bin" >> "$GITHUB_PATH"
       - name: Publish
         run: release publish --exclude-package @opentf/obj-diff
         env:
