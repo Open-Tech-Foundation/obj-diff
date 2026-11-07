@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.19.1] - 2026-11-07
+
 ### Added
 - The published package now ships the repository's MIT `LICENSE` file at the package root; previously the tarball carried only the `"license": "MIT"` field in `package.json` with no license text.
 
