@@ -39,6 +39,9 @@ pnpm add @opentf/obj-diff
 # npm
 npm install @opentf/obj-diff
 
+# yarn
+yarn add @opentf/obj-diff
+
 # Deno
 deno add @opentf/obj-diff
 ```
