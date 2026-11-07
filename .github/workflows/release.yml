@@ -1,3 +1,4 @@
+# Generated from release.toml by `release` · sha256:6e4b52acafba5aec65f6fbffdc55ecf86be0726879daf833ad9b30b8a0bd3927
 name: Release
 
 on:
@@ -22,15 +23,23 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Install otf-release
+      - name: Install release
         shell: bash
         env:
-          OTF_RELEASE_VERSION: v0.38.0
-        run: curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/release/v0.38.0/install.sh | bash
+          OTF_RELEASE_VERSION: v0.42.0
+        run: curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/release/v0.42.0/install.sh | bash
+      - name: Expose release command
+        shell: bash
+        run: |
+          if ! command -v release >/dev/null 2>&1; then
+            mkdir -p "$RUNNER_TEMP/release-cli"
+            cp "$(command -v otf-release)" "$RUNNER_TEMP/release-cli/release"
+            echo "$RUNNER_TEMP/release-cli" >> "$GITHUB_PATH"
+          fi
       - id: check
         run: |
-          echo "should_release=$(otf-release check --exclude-package @opentf/obj-diff)" >> "$GITHUB_OUTPUT"
-          echo "release_opentf_obj_diff=$(otf-release check --package @opentf/obj-diff)" >> "$GITHUB_OUTPUT"
+          echo "should_release=$(release check --exclude-package @opentf/obj-diff)" >> "$GITHUB_OUTPUT"
+          echo "release_opentf_obj_diff=$(release check --package @opentf/obj-diff)" >> "$GITHUB_OUTPUT"
 
   publish-opentf-obj-diff:
     needs: [check-release]
@@ -41,8 +50,6 @@ jobs:
         with:
           fetch-depth: 0
       - uses: pnpm/action-setup@v4
-        with:
-          version: latest
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -51,13 +58,21 @@ jobs:
       - name: Build @opentf/obj-diff
         run: npm run build
         working-directory: packages/obj-diff
-      - name: Install otf-release
+      - name: Install release
         shell: bash
         env:
-          OTF_RELEASE_VERSION: v0.38.0
-        run: curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/release/v0.38.0/install.sh | bash
+          OTF_RELEASE_VERSION: v0.42.0
+        run: curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/release/v0.42.0/install.sh | bash
+      - name: Expose release command
+        shell: bash
+        run: |
+          if ! command -v release >/dev/null 2>&1; then
+            mkdir -p "$RUNNER_TEMP/release-cli"
+            cp "$(command -v otf-release)" "$RUNNER_TEMP/release-cli/release"
+            echo "$RUNNER_TEMP/release-cli" >> "$GITHUB_PATH"
+          fi
       - name: Publish
-        run: otf-release publish --package @opentf/obj-diff
+        run: release publish --package @opentf/obj-diff
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -75,20 +90,26 @@ jobs:
         with:
           fetch-depth: 0
       - uses: pnpm/action-setup@v4
-        with:
-          version: latest
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
       - run: pnpm install --frozen-lockfile
-      - name: Install otf-release
+      - name: Install release
         shell: bash
         env:
-          OTF_RELEASE_VERSION: v0.38.0
-        run: curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/release/v0.38.0/install.sh | bash
+          OTF_RELEASE_VERSION: v0.42.0
+        run: curl -fsSL https://raw.githubusercontent.com/Open-Tech-Foundation/release/v0.42.0/install.sh | bash
+      - name: Expose release command
+        shell: bash
+        run: |
+          if ! command -v release >/dev/null 2>&1; then
+            mkdir -p "$RUNNER_TEMP/release-cli"
+            cp "$(command -v otf-release)" "$RUNNER_TEMP/release-cli/release"
+            echo "$RUNNER_TEMP/release-cli" >> "$GITHUB_PATH"
+          fi
       - name: Publish
-        run: otf-release publish --exclude-package @opentf/obj-diff
+        run: release publish --exclude-package @opentf/obj-diff
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
