@@ -6,7 +6,7 @@
         "lib": true,
         "outdir": "dist",
         "format": ["esm", "cjs"],
-        "assets": ["README.md"]
+        "assets": ["README.md", "LICENSE"]
       }
     }
   }
