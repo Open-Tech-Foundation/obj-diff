@@ -1,6 +1,6 @@
 import { untracked } from "@opentf/afw";
 import { diff, patch, serialize } from "@opentf/obj-diff";
-import { stringReplace, isTypedArray } from "@opentf/std";
+import { stringReplace, isTypedArray, idleRun } from "@opentf/std";
 import { EditorView, basicSetup } from "codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { oneDark } from "@codemirror/theme-one-dark";
@@ -314,11 +314,22 @@ export default function Home() {
   let obj1Val = $state(scenarios[0].before);
   let obj2Val = $state(scenarios[0].after);
 
-  let parsedA = $derived(safeEval(obj1Val));
-  let parsedB = $derived(safeEval(obj2Val));
+  // The editors write the raw strings above on every keystroke; the output
+  // panels read the debounced copies below (js-std's idleRun — trailing edge),
+  // so a burst of typing doesn't re-run eval/diff/patch/serialize per character.
+  let live1 = $state(scenarios[0].before);
+  let live2 = $state(scenarios[0].after);
+  const publish = idleRun((a, b) => { live1 = a; live2 = b; }, 200);
+  $effect(() => {
+    publish(obj1Val, obj2Val);
+    return () => publish.cancel();
+  });
+
+  let parsedA = $derived(safeEval(live1));
+  let parsedB = $derived(safeEval(live2));
 
   let diffResult = $derived(getDiff(parsedA, parsedB));
-  let patchResult = $derived(getPatch(obj1Val, diffResult));
+  let patchResult = $derived(getPatch(live1, diffResult));
   let wireResult = $derived(getWire(diffResult));
   let changeSummary = $derived(() => {
     const count = (kind) => diffResult.filter((item) => opMeta(item.type).kind === kind).length;
@@ -338,7 +349,7 @@ export default function Home() {
     if (parsedA === INVALID_INPUT || parsedB === INVALID_INPUT)
       return { valid: false, label: "Fix both inputs to run the patch proof" };
     try {
-      const patched = patch(safeEval(obj1Val), diffResult);
+      const patched = patch(safeEval(live1), diffResult);
       return diff(patched, parsedB).length === 0
         ? { valid: true, label: "Patch reconstructs the target" }
         : { valid: false, label: "Patch result differs from target" };
@@ -348,8 +359,11 @@ export default function Home() {
   });
 
   function loadScenario(scenario) {
+    publish.cancel(); // drop any pending keystroke publish
     obj1Val = scenario.before;
     obj2Val = scenario.after;
+    live1 = scenario.before; // scenario switches update the output immediately
+    live2 = scenario.after;
     selectedPath = "";
   }
 
