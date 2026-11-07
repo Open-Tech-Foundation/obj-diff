@@ -85,7 +85,21 @@ function replacer(key, value) {
 
 function getDiffResults(diffResult) {
   if (!diffResult) return "";
-  let out = JSON.stringify(diffResult, replacer, 4);
+  let out;
+  try {
+    out = JSON.stringify(diffResult, replacer, 4);
+  } catch (error) {
+    // A patched value can be circular (the Circular objects example) — mark
+    // repeated references instead of letting JSON.stringify throw.
+    const seen = new WeakSet();
+    out = JSON.stringify(diffResult, (key, value) => {
+      if (typeof value === "object" && value !== null) {
+        if (seen.has(value)) return "[Circular]";
+        seen.add(value);
+      }
+      return replacer(key, value);
+    }, 4);
+  }
   out = stringReplace(out, `"__INTERNAL__UNDEFINED"`, "undefined", { all: true });
   const test = /"__INTERNAL__BIGINT__(\d+)n"/;
   function convert(str, p1) { return `${p1}n`; }
