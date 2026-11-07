@@ -21,8 +21,8 @@ importers:
         specifier: ^0.34.0
         version: 0.34.0(@opentf/afw@0.36.0)
       '@opentf/obj-diff':
-        specifier: ^0.18.0
-        version: 0.18.0
+        specifier: ^0.19.0
+        version: 0.19.0
       '@opentf/std':
         specifier: ^0.20.0
         version: 0.20.0
@@ -493,8 +493,8 @@ packages:
     resolution: {integrity: sha512-lWDPhRMfkQ3dQEGuyf9DhiW2Om+lTG9KKz5O5UPvNKkyaSY2nUOcmTYc9bRBySuGs7EPOgc6+hTbYZppRu1NeA==}
     engines: {esdev: '>=0.16.0'}
 
-  '@opentf/obj-diff@0.18.0':
-    resolution: {integrity: sha512-mi00/ikz3M41u3D8IO9kcfwaYMhy+2DDaU5BCrBKfAhsa+4kmUzudtyD50woKM3rPrueIK5mC0mwXqrg9TTkZw==}
+  '@opentf/obj-diff@0.19.0':
+    resolution: {integrity: sha512-grFcGciSyCjToGIb+hX+xpdxu3SBIeBzonqeaJxQOCoYvYR4N7ijEgM6w1s3f20PKRipxMF7TBs6C7qQHrD+Jw==}
     engines: {node: '>=16.20.2'}
 
   '@opentf/serialize@0.1.0':
@@ -973,8 +973,9 @@ snapshots:
       '@opentf/afw-build': 0.3.0
       '@opentf/afw-compiler': 0.23.0
 
-  '@opentf/obj-diff@0.18.0':
+  '@opentf/obj-diff@0.19.0':
     dependencies:
+      '@opentf/serialize': 0.1.0
       '@opentf/std': 0.14.1
 
   '@opentf/serialize@0.1.0': {}

@@ -8,3 +8,5 @@ packages:
 allowBuilds:
   esbuild: true
   workerd: true
+minimumReleaseAgeExclude:
+  - '@opentf/obj-diff@0.19.0'
