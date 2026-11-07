@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-11-07
+
 ### Added
 - `SerializeError` (from [`@opentf/serialize`](https://github.com/Open-Tech-Foundation/js-serialize)) is re-exported, so callers can branch on the machine-readable `code` carried by every serialization failure.
 
