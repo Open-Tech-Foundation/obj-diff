@@ -59,8 +59,16 @@ const scenarios = [
     id: "circular",
     label: "Circular objects",
     detail: "Cycle-safe comparison",
-    before: `(() => { const item = { id: 1, status: 'draft' }; item.self = item; return item; })()`,
-    after: `(() => { const item = { id: 1, status: 'published' }; item.self = item; return item; })()`,
+    before: `(() => {
+  const item = { id: 1, status: 'draft' };
+  item.self = item;
+  return item;
+})()`,
+    after: `(() => {
+  const item = { id: 1, status: 'published' };
+  item.self = item;
+  return item;
+})()`,
   },
 ];
 
