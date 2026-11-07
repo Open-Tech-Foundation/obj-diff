@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Added
+- The published package now ships the repository's MIT `LICENSE` file at the package root; previously the tarball carried only the `"license": "MIT"` field in `package.json` with no license text.
+
+### Fixed
+- The README rendered on npm now matches the repository README — the package copy had drifted (stale header with the old tagline layout and no website/docs/API nav row), so npmjs.com showed an outdated front page.
+- Removed the duplicate `dist/LICENSE` build asset: the license file appears exactly once in the tarball (at the package root, where npm expects it) instead of both there and inside `dist/`.
+
 ## [0.19.0] - 2026-11-07
 
 ### Added
