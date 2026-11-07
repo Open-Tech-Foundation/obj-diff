@@ -3,8 +3,15 @@
   // Only the built site (./dist) is uploaded — NOT the whole folder, so
   // node_modules (workerd's 122 MiB binary) is never sent to the 25 MiB cap.
   "name": "obj-diff",
-  "compatibility_date": "2024-11-01",
+  "compatibility_date": "2026-06-15",
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist",
+    // Every route is prerendered to <path>/index.html and the sitemap and
+    // canonicals name it without a trailing slash: serve /docs as it is
+    // listed, rather than redirecting it to /docs/.
+    "html_handling": "drop-trailing-slash",
+    // An unknown URL answers 404 with dist/404.html, not a 200 copy of the
+    // homepage that search engines would index as a duplicate.
+    "not_found_handling": "404-page"
   }
 }

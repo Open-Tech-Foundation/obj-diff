@@ -3,3 +3,8 @@
 # install keeps them in the repository's node_modules/.pnpm, outside this folder.
 packages:
   - "."
+# wrangler's local runtime and its bundler ship platform binaries; pnpm declines
+# lifecycle scripts until each is named here.
+allowBuilds:
+  esbuild: true
+  workerd: true

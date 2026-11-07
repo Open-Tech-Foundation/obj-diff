@@ -19,6 +19,7 @@
   "devDependencies": {
     "@opentf/afw-cli": "^1.35.0",
     "@opentf/esdev-plugin-afw": "^0.7.1",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.3",
+    "wrangler": "^4.147.0"
   }
 }
