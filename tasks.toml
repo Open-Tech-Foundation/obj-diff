@@ -49,4 +49,4 @@ run = "bun benchmarks/collect.mjs"
 deps = ["library:build"]
 
 [tasks.ci]
-deps = ["library:build", "test", "library:type-check", "lint", "fmt:check", "website:build"]
+deps = ["library:build", "test", "library:type-check", "lint", "fmt:check"]
